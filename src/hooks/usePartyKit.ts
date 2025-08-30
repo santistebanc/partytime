@@ -76,7 +76,6 @@ export function usePartyKit() {
             break;
           case 'gameStateUpdated':
           case 'nextQuestion':
-          case 'questionsGenerated':
             setRoomState(prev => ({
               ...prev,
               gameState: data.gameState
@@ -99,6 +98,24 @@ export function usePartyKit() {
             setRoomState(prev => ({
               ...prev,
               gameState: data.gameState
+            }));
+            break;
+          case 'questionsGenerated':
+            setRoomState(prev => ({
+              ...prev,
+              gameState: {
+                ...prev.gameState,
+                questions: data.questions
+              }
+            }));
+            break;
+          case 'questionUpdated':
+            setRoomState(prev => ({
+              ...prev,
+              gameState: {
+                ...prev.gameState,
+                questions: data.questions
+              }
             }));
             break;
         }
@@ -153,6 +170,14 @@ export function usePartyKit() {
     sendMessage('generateQuestions', { topics });
   }, [sendMessage]);
 
+  const toggleRole = useCallback((role: 'isPlayer' | 'isNarrator' | 'isAdmin', targetUserId: string) => {
+    sendMessage('toggleRole', { role, targetUserId });
+  }, [sendMessage]);
+
+  const toggleQuestionBlur = useCallback((questionId: string) => {
+    sendMessage('toggleQuestionBlur', { questionId });
+  }, [sendMessage]);
+
   const joinRoom = useCallback((newRoomId: string) => {
     setRoomId(newRoomId);
   }, []);
@@ -174,6 +199,8 @@ export function usePartyKit() {
     submitAnswer,
     nextQuestion,
     generateQuestions,
+    toggleRole,
+    toggleQuestionBlur,
     joinRoom,
     createRoom
   };

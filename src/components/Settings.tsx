@@ -16,6 +16,8 @@ import {
 } from 'lucide-react';
 import { usePartyKit } from '../hooks/usePartyKit';
 import { useTheme } from '../contexts/ThemeContext';
+import { QuestionEditor } from './QuestionEditor';
+import { llmService } from '../services/llmService';
 import type { Question } from '../../party/server';
 
 export function Settings() {
@@ -26,6 +28,7 @@ export function Settings() {
   const [newTopic, setNewTopic] = useState('');
   const [editingQuestion, setEditingQuestion] = useState<string | null>(null);
   const [editingField, setEditingField] = useState<string | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
 
   const handleUpdateDisplayName = () => {
     if (displayName.trim() && displayName !== user?.name) {
@@ -44,23 +47,36 @@ export function Settings() {
     setTopics(topics.filter(t => t !== topic));
   };
 
-  const handleGenerateQuestions = () => {
-    if (topics.length > 0) {
+  const handleGenerateQuestions = async () => {
+    if (topics.length === 0) return;
+    
+    setIsGenerating(true);
+    try {
+      const response = await llmService.generateQuestions({
+        topics,
+        count: 5,
+        difficulty: 'medium'
+      });
+      
+      if (response.success && response.questions.length > 0) {
+        // Add new questions to existing ones
+        const updatedQuestions = [...roomState.gameState.questions, ...response.questions];
+        updateGameState({ questions: updatedQuestions });
+      } else {
+        console.error('Failed to generate questions:', response.error);
+        // Fallback to simple questions
+        generateQuestions(topics);
+      }
+    } catch (error) {
+      console.error('Error generating questions:', error);
+      // Fallback to simple questions
       generateQuestions(topics);
+    } finally {
+      setIsGenerating(false);
     }
   };
 
-  const toggleQuestionBlur = (questionId: string) => {
-    const updatedQuestions = roomState.gameState.questions.map(q => 
-      q.id === questionId ? { ...q, isBlurred: !q.isBlurred } : q
-    );
-    updateGameState({ questions: updatedQuestions });
-  };
 
-  const removeQuestion = (questionId: string) => {
-    const updatedQuestions = roomState.gameState.questions.filter(q => q.id !== questionId);
-    updateGameState({ questions: updatedQuestions });
-  };
 
   const startGame = () => {
     if (roomState.gameState.questions.length > 0) {
@@ -206,13 +222,22 @@ export function Settings() {
 
             <motion.button
               onClick={handleGenerateQuestions}
-              disabled={topics.length === 0}
-              className="mt-3 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={topics.length === 0 || isGenerating}
+              className="mt-3 px-4 py-2 bg-accent text-white rounded-lg hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center space-x-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Sparkles size={16} className="mr-2" />
-              Generate Questions
+              {isGenerating ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  <span>Generating...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles size={16} />
+                  <span>Generate Questions</span>
+                </>
+              )}
             </motion.button>
           </div>
 
@@ -253,69 +278,11 @@ export function Settings() {
           </div>
 
           {/* Questions List */}
-          <div>
-            <h3 className="text-lg font-medium text-text mb-3">Questions ({roomState.gameState.questions.length})</h3>
-            <div className="space-y-3">
-              {roomState.gameState.questions.map((question, index) => (
-                <motion.div
-                  key={question.id}
-                  className="p-4 border border-primary/20 rounded-lg bg-background"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                >
-                  <div className="flex items-start justify-between mb-3">
-                    <span className="text-sm font-medium text-textSecondary">Question {index + 1}</span>
-                    <div className="flex space-x-2">
-                      <button
-                        onClick={() => toggleQuestionBlur(question.id)}
-                        className="p-1 hover:bg-primary/10 rounded transition-colors"
-                      >
-                        {question.isBlurred ? <Eye size={16} /> : <EyeOff size={16} />}
-                      </button>
-                      <button
-                        onClick={() => removeQuestion(question.id)}
-                        className="p-1 hover:bg-error/10 rounded transition-colors text-error"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                  
-                  <div className="space-y-2">
-                    <div className="p-2 bg-surface rounded border border-primary/10">
-                      <span className="text-sm font-medium text-text">Q: </span>
-                      <span className={`text-sm ${question.isBlurred ? 'blur-sm' : ''}`}>
-                        {question.question}
-                      </span>
-                    </div>
-                    
-                    <div className="p-2 bg-surface rounded border border-primary/10">
-                      <span className="text-sm font-medium text-text">A: </span>
-                      <span className={`text-sm ${question.isBlurred ? 'blur-sm' : ''}`}>
-                        {question.answer}
-                      </span>
-                    </div>
-                    
-                    <div className="p-2 bg-surface rounded border border-primary/10">
-                      <span className="text-sm font-medium text-text">Options: </span>
-                      <div className="mt-1 space-y-1">
-                        {question.options.map((option, optIndex) => (
-                          <div key={optIndex} className="text-sm text-textSecondary">
-                            {String.fromCharCode(65 + optIndex)}. {option}
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                    
-                    <div className="text-sm text-accent font-medium">
-                      Points: {question.points}
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </div>
+          <QuestionEditor
+            questions={roomState.gameState.questions}
+            onUpdateQuestions={(questions) => updateGameState({ questions })}
+            isAdmin={user?.isAdmin || false}
+          />
 
           {/* Game History */}
           {roomState.gameState.history.length > 0 && (

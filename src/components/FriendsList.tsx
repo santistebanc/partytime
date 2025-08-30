@@ -18,7 +18,7 @@ interface FriendsListProps {
 }
 
 export function FriendsList({ isVisible }: FriendsListProps) {
-  const { user, roomState, updateUser } = usePartyKit();
+  const { user, roomState, toggleRole } = usePartyKit();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const players = roomState.users.filter(u => u.isPlayer);
@@ -30,11 +30,8 @@ export function FriendsList({ isVisible }: FriendsListProps) {
     }
   };
 
-  const toggleUserProperty = (userId: string, property: keyof User) => {
-    const targetUser = roomState.users.find(u => u.id === userId);
-    if (targetUser) {
-      updateUser({ [property]: !targetUser[property] });
-    }
+  const toggleUserProperty = (userId: string, property: 'isPlayer' | 'isNarrator' | 'isAdmin') => {
+    toggleRole(property, userId);
     setSelectedUser(null);
   };
 

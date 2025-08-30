@@ -12,7 +12,9 @@ import {
 } from 'lucide-react';
 import { usePartyKit } from '../hooks/usePartyKit';
 import { Confetti } from './Confetti';
+import { LiveCaptions } from './LiveCaptions';
 import { soundManager } from '../utils/sounds';
+import { llmService } from '../services/llmService';
 import type { Question } from '../../party/server';
 
 export function Game() {
@@ -21,6 +23,8 @@ export function Game() {
   const [transcript, setTranscript] = useState('');
   const [showAnswer, setShowAnswer] = useState(false);
   const [answerResult, setAnswerResult] = useState<{ isCorrect: boolean; points: number; playerName: string } | null>(null);
+  const [liveTranscript, setLiveTranscript] = useState<string>('');
+  const [currentAnswerer, setCurrentAnswerer] = useState<string | null>(null);
   const [showWinners, setShowWinners] = useState(false);
   
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -132,19 +136,7 @@ export function Game() {
     }
   };
 
-  const playCorrectSound = () => {
-    // Play correct answer sound
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
-  };
 
-  const playWrongSound = () => {
-    // Play wrong answer sound
-    if (audioRef.current) {
-      audioRef.current.play();
-    }
-  };
 
   // Winners screen
   if (showWinners) {
@@ -211,6 +203,14 @@ export function Game() {
           ))}
         </motion.div>
       </motion.div>
+      
+      {/* Live Captions */}
+      <LiveCaptions
+        isActive={!!currentAnswerer}
+        transcript={liveTranscript}
+        playerName={currentAnswerer || ''}
+        isListening={isListening}
+      />
       </>
     );
   }
@@ -461,6 +461,14 @@ export function Game() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Live Captions */}
+      <LiveCaptions
+        isActive={!!currentAnswerer}
+        transcript={liveTranscript}
+        playerName={currentAnswerer || ''}
+        isListening={isListening}
+      />
 
     </div>
   );

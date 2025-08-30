@@ -42,12 +42,12 @@ export function Confetti() {
             width: piece.size,
             height: piece.size,
             backgroundColor: piece.color,
-            borderRadius: '50%'
+            borderRadius: '50%',
+            transform: `rotate(${piece.rotation}deg)`
           }}
           animate={{
             y: [piece.y, window.innerHeight + 100],
             x: [piece.x, piece.x + (Math.random() - 0.5) * 200],
-            rotation: [piece.rotation, piece.rotation + 360],
             scale: [1, 0.5, 1, 0.8, 0.3]
           }}
           transition={{

@@ -133,6 +133,12 @@ export default class QuizServer implements Party.Server {
         case "generateQuestions":
           this.handleGenerateQuestions(room, data.topics);
           break;
+        case "toggleRole":
+          this.handleToggleRole(sender.id, data.role, data.targetUserId);
+          break;
+        case "toggleQuestionBlur":
+          this.handleToggleQuestionBlur(data.questionId);
+          break;
       }
     } catch (error) {
       console.error("Error processing message:", error);
@@ -146,14 +152,20 @@ export default class QuizServer implements Party.Server {
       
       // If room is empty, delete it
       if (room.users.size === 0) {
-        this.rooms.delete(this.getRoomIdByUserId(conn.id));
+        const roomId = this.getRoomIdByUserId(conn.id);
+        if (roomId) {
+          this.rooms.delete(roomId);
+        }
       } else {
-        // Broadcast user left
-        this.broadcastToRoom(this.getRoomIdByUserId(conn.id)!, {
-          type: "userLeft",
-          userId: conn.id,
-          users: Array.from(room.users.values())
-        });
+            // Broadcast user left
+    const roomId = this.getRoomIdByUserId(conn.id);
+    if (roomId) {
+      this.broadcastToRoom(roomId, {
+        type: "userLeft",
+        userId: conn.id,
+        users: Array.from(room.users.values())
+      });
+    }
       }
     }
   }
@@ -180,11 +192,14 @@ export default class QuizServer implements Party.Server {
     const user = room.users.get(userId);
     if (user) {
       Object.assign(user, updates);
-      this.broadcastToRoom(this.getRoomIdByUserId(userId)!, {
-        type: "userUpdated",
-        user,
-        users: Array.from(room.users.values())
-      });
+      const roomId = this.getRoomIdByUserId(userId);
+      if (roomId) {
+        this.broadcastToRoom(roomId, {
+          type: "userUpdated",
+          user,
+          users: Array.from(room.users.values())
+        });
+      }
     }
   }
 
@@ -200,30 +215,39 @@ export default class QuizServer implements Party.Server {
       };
       room.messages.push(message);
       
-      this.broadcastToRoom(this.getRoomIdByUserId(userId)!, {
-        type: "newMessage",
-        message
-      });
+      const roomId = this.getRoomIdByUserId(userId);
+      if (roomId) {
+        this.broadcastToRoom(roomId, {
+          type: "newMessage",
+          message
+        });
+      }
     }
   }
 
   private handleUpdateGameState(room: RoomState, gameState: Partial<GameState>) {
     Object.assign(room.gameState, gameState);
-    this.broadcastToRoom(this.getRoomIdByUserId(Array.from(room.users.keys())[0])!, {
-      type: "gameStateUpdated",
-      gameState: room.gameState
-    });
+    const roomId = this.getRoomIdByUserId(Array.from(room.users.keys())[0]);
+    if (roomId) {
+      this.broadcastToRoom(roomId, {
+        type: "gameStateUpdated",
+        gameState: room.gameState
+      });
+    }
   }
 
   private handleBuzzIn(room: RoomState, userId: string) {
     const user = room.users.get(userId);
     if (user && user.isPlayer && !room.gameState.currentBuzzer && room.gameState.isActive) {
       room.gameState.currentBuzzer = userId;
-      this.broadcastToRoom(this.getRoomIdByUserId(userId)!, {
-        type: "buzzerActivated",
-        userId,
-        userName: user.name
-      });
+      const roomId = this.getRoomIdByUserId(userId);
+      if (roomId) {
+        this.broadcastToRoom(roomId, {
+          type: "buzzerActivated",
+          userId,
+          userName: user.name
+        });
+      }
     }
   }
 
@@ -318,6 +342,42 @@ export default class QuizServer implements Party.Server {
     const adj = adjectives[Math.floor(Math.random() * adjectives.length)];
     const noun = nouns[Math.floor(Math.random() * nouns.length)];
     return `${adj} ${noun}`;
+  }
+
+  private handleToggleRole(userId: string, role: 'isPlayer' | 'isNarrator' | 'isAdmin', targetUserId: string) {
+    const room = this.getRoomIdByUserId(userId);
+    if (!room) return;
+
+    const user = this.rooms.get(room)?.users.get(userId);
+    const targetUser = this.rooms.get(room)?.users.get(targetUserId);
+    
+    if (!user || !targetUser || !user.isAdmin) return;
+
+    targetUser[role] = role === 'isPlayer' ? !targetUser.isPlayer : 
+                       role === 'isNarrator' ? !targetUser.isNarrator : 
+                       !targetUser.isAdmin;
+    
+    this.broadcastToRoom(room, {
+      type: "userUpdated",
+      user: targetUser,
+      users: Array.from(this.rooms.get(room)!.users.values())
+    });
+  }
+
+  private handleToggleQuestionBlur(questionId: string) {
+    const room = this.getRoomIdByUserId(Array.from(this.rooms.keys())[0]);
+    if (!room) return;
+
+    const question = this.rooms.get(room)?.gameState.questions.find(q => q.id === questionId);
+    if (!question) return;
+
+    question.isBlurred = !question.isBlurred;
+    
+    this.broadcastToRoom(room, {
+      type: "questionUpdated",
+      question,
+      questions: this.rooms.get(room)!.gameState.questions
+    });
   }
 
   private broadcastToRoom(roomId: string, message: any) {
