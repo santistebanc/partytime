@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { motion } from 'framer-motion';
 import { useNavigation, getStoredUserName, getStoredRoomId } from '../contexts/NavigationContext';
+import { PartytimeLogo } from './PartytimeLogo';
 
 interface LobbyProps {
   onNavigateToRoom: (roomId: string, userName: string) => void;
@@ -60,10 +62,28 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
   return (
     <div className="lobby">
       <div className="lobby-container">
-        <h1 className="lobby-title">Welcome to Partytime!</h1>
+        <motion.div 
+          className="lobby-logo"
+          initial={{ opacity: 0, y: -30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, ease: "easeOut" }}
+        >
+          <PartytimeLogo size={120} />
+        </motion.div>
         
-        <form onSubmit={handleJoinRoom} className="lobby-form">
-          <div className="name-section">
+        <motion.form 
+          onSubmit={handleJoinRoom} 
+          className="lobby-form"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
+        >
+          <motion.div 
+            className="name-section"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
+          >
             <label htmlFor="name" className="input-label">Your Name</label>
             <input
               ref={nameInputRef}
@@ -77,17 +97,27 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
               required
             />
             {name.length > 0 && !isNameValid && (
-              <div className="name-validation">
+              <motion.div 
+                className="name-validation"
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                transition={{ duration: 0.3 }}
+              >
                 {name.length < 2 ? (
                   <span className="error">Name must be at least 2 characters</span>
                 ) : (
                   <span className="error">Name must be 20 characters or less</span>
                 )}
-              </div>
+              </motion.div>
             )}
-          </div>
+          </motion.div>
 
-          <div className="room-section">
+          <motion.div 
+            className="room-section"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
+          >
             <label htmlFor="room" className="input-label">Room Name</label>
             <input
               ref={roomInputRef}
@@ -98,19 +128,29 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
               onChange={(e) => setRoomId(e.target.value)}
               className="room-input"
             />
-            <div className="room-hint">
+            <motion.div 
+              className="room-hint"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5, duration: 0.4 }}
+            >
               Leave empty to create a new room, or enter an existing room name to join
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
-          <button
+          <motion.button
             type="submit"
             disabled={!isNameValid}
             className="btn btn-join"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
           >
             {roomId.trim() ? 'Join Room' : 'Create Room'}
-          </button>
-        </form>
+          </motion.button>
+        </motion.form>
       </div>
     </div>
   );

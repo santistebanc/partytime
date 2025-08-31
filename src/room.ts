@@ -3,17 +3,11 @@ import type * as Party from "partykit/server";
 interface User {
   id: string;
   name: string;
-  connectionId: string;
-}
-
-interface UserConnection {
-  userId: string;
-  connectionId: string;
 }
 
 export default class RoomServer implements Party.Server {
   private users: Map<string, User> = new Map();
-  private connections: Map<string, UserConnection> = new Map();
+  private connections: Map<string, string> = new Map(); // connectionId -> userId
 
   constructor(readonly room: Party.Room) {}
 
@@ -33,6 +27,9 @@ export default class RoomServer implements Party.Server {
         case 'leave':
           await this.handleLeave(data, sender);
           break;
+        case 'changeName':
+          await this.handleNameChange(data, sender);
+          break;
       }
     } catch (error) {
       console.error('Error handling message:', error);
@@ -40,13 +37,21 @@ export default class RoomServer implements Party.Server {
   }
 
   async onClose(conn: Party.Connection) {
-    // Find and remove the user who disconnected
-    const userConnection = this.connections.get(conn.id);
-    if (userConnection) {
-      console.log(`User ${userConnection.userId} disconnected from room ${this.room.id}`);
-      this.users.delete(userConnection.userId);
+    // Handle connection close
+    const userId = this.connections.get(conn.id);
+    if (userId) {
+      console.log(`Connection closed for user ${userId}`);
+      
+      // Remove the connection mapping
       this.connections.delete(conn.id);
-      this.broadcastUsers();
+      
+      // Check if user has any other active connections
+      if (!this.hasActiveConnections(userId)) {
+        console.log(`User ${userId} has no more active connections, removing from room`);
+        this.removeUser(userId);
+      } else {
+        console.log(`User ${userId} still has active connections`);
+      }
     }
   }
 
@@ -55,18 +60,25 @@ export default class RoomServer implements Party.Server {
     sender: Party.Connection
   ) {
     console.log('handleJoin', data, sender);
-    const user: User = {
-      id: data.userId,
-      name: data.name,
-      connectionId: sender.id
-    };
-
-    // Store user and connection mapping
-    this.users.set(data.userId, user);
-    this.connections.set(sender.id, { userId: data.userId, connectionId: sender.id });
     
-    console.log(`User ${data.name} (${data.userId}) joined room ${this.room.id}`);
-    console.log(`Total users in room: ${this.users.size}`);
+    // Check if this user already exists
+    const existingUser = this.users.get(data.userId);
+    if (existingUser) {
+      console.log(`User ${data.name} (${data.userId}) adding new connection to room ${this.room.id}`);
+    } else {
+      // New user joining
+      const user: User = {
+        id: data.userId,
+        name: data.name
+      };
+      this.users.set(data.userId, user);
+      console.log(`New user ${data.name} (${data.userId}) joined room ${this.room.id}`);
+    }
+
+    // Store connection mapping
+    this.connections.set(sender.id, data.userId);
+    
+    console.log(`Total users in room: ${this.users.size}, total connections: ${this.connections.size}`);
     
     // Send confirmation to the user
     sender.send(JSON.stringify({
@@ -75,7 +87,7 @@ export default class RoomServer implements Party.Server {
       roomId: this.room.id
     }));
 
-    // Broadcast updated user list to ALL users in the room (including the new user)
+    // Broadcast updated user list to ALL users in the room
     this.broadcastUsers();
   }
 
@@ -93,6 +105,33 @@ export default class RoomServer implements Party.Server {
     }));
   }
 
+  private async handleNameChange(
+    data: { oldName: string; newName: string; userId: string },
+    sender: Party.Connection
+  ) {
+    console.log(`User ${data.oldName} changing name to ${data.newName}`);
+    
+    // Update the user's name in our local state
+    const user = this.users.get(data.userId);
+    if (user) {
+      user.name = data.newName;
+      console.log(`Name updated for user ${data.userId}: ${data.oldName} -> ${data.newName}`);
+      
+      // Broadcast the name change to all users in the room
+      this.room.broadcast(JSON.stringify({
+        type: 'nameChanged',
+        userId: data.userId,
+        oldName: data.oldName,
+        newName: data.newName
+      }));
+      
+      // Also broadcast updated user list
+      this.broadcastUsers();
+    } else {
+      console.error(`User ${data.userId} not found for name change`);
+    }
+  }
+
   private broadcastUsers() {
     const usersList = Array.from(this.users.values());
     
@@ -104,6 +143,33 @@ export default class RoomServer implements Party.Server {
       type: 'users',
       users: usersList
     }));
+  }
+
+  private hasActiveConnections(userId: string): boolean {
+    // Check if user has any active connections
+    for (const connectionUserId of this.connections.values()) {
+      if (connectionUserId === userId) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private removeUser(userId: string) {
+    console.log(`Removing user ${userId} from room`);
+    
+    // Remove user from users map
+    this.users.delete(userId);
+    
+    // Remove all connections for this user
+    for (const [connId, connectionUserId] of this.connections.entries()) {
+      if (connectionUserId === userId) {
+        this.connections.delete(connId);
+      }
+    }
+    
+    // Broadcast updated user list
+    this.broadcastUsers();
   }
 }
 

@@ -18,7 +18,8 @@ interface NavigationProviderProps {
 // Local storage keys
 const STORAGE_KEYS = {
   LAST_USER_NAME: 'partytime_last_user_name',
-  LAST_ROOM_ID: 'partytime_last_room_id'
+  LAST_ROOM_ID: 'partytime_last_room_id',
+  LAST_USER_ID: 'partytime_last_user_id'
 };
 
 // Helper functions for localStorage
@@ -37,6 +38,15 @@ const setToStorage = (key: string, value: string): void => {
   } catch (error) {
     console.warn('Failed to write to localStorage:', error);
   }
+};
+
+// Helper functions for user ID
+export const getStoredUserId = (): string | null => {
+  return getFromStorage(STORAGE_KEYS.LAST_USER_ID);
+};
+
+export const setStoredUserId = (userId: string): void => {
+  setToStorage(STORAGE_KEYS.LAST_USER_ID, userId);
 };
 
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children }) => {
@@ -73,7 +83,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     window.history.pushState({}, '', newURL);
   }, []);
 
-  const navigateToRoom = useCallback((newRoomId: string, newUserName: string) => {
+  const navigateToRoom = useCallback((newRoomId: string, newUserName: string, userId?: string) => {
     setRoomId(newRoomId);
     setUserName(newUserName);
     updateURL(newRoomId, newUserName);
@@ -81,6 +91,9 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     // Save to localStorage
     setToStorage(STORAGE_KEYS.LAST_USER_NAME, newUserName);
     setToStorage(STORAGE_KEYS.LAST_ROOM_ID, newRoomId);
+    if (userId) {
+      setToStorage(STORAGE_KEYS.LAST_USER_ID, userId);
+    }
   }, [updateURL]);
 
   const navigateToLobby = useCallback(() => {
