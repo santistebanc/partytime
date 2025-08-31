@@ -18,6 +18,19 @@ A real-time party lobby application built with PartyKit, React, and TypeScript t
 - Node.js 18+ 
 - npm or yarn
 
+### Environment Setup
+
+To use the AI-powered quiz question generation feature, you'll need to set up environment variables:
+
+1. Create a `.env` file in the root directory
+2. Add your OpenAI API key:
+   ```
+   OPENAI_API_KEY=your_actual_api_key_here
+   ```
+3. Get your API key from [OpenAI Platform](https://platform.openai.com/api-keys)
+
+**Note**: Environment variables in PartyKit are only available server-side. The client communicates with the server to access AI features.
+
 ### Installation
 
 1. Clone the repository:

@@ -17,6 +17,8 @@ import { useSocket } from '../contexts/SocketContext';
 import QRCode from 'qrcode';
 import { PartytimeLogo } from './PartytimeLogo';
 import { getStoredUserId, setStoredUserId } from '../contexts/NavigationContext';
+import { QuizAdminPage } from './QuizAdminPage';
+import type { QuizQuestion } from '../types/quiz';
 
 interface User {
   id: string;
@@ -35,11 +37,13 @@ type ContentPage = 'game' | 'settings' | 'admin';
 export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby, onNameChange }) => {
   const [users, setUsers] = useState<User[]>([]);
   const [currentPage, setCurrentPage] = useState<ContentPage>('game');
-  const [showMembersPanel, setShowMembersPanel] = useState(true);
+  const [showMembersPanel, setShowMembersPanel] = useState(false);
   const [editingName, setEditingName] = useState(userName);
   const [isEditingName, setIsEditingName] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  const [initialQuestions, setInitialQuestions] = useState<QuizQuestion[]>([]);
+  const [initialTopics, setInitialTopics] = useState<string[]>([]);
   const { socket, isConnected, sendMessage } = useSocket();
   const membersPanelRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
@@ -68,7 +72,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
   useEffect(() => {
     const generateQRCode = async () => {
       try {
-        const roomUrl = `${window.location.origin}?roomId=${roomId}&userName=${userName}`;
+        const roomUrl = `${window.location.origin}?roomId=${roomId}`;
         const qrDataUrl = await QRCode.toDataURL(roomUrl, {
           width: 200,
           margin: 2,
@@ -148,6 +152,13 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
               setStoredUserId(currentUserId);
             }
           }
+        } else if (data.type === 'questions') {
+          console.log('Received questions from server:', data.questions);
+          console.log('Setting initialQuestions state with', data.questions.length, 'questions');
+          setInitialQuestions(data.questions);
+        } else if (data.type === 'topics') {
+          console.log('Received topics from server:', data.topics);
+          setInitialTopics(data.topics);
         }
       } catch (error) {
         console.error('Error parsing message:', error);
@@ -246,8 +257,8 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                   )}
                 </div>
                 <p className="room-link">
-                  <a href={`${window.location.origin}?roomId=${roomId}&userName=${userName}`} target="_blank" rel="noopener noreferrer">
-                    {window.location.origin}?roomId={roomId}&userName={userName}
+                  <a href={`${window.location.origin}?roomId=${roomId}`} target="_blank" rel="noopener noreferrer">
+                    {window.location.origin}?roomId={roomId}
                   </a>
                 </p>
               </motion.div>
@@ -350,22 +361,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
             transition={{ duration: 0.15, ease: "easeOut" }}
             className="content-page admin-page"
           >
-            <div className="admin-content">
-              <motion.h2
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.05, duration: 0.15 }}
-              >
-                Admin Panel
-              </motion.h2>
-              <motion.p
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.1, duration: 0.15 }}
-              >
-                Admin controls coming soon...
-              </motion.p>
-            </div>
+            <QuizAdminPage initialQuestions={initialQuestions} initialTopics={initialTopics} socket={socket} />
           </motion.div>
         );
       
@@ -391,12 +387,28 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
             title={showMembersPanel ? 'Hide Members' : 'Show Members'}
           >
             <Users size={20} />
+            {users.length > 0 && (
+              <motion.span 
+                key={users.length}
+                className="members-count-badge"
+                initial={{ scale: 0, rotate: -180 }}
+                animate={{ scale: 1, rotate: 0 }}
+                transition={{ 
+                  type: "spring", 
+                  stiffness: 500, 
+                  damping: 25,
+                  duration: 0.3 
+                }}
+              >
+                {users.length}
+              </motion.span>
+            )}
           </motion.button>
 
-          {/* Center: Room Title */}
-                          <div className="room-title">
-                  <h1>{roomId}</h1>
-                </div>
+          {/* Room Title - Right of Members Button */}
+          <div className="room-title">
+            <h1>{roomId}</h1>
+          </div>
 
           {/* Right Side: Navigation Buttons */}
           <div className="header-buttons">
