@@ -41,6 +41,8 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const { socket, isConnected, sendMessage } = useSocket();
+  const membersPanelRef = useRef<HTMLDivElement>(null);
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     // Send join message when socket connects
@@ -86,7 +88,28 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
     }
   }, [roomId, userName]);
 
+  // Handle click outside members panel on mobile
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      // Don't hide if clicking on the toggle button
+      const target = event.target as Node;
+      if (toggleButtonRef.current && toggleButtonRef.current.contains(target)) {
+        return;
+      }
+      
+      if (membersPanelRef.current && !membersPanelRef.current.contains(target)) {
+        // Only hide on mobile (when screen width is small)
+        if (window.innerWidth <= 768) {
+          setShowMembersPanel(false);
+        }
+      }
+    };
 
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     if (!socket) return;
@@ -360,6 +383,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
         <div className="header-content">
           {/* Members Toggle Button - Left Side */}
           <motion.button 
+            ref={toggleButtonRef}
             onClick={toggleMembersPanel} 
             className={`members-toggle-btn ${showMembersPanel ? 'active' : ''}`}
             whileHover={{ scale: 1.05 }}
@@ -421,6 +445,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
       <div className="room-main">
         {/* Members Panel */}
         <motion.div 
+          ref={membersPanelRef}
           className={`members-panel ${showMembersPanel ? 'show' : 'hide'}`}
           initial={false}
           animate={{
