@@ -1,13 +1,13 @@
 {
   "$schema": "https://www.partykit.io/schema.json",
   "name": "partytime",
-  "main": "party/server.ts",
-  "compatibilityDate": "2025-08-30",
+  "main": "src/room.ts",
+  "compatibilityDate": "2025-08-31",
   "serve": {
     "path": "public",
     "build": "src/client.tsx"
   },
   "parties": {
-    "server": "party/server.ts"
+    "room": "src/room.ts"
   }
 }
