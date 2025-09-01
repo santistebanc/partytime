@@ -1,13 +1,13 @@
-import React, { useState, useCallback, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
-import type { DropResult } from "@hello-pangea/dnd";
+import React, { useEffect } from "react";
+import { motion } from "framer-motion";
 import { Wand2, AlertCircle } from "lucide-react";
 import type { QuizQuestion } from "../types/quiz";
-import { QuizQuestionEntry } from "./QuizQuestionEntry";
+import { QuestionManager } from "./QuestionManager";
 import { TopicManager } from "./TopicManager";
-import { aiService } from "../services/aiService";
 import { useSocket } from "../contexts/SocketContext";
+import { useAIGeneration } from "../hooks/useAIGeneration";
+import { useTopicManagement } from "../hooks/useTopicManagement";
+import { useQuestionManagement } from "../hooks/useQuestionManagement";
 
 interface QuizAdminPageProps {
   initialQuestions?: QuizQuestion[];
@@ -22,281 +22,112 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
 }) => {
   const { socket: contextSocket } = useSocket();
   const activeSocket = socket || contextSocket;
-  const [questions, setQuestions] = useState<QuizQuestion[]>(initialQuestions);
-  const [topics, setTopics] = useState<string[]>(initialTopics);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(
-    null
-  );
-  const [error, setError] = useState<string | null>(null);
+  
+  const {
+    questions,
+    handleQuestionsChange,
+    addQuestions,
+    updateQuestionsFromProps
+  } = useQuestionManagement(initialQuestions, activeSocket);
+  
+  const {
+    topics,
+    handleTopicsChange
+  } = useTopicManagement(initialTopics, activeSocket);
+  
+  const {
+    isGenerating,
+    error,
+    generateQuestions,
+    clearError
+  } = useAIGeneration(activeSocket);
 
-  const handleDragEnd = useCallback((result: DropResult) => {
-    if (!result.destination) return;
-
-    const { source, destination } = result;
-
-    if (source.index !== destination.index) {
-      const newItems = Array.from(questions);
-      const [removed] = newItems.splice(source.index, 1);
-      newItems.splice(destination.index, 0, removed);
-      
-      // Update local state immediately for responsiveness
-      setQuestions(newItems);
-      
-      // Send reorder to server
-      if (activeSocket) {
-        activeSocket.send(JSON.stringify({
-          type: 'reorderQuestions',
-          questionIds: newItems.map(q => q.id)
-        }));
-      }
-    }
-  }, [questions, activeSocket]);
-
-  const addQuestion = useCallback((question: Omit<QuizQuestion, "id">) => {
-    const newQuestion: QuizQuestion = {
-      ...question,
-      id: crypto.randomUUID(),
-    };
-    
-    // Update local state immediately for responsiveness
-    setQuestions((prev) => [...prev, newQuestion]);
-    
-    // Send to server
-    if (activeSocket) {
-      activeSocket.send(JSON.stringify({
-        type: 'addQuestion',
-        question: newQuestion
-      }));
-    }
-  }, [activeSocket]);
-
-  const updateQuestion = useCallback((updatedQuestion: QuizQuestion) => {
-    // Update local state immediately for responsiveness
-    setQuestions((prev) =>
-      prev.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
-    );
-    
-    // Send to server
-    if (activeSocket) {
-      activeSocket.send(JSON.stringify({
-        type: 'updateQuestion',
-        question: updatedQuestion
-      }));
-    }
-  }, [activeSocket]);
-
-  const deleteQuestion = useCallback((id: string) => {
-    // Update local state immediately for responsiveness
-    setQuestions((prev) => prev.filter((q) => q.id !== id));
-    
-    // Send delete to server
-    if (activeSocket) {
-      activeSocket.send(JSON.stringify({
-        type: 'deleteQuestion',
-        questionId: id
-      }));
-    }
-  }, [activeSocket]);
-
-
-
-  const toggleEditQuestion = useCallback((id: string) => {
-    setEditingQuestionId((prev) => (prev === id ? null : id));
-  }, []);
-
-  const handleTopicsChange = useCallback((newTopics: string[]) => {
-    setTopics(newTopics);
-    
-    // Send topic changes to server
-    if (activeSocket) {
-      // Find added topics
-      const addedTopics = newTopics.filter(topic => !topics.includes(topic));
-      addedTopics.forEach(topic => {
-        activeSocket.send(JSON.stringify({
-          type: 'addTopic',
-          topic: topic
-        }));
-      });
-      
-      // Find removed topics
-      const removedTopics = topics.filter(topic => !newTopics.includes(topic));
-      removedTopics.forEach(topic => {
-        activeSocket.send(JSON.stringify({
-          type: 'removeTopic',
-          topic: topic
-        }));
-      });
-    }
-  }, [topics, activeSocket]);
-
-  const generateQuestions = useCallback(async () => {
-    if (topics.length === 0) {
-      setError("Please add at least one topic first");
-      return;
-    }
-
-    setIsGenerating(true);
-    setError(null);
-
-    try {
-      const response = await aiService.generateQuizQuestions({
-        topics: topics,
-        count: 5,
-      });
-
-      response.questions.forEach((question) => {
-        addQuestion(question);
-      });
-    } catch (err) {
-      setError(
-        err instanceof Error ? err.message : "Failed to generate questions"
-      );
-    } finally {
-      setIsGenerating(false);
-    }
-  }, [topics, addQuestion]);
-
-  const getTotalPoints = () => {
-    return questions.reduce((total, q) => total + q.points, 0);
+  const handleGenerateQuestions = async () => {
+    await generateQuestions(topics, addQuestions);
   };
 
-  // Set socket in AI service when available
+  // Update local state when props change
   useEffect(() => {
-    if (socket) {
-      aiService.setSocket(socket);
-    }
-  }, [socket]);
-
-  // Update questions when initialQuestions prop changes
-  useEffect(() => {
-    console.log('QuizAdminPage: initialQuestions prop changed:', initialQuestions);
-    if (initialQuestions.length > 0) {
-      console.log("Setting initial questions from props:", initialQuestions);
-      setQuestions(initialQuestions);
-    }
-  }, [initialQuestions]);
-
-  // Update topics when initialTopics prop changes
-  useEffect(() => {
-    console.log('QuizAdminPage: initialTopics prop changed:', initialTopics);
-    if (initialTopics.length > 0) {
-      console.log("Setting initial topics from props:", initialTopics);
-      setTopics(initialTopics);
-    }
-  }, [initialTopics]);
+    updateQuestionsFromProps(initialQuestions);
+  }, [initialQuestions, updateQuestionsFromProps]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="quiz-admin-page"
-    >
-      <div className="admin-header">
+    <div className="admin-content">
+      <motion.div
+        className="admin-header"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.2 }}
+      >
         <h2>Quiz Game Admin</h2>
-      </div>
+      </motion.div>
 
-      <div className="admin-content">
-        <div className="admin-section">
-          <div className="questions-header">
-            <button
-              onClick={generateQuestions}
-              disabled={topics.length === 0 || isGenerating}
-              className="btn-generate"
-            >
-              {isGenerating ? (
-                <>
-                  <motion.div
-                    animate={{ rotate: 360 }}
-                    transition={{
-                      duration: 1,
-                      repeat: Infinity,
-                      ease: "linear",
-                    }}
-                  >
-                    <Wand2 size={16} />
-                  </motion.div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Wand2 size={16} />
-                  Generate
-                </>
-              )}
-            </button>
-            <TopicManager topics={topics} onTopicsChange={handleTopicsChange} />
+      {error && (
+        <motion.div
+          className="error-message"
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+        >
+          <AlertCircle size={16} />
+          {error}
+        </motion.div>
+      )}
+
+            <div className="admin-sections">
+        {/* Topics and AI Generation Combined Section */}
+        <motion.div
+          className="topics-ai-section"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.1, duration: 0.2 }}
+        >
+          <div className="topics-ai-header">
+            <h3>Topics & AI Generation</h3>
+            <p>Add topics and generate questions using AI</p>
           </div>
-
-          <div className="questions-stats">
-            <div className="stat-box">
-              <span className="stat-number">{questions.length}</span>
-              <span className="stat-label">questions</span>
+          
+          <div className="topics-ai-content">
+            <div className="topics-input-area">
+              <TopicManager
+                topics={topics}
+                onTopicsChange={handleTopicsChange}
+              />
             </div>
-            <div className="stat-box">
-              <span className="stat-number">{getTotalPoints()}</span>
-              <span className="stat-label">total points</span>
+            
+            <div className="generate-button-area">
+              <motion.button
+                onClick={handleGenerateQuestions}
+                disabled={isGenerating || !topics.length}
+                className="btn btn-generate"
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Wand2 size={16} />
+                {isGenerating ? "Generating..." : "Generate Questions"}
+              </motion.button>
             </div>
           </div>
+        </motion.div>
 
-          {error && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="error-message"
-            >
-              <AlertCircle size={16} />
-              {error}
-            </motion.div>
-          )}
-
-          {questions.length === 0 ? (
-            <div className="no-questions">
-              <p>
-                No Questions added yet. Generate some questions to get started!
-              </p>
-            </div>
-          ) : (
-            <DragDropContext onDragEnd={handleDragEnd}>
-              <Droppable droppableId="questions">
-                {(provided) => (
-                  <div
-                    className="questions-list"
-                    ref={provided.innerRef}
-                    {...provided.droppableProps}
-                  >
-                    {questions.map((question, index) => (
-                      <Draggable
-                        key={question.id}
-                        draggableId={question.id}
-                        index={index}
-                      >
-                        {(provided, snapshot) => (
-                          <div
-                            ref={provided.innerRef}
-                            {...provided.draggableProps}
-                            {...provided.dragHandleProps}
-                            className={snapshot.isDragging ? "dragging" : ""}
-                          >
-                            <QuizQuestionEntry
-                              question={question}
-                              onUpdate={updateQuestion}
-                              onDelete={deleteQuestion}
-                              isEditing={editingQuestionId === question.id}
-                              onEditToggle={toggleEditQuestion}
-                            />
-                          </div>
-                        )}
-                      </Draggable>
-                    ))}
-                    {provided.placeholder}
-                  </div>
-                )}
-              </Droppable>
-            </DragDropContext>
-          )}
-        </div>
+        {/* Questions Section */}
+        <motion.div
+          className="questions-section"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 0.3, duration: 0.2 }}
+        >
+          <QuestionManager
+            questions={questions}
+            onQuestionsChange={handleQuestionsChange}
+            onQuestionAdd={() => {}} // Not needed anymore
+            onQuestionUpdate={() => {}} // Not needed anymore
+            onQuestionDelete={() => {}} // Not needed anymore
+            onReorder={() => {}} // Not needed anymore
+            socket={activeSocket}
+          />
+        </motion.div>
       </div>
-    </motion.div>
+    </div>
   );
 };

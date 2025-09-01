@@ -1,0 +1,92 @@
+import React from 'react';
+import { AnimatePresence } from 'framer-motion';
+import { GamePage } from './GamePage';
+import { SettingsPage } from './SettingsPage';
+import { QuizAdminPage } from './QuizAdminPage';
+import type { QuizQuestion } from '../types/quiz';
+
+interface ContentRouterProps {
+  currentPage: 'game' | 'settings' | 'admin';
+  roomId: string;
+  userName: string;
+  isPlayer: boolean;
+  isNarrator: boolean;
+  isAdmin: boolean;
+  showCopiedMessage: boolean;
+  initialQuestions: QuizQuestion[];
+  initialTopics: string[];
+  socket: any;
+  onNameChange: (newName: string) => void;
+  onPlayerToggle: (value: boolean) => void;
+  onNarratorToggle: (value: boolean) => void;
+  onAdminToggle: (value: boolean) => void;
+  onCopyMessage: () => void;
+}
+
+export const ContentRouter: React.FC<ContentRouterProps> = ({
+  currentPage,
+  roomId,
+  userName,
+  isPlayer,
+  isNarrator,
+  isAdmin,
+  showCopiedMessage,
+  initialQuestions,
+  initialTopics,
+  socket,
+  onNameChange,
+  onPlayerToggle,
+  onNarratorToggle,
+  onAdminToggle,
+  onCopyMessage
+}) => {
+  const renderContent = () => {
+    switch (currentPage) {
+      case 'game':
+        return (
+          <GamePage 
+            roomId={roomId}
+            showCopiedMessage={showCopiedMessage}
+            onCopyMessage={onCopyMessage}
+          />
+        );
+      
+      case 'settings':
+        return (
+          <SettingsPage
+            userName={userName}
+            isPlayer={isPlayer}
+            isNarrator={isNarrator}
+            isAdmin={isAdmin}
+            onNameChange={onNameChange}
+            onPlayerToggle={onPlayerToggle}
+            onNarratorToggle={onNarratorToggle}
+            onAdminToggle={onAdminToggle}
+          />
+        );
+      
+      case 'admin':
+        if (!isAdmin) {
+          return null;
+        }
+        return (
+          <QuizAdminPage 
+            initialQuestions={initialQuestions} 
+            initialTopics={initialTopics} 
+            socket={socket} 
+          />
+        );
+      
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <div className="content-panel">
+      <AnimatePresence mode="wait">
+        {renderContent()}
+      </AnimatePresence>
+    </div>
+  );
+};

@@ -5,7 +5,6 @@ export interface QuizQuestion {
   options: string[];
   topic: string;
   points: number;
-  difficulty: "easy" | "medium" | "hard";
 }
 
 export interface QuizTopic {
