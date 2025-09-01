@@ -15,8 +15,8 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
   const storedRoomId = getStoredRoomId();
   
   // Initialize with stored values, but query params take priority
-  const [name, setName] = useState(urlUserName || storedUserName || '');
-  const [roomId, setRoomId] = useState(urlRoomId || storedRoomId || '');
+  const [name, setName] = useState((urlUserName || storedUserName || ''));
+  const [roomId, setRoomId] = useState((urlRoomId || storedRoomId || ''));
   const nameInputRef = useRef<HTMLInputElement>(null);
   const roomInputRef = useRef<HTMLInputElement>(null);
 
@@ -49,7 +49,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
     e.preventDefault();
     if (!isNameValid) return;
     
-    let finalRoomId = roomId.trim();
+    let finalRoomId = (roomId || '').trim();
     
     // If room ID is empty, generate a random one
     if (!finalRoomId) {
@@ -124,7 +124,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
               id="room"
               type="text"
               placeholder="Leave empty to create a new room"
-              value={roomId}
+              value={roomId || ''}
               onChange={(e) => setRoomId(e.target.value)}
               className="room-input"
             />
@@ -148,7 +148,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {roomId.trim() ? 'Join Room' : 'Create Room'}
+            {(roomId && roomId.trim()) ? 'Join Room' : 'Create Room'}
           </motion.button>
         </motion.form>
       </div>

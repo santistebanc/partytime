@@ -59,16 +59,9 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
     const urlRoomId = urlParams.get('roomId');
     const urlUserName = urlParams.get('userName');
     
-    if (urlRoomId && urlUserName) {
-      // Query params trigger actual navigation to room
-      setRoomId(urlRoomId);
-      setUserName(urlUserName);
-    } else {
-      // localStorage values only prefill inputs, don't navigate to room
-      // We'll handle this in the Lobby component instead
-      setRoomId(null);
-      setUserName(null);
-    }
+    // Always set URL params for prefilling, even if only one is present
+    setRoomId(urlRoomId);
+    setUserName(urlUserName);
   }, []);
 
   const updateURL = useCallback((newRoomId: string | null, newUserName: string | null) => {
