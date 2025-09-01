@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { localstorage } from '../utils';
 
 export const useLocalStorage = <T>(
   key: string,
@@ -6,13 +7,7 @@ export const useLocalStorage = <T>(
 ): [T, (value: T | ((val: T) => T)) => void, () => void] => {
   // Get from local storage then parse stored json or return initialValue
   const [storedValue, setStoredValue] = useState<T>(() => {
-    try {
-      const item = window.localStorage.getItem(key);
-      return item ? JSON.parse(item) : initialValue;
-    } catch (error) {
-      console.error(`Error reading localStorage key "${key}":`, error);
-      return initialValue;
-    }
+    return localstorage.get(key, initialValue);
   });
 
   // Return a wrapped version of useState's setter function that persists the new value to localStorage
@@ -25,7 +20,7 @@ export const useLocalStorage = <T>(
       setStoredValue(valueToStore);
       
       // Save to local storage
-      window.localStorage.setItem(key, JSON.stringify(valueToStore));
+      localstorage.set(key, valueToStore);
     } catch (error) {
       console.error(`Error setting localStorage key "${key}":`, error);
     }
@@ -35,7 +30,7 @@ export const useLocalStorage = <T>(
   const removeValue = useCallback(() => {
     try {
       setStoredValue(initialValue);
-      window.localStorage.removeItem(key);
+      localstorage.remove(key);
     } catch (error) {
       console.error(`Error removing localStorage key "${key}":`, error);
     }

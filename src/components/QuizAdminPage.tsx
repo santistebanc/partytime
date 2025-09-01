@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { Wand2, AlertCircle } from "lucide-react";
 import type { QuizQuestion } from "../types/quiz";
@@ -13,12 +13,14 @@ interface QuizAdminPageProps {
   initialQuestions?: QuizQuestion[];
   initialTopics?: string[];
   socket?: any; // PartySocket instance
+  revealState?: Record<string, boolean>;
 }
 
 export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
   initialQuestions = [],
   initialTopics = [],
   socket,
+  revealState = {},
 }) => {
   const { socket: contextSocket } = useSocket();
   const activeSocket = socket || contextSocket;
@@ -27,7 +29,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
     questions,
     handleQuestionsChange,
     addQuestions,
-    updateQuestionsFromProps
+    updateQuestions
   } = useQuestionManagement(initialQuestions, activeSocket);
   
   const {
@@ -46,10 +48,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
     await generateQuestions(topics, addQuestions);
   };
 
-  // Update local state when props change
-  useEffect(() => {
-    updateQuestionsFromProps(initialQuestions);
-  }, [initialQuestions, updateQuestionsFromProps]);
+
 
   return (
     <div className="admin-content">
@@ -125,6 +124,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
             onQuestionDelete={() => {}} // Not needed anymore
             onReorder={() => {}} // Not needed anymore
             socket={activeSocket}
+            revealState={revealState}
           />
         </motion.div>
       </div>

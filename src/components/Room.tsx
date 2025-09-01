@@ -22,6 +22,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
     currentUserId,
     initialQuestions,
     initialTopics,
+    revealState,
     isPlayer,
     isNarrator,
     isAdmin,
@@ -110,6 +111,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
           showCopiedMessage={showCopiedMessage}
           initialQuestions={initialQuestions}
           initialTopics={initialTopics}
+          revealState={revealState}
           socket={socket}
           onNameChange={handleNameChangeWithCallback}
           onPlayerToggle={handlePlayerToggle}

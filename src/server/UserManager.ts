@@ -3,9 +3,6 @@ import type * as Party from "partykit/server";
 export interface User {
   id: string;
   name: string;
-  isPlayer: boolean;
-  isNarrator: boolean;
-  isAdmin: boolean;
 }
 
 export interface UserToggles {
@@ -26,20 +23,20 @@ export class UserManager {
     const user: User = {
       id: userId,
       name,
-      isPlayer: true,
-      isNarrator: false,
-      isAdmin: isFirstUser,
     };
 
     this.users.set(userId, user);
     
-    // Store user toggles
-    const userToggleData: UserToggles = {
-      isPlayer: user.isPlayer,
-      isNarrator: user.isNarrator,
-      isAdmin: user.isAdmin
-    };
-    this.userToggles.set(userId, userToggleData);
+    // Check if user toggles already exist in storage, otherwise create defaults
+    const existingToggles = this.userToggles.get(userId);
+    if (!existingToggles) {
+      const userToggleData: UserToggles = {
+        isPlayer: true,
+        isNarrator: false,
+        isAdmin: isFirstUser,
+      };
+      this.userToggles.set(userId, userToggleData);
+    }
     
     return user;
   }
@@ -70,6 +67,17 @@ export class UserManager {
 
   getAllUsers(): User[] {
     return Array.from(this.users.values());
+  }
+
+  getAllUsersWithToggles(): (User & UserToggles)[] {
+    return Array.from(this.users.values()).map(user => {
+      const toggles = this.userToggles.get(user.id) || {
+        isPlayer: true,
+        isNarrator: false,
+        isAdmin: false
+      };
+      return { ...user, ...toggles };
+    });
   }
 
   getUserCount(): number {
@@ -104,18 +112,11 @@ export class UserManager {
   }
 
   updateUserToggles(userId: string, toggles: Partial<UserToggles>): boolean {
-    const user = this.users.get(userId);
     const currentToggles = this.userToggles.get(userId);
     
-    if (user && currentToggles) {
+    if (currentToggles) {
       const updatedToggles = { ...currentToggles, ...toggles };
       this.userToggles.set(userId, updatedToggles);
-      
-      // Update user object
-      user.isPlayer = updatedToggles.isPlayer;
-      user.isNarrator = updatedToggles.isNarrator;
-      user.isAdmin = updatedToggles.isAdmin;
-      
       return true;
     }
     return false;
@@ -137,14 +138,6 @@ export class UserManager {
     for (const [userId, toggles] of Object.entries(storedToggles)) {
       const userToggles = toggles as UserToggles;
       this.userToggles.set(userId, userToggles);
-      
-      // Update user objects with stored toggle states
-      const user = this.users.get(userId);
-      if (user) {
-        user.isPlayer = userToggles.isPlayer;
-        user.isNarrator = userToggles.isNarrator;
-        user.isAdmin = userToggles.isAdmin;
-      }
     }
   }
 

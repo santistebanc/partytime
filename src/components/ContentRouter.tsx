@@ -15,6 +15,7 @@ interface ContentRouterProps {
   showCopiedMessage: boolean;
   initialQuestions: QuizQuestion[];
   initialTopics: string[];
+  revealState: Record<string, boolean>;
   socket: any;
   onNameChange: (newName: string) => void;
   onPlayerToggle: (value: boolean) => void;
@@ -33,6 +34,7 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
   showCopiedMessage,
   initialQuestions,
   initialTopics,
+  revealState,
   socket,
   onNameChange,
   onPlayerToggle,
@@ -73,7 +75,8 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
           <QuizAdminPage 
             initialQuestions={initialQuestions} 
             initialTopics={initialTopics} 
-            socket={socket} 
+            socket={socket}
+            revealState={revealState}
           />
         );
       

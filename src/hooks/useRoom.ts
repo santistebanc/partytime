@@ -8,6 +8,7 @@ export const useRoom = (roomId: string, userName: string) => {
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [initialQuestions, setInitialQuestions] = useState<QuizQuestion[]>([]);
   const [initialTopics, setInitialTopics] = useState<string[]>([]);
+  const [revealState, setRevealState] = useState<Record<string, boolean>>({});
   const [isPlayer, setIsPlayer] = useState(true);
   const [isNarrator, setIsNarrator] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -79,6 +80,12 @@ export const useRoom = (roomId: string, userName: string) => {
               setIsAdmin(currentUser.isAdmin);
             }
           }
+        } else if (data.type === 'revealStateUpdated') {
+          console.log('Reveal state updated:', data);
+          setRevealState(prev => ({
+            ...prev,
+            [data.questionId]: data.revealed
+          }));
         }
       } catch (error) {
         console.error('Error parsing message:', error);
@@ -138,6 +145,7 @@ export const useRoom = (roomId: string, userName: string) => {
     currentUserId,
     initialQuestions,
     initialTopics,
+    revealState,
     isPlayer,
     isNarrator,
     isAdmin,

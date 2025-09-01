@@ -63,6 +63,21 @@ export class QuizManager {
     (this.room.storage as any).quizQuestions = reorderedQuestions;
   }
 
+  // Reveal State Management
+  async getRevealState(): Promise<Record<string, boolean>> {
+    return (this.room.storage as any).revealState || {};
+  }
+
+  async setRevealState(questionId: string, revealed: boolean): Promise<void> {
+    const revealState = await this.getRevealState();
+    if (revealed) {
+      revealState[questionId] = true;
+    } else {
+      delete revealState[questionId];
+    }
+    (this.room.storage as any).revealState = revealState;
+  }
+
   // Topic Management
   async getTopics(): Promise<string[]> {
     return (this.room.storage as any).topics || [];

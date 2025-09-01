@@ -1,32 +1,23 @@
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import type { QuizQuestion } from '../types/quiz';
 
-export const useQuestionManagement = (initialQuestions: QuizQuestion[], socket: any) => {
-  const [questions, setQuestions] = useState<QuizQuestion[]>(initialQuestions);
-
+export const useQuestionManagement = (questions: QuizQuestion[], socket: any) => {
   const handleQuestionsChange = useCallback((newQuestions: QuizQuestion[]) => {
-    setQuestions(newQuestions);
+    // This is now just a pass-through since we don't maintain local state
   }, []);
 
   const addQuestions = useCallback((newQuestions: QuizQuestion[]) => {
-    setQuestions(prev => [...prev, ...newQuestions]);
+    // This is now just a pass-through since we don't maintain local state
   }, []);
 
   const updateQuestions = useCallback((newQuestions: QuizQuestion[]) => {
-    setQuestions(newQuestions);
-  }, []);
-
-  const updateQuestionsFromProps = useCallback((newQuestions: QuizQuestion[]) => {
-    if (newQuestions.length > 0) {
-      setQuestions(newQuestions);
-    }
+    // This is now just a pass-through since we don't maintain local state
   }, []);
 
   return {
     questions,
     handleQuestionsChange,
     addQuestions,
-    updateQuestions,
-    updateQuestionsFromProps
+    updateQuestions
   };
 };

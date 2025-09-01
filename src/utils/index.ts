@@ -94,3 +94,6 @@ export const isEmpty = (obj: any): boolean => {
 export const sleep = (ms: number): Promise<void> => {
   return new Promise(resolve => setTimeout(resolve, ms));
 };
+
+// Export localStorage utilities
+export { LocalStorageUtils, localstorage } from './localStorage';

@@ -42,7 +42,7 @@ export class ConnectionManager {
   }
 
   private broadcastUsers(): void {
-    const usersList = this.userManager.getAllUsers();
+    const usersList = this.userManager.getAllUsersWithToggles();
 
     console.log(`Broadcasting users list: ${usersList.length} users`);
     console.log(

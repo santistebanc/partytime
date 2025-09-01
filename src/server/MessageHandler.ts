@@ -60,6 +60,9 @@ export class MessageHandler {
         case "getTopics":
           await this.handleGetTopics(sender);
           break;
+        case "updateRevealState":
+          await this.handleUpdateRevealState(data, sender);
+          break;
         case "updateUserToggles":
           await this.handleUpdateUserToggles(data, sender);
           break;
@@ -77,10 +80,8 @@ export class MessageHandler {
   ): Promise<void> {
     console.log("handleJoin", data, sender);
 
-    // Load user toggles from storage on first connection
-    if (this.userManager.getUserCount() === 0) {
-      await this.userManager.loadUserTogglesFromStorage();
-    }
+    // Load user toggles from storage for every user joining
+    await this.userManager.loadUserTogglesFromStorage();
     
     // Check if this user already exists
     const existingUser = this.userManager.getUser(data.userId);
@@ -286,6 +287,22 @@ export class MessageHandler {
     });
   }
 
+  private async handleUpdateRevealState(
+    data: { questionId: string; revealed: boolean },
+    sender: Party.Connection
+  ): Promise<void> {
+    await this.quizManager.setRevealState(data.questionId, data.revealed);
+    
+    // Broadcast the reveal state update to all users
+    this.broadcastMessage({
+      type: "revealStateUpdated",
+      questionId: data.questionId,
+      revealed: data.revealed,
+    });
+    
+    console.log(`Question ${data.questionId} reveal state updated to ${data.revealed}`);
+  }
+
   private async handleUpdateUserToggles(
     data: { userId: string; isPlayer?: boolean; isNarrator?: boolean; isAdmin?: boolean },
     sender: Party.Connection
@@ -308,7 +325,7 @@ export class MessageHandler {
   }
 
   private broadcastUsers(): void {
-    const usersList = this.userManager.getAllUsers();
+    const usersList = this.userManager.getAllUsersWithToggles();
 
     console.log(`Broadcasting users list: ${usersList.length} users`);
     console.log(

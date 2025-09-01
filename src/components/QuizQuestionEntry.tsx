@@ -4,6 +4,7 @@ import { Trash2, Save, X, ChevronDown, Eye, GripVertical } from 'lucide-react';
 import type { QuizQuestion } from '../types/quiz';
 import type { DraggableProvidedDragHandleProps } from '@hello-pangea/dnd';
 
+
 interface QuizQuestionEntryProps {
   question: QuizQuestion;
   onUpdate: (updatedQuestion: QuizQuestion) => void;
@@ -11,6 +12,8 @@ interface QuizQuestionEntryProps {
   isEditing: boolean;
   onEditToggle: (id: string) => void;
   dragHandleProps?: DraggableProvidedDragHandleProps | null;
+  isRevealed: boolean;
+  onRevealToggle: (questionId: string, revealed: boolean) => void;
 }
 
 export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
@@ -20,27 +23,15 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
   isEditing,
   onEditToggle,
   dragHandleProps,
+  isRevealed,
+  onRevealToggle,
 }) => {
   const [editedQuestion, setEditedQuestion] = useState<QuizQuestion>(question);
   const [showOptions, setShowOptions] = useState(false);
-  const [isRevealed, setIsRevealed] = useState(false);
 
-  // Load revealed state from localStorage on component mount
-  useEffect(() => {
-    const revealedQuestions = JSON.parse(localStorage.getItem('partytime_revealed_questions') || '{}');
-    setIsRevealed(!!revealedQuestions[question.id]);
-  }, [question.id]);
-
-  // Save revealed state to localStorage when it changes
+  // Handle reveal toggle through parent component
   const handleRevealToggle = (revealed: boolean) => {
-    setIsRevealed(revealed);
-    const revealedQuestions = JSON.parse(localStorage.getItem('partytime_revealed_questions') || '{}');
-    if (revealed) {
-      revealedQuestions[question.id] = true;
-    } else {
-      delete revealedQuestions[question.id];
-    }
-    localStorage.setItem('partytime_revealed_questions', JSON.stringify(revealedQuestions));
+    onRevealToggle(question.id, revealed);
   };
 
   const handleSave = () => {

@@ -13,6 +13,7 @@ interface QuestionManagerProps {
   onQuestionDelete: (id: string) => void;
   onReorder: (questionIds: string[]) => void;
   socket: any;
+  revealState: Record<string, boolean>;
 }
 
 export const QuestionManager: React.FC<QuestionManagerProps> = ({
@@ -22,7 +23,8 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
   onQuestionUpdate,
   onQuestionDelete,
   onReorder,
-  socket
+  socket,
+  revealState
 }) => {
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
@@ -106,6 +108,15 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
     onQuestionDelete(id);
   }, [questions, onQuestionsChange, onQuestionDelete, sendMessage]);
 
+  const handleRevealToggle = useCallback((questionId: string, revealed: boolean) => {
+    // Send reveal state update to server
+    sendMessage({
+      type: 'updateRevealState',
+      questionId,
+      revealed
+    });
+  }, [sendMessage]);
+
   return (
     <div className="questions-section">
       <motion.h3
@@ -153,6 +164,8 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
                           isEditing={editingQuestionId === question.id}
                           onEditToggle={() => setEditingQuestionId(editingQuestionId === question.id ? null : question.id)}
                           dragHandleProps={provided.dragHandleProps}
+                          isRevealed={!!revealState[question.id]}
+                          onRevealToggle={handleRevealToggle}
                         />
                       </motion.div>
                     )}
