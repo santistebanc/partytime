@@ -135,14 +135,15 @@ export class UserManager {
     const storedToggles = (this.room.storage as any).userToggles || {};
     
     for (const [userId, toggles] of Object.entries(storedToggles)) {
-      this.userToggles.set(userId, toggles as UserToggles);
+      const userToggles = toggles as UserToggles;
+      this.userToggles.set(userId, userToggles);
       
       // Update user objects with stored toggle states
       const user = this.users.get(userId);
       if (user) {
-        user.isPlayer = toggles.isPlayer;
-        user.isNarrator = toggles.isNarrator;
-        user.isAdmin = toggles.isAdmin;
+        user.isPlayer = userToggles.isPlayer;
+        user.isNarrator = userToggles.isNarrator;
+        user.isAdmin = userToggles.isAdmin;
       }
     }
   }

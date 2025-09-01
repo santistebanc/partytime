@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
   label?: string;
   error?: string;
   helperText?: string;
@@ -48,7 +48,7 @@ export const Input: React.FC<InputProps> = ({
         className={inputClasses}
         whileFocus={{ scale: 1.02 }}
         transition={{ duration: 0.2 }}
-        {...props}
+        {...(props as any)}
       />
       {error && (
         <motion.span
