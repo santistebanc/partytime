@@ -7,7 +7,7 @@ import { TopicManager } from "./TopicManager";
 import { useSocket } from "../contexts/SocketContext";
 import { useAIGeneration } from "../hooks/useAIGeneration";
 import { useTopicManagement } from "../hooks/useTopicManagement";
-import { useQuestionManagement } from "../hooks/useQuestionManagement";
+
 
 interface QuizAdminPageProps {
   initialQuestions?: QuizQuestion[];
@@ -25,12 +25,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
   const { socket: contextSocket } = useSocket();
   const activeSocket = socket || contextSocket;
   
-  const {
-    questions,
-    handleQuestionsChange,
-    addQuestions,
-    updateQuestions
-  } = useQuestionManagement(initialQuestions, activeSocket);
+  // Questions are now managed directly from props, no local state needed
   
   const {
     topics,
@@ -45,7 +40,11 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
   } = useAIGeneration(activeSocket);
 
   const handleGenerateQuestions = async () => {
-    await generateQuestions(topics, addQuestions);
+    // Questions are now sent directly to server via useAIGeneration
+    await generateQuestions(topics, (questions) => {
+      // Questions are automatically sent to server in the hook
+      console.log('Generated questions:', questions);
+    });
   };
 
 
@@ -117,8 +116,8 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
           transition={{ delay: 0.3, duration: 0.2 }}
         >
           <QuestionManager
-            questions={questions}
-            onQuestionsChange={handleQuestionsChange}
+            questions={initialQuestions}
+            onQuestionsChange={() => {}} // Not needed anymore
             onQuestionAdd={() => {}} // Not needed anymore
             onQuestionUpdate={() => {}} // Not needed anymore
             onQuestionDelete={() => {}} // Not needed anymore

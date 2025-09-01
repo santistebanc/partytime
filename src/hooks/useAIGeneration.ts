@@ -1,17 +1,14 @@
 import { useState, useCallback } from 'react';
 import { aiService } from '../services/aiService';
 import type { QuizQuestion } from '../types/quiz';
+import { useSocketMessage } from './useSocketMessage';
+import { generateId } from '../utils';
 
 export const useAIGeneration = (socket: any) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to send messages without manually calling JSON.stringify
-  const sendMessage = useCallback((message: any) => {
-    if (socket) {
-      socket.send(JSON.stringify(message));
-    }
-  }, [socket]);
+  const sendMessage = useSocketMessage(socket);
 
   const generateQuestions = async (topics: string[], onQuestionsGenerated: (questions: QuizQuestion[]) => void) => {
     if (!topics.length) {
@@ -31,7 +28,7 @@ export const useAIGeneration = (socket: any) => {
       if (response.questions) {
         const newQuestions = response.questions.map((q: any) => ({
           ...q,
-          id: crypto.randomUUID(),
+          id: generateId(),
         }));
         
         // Call the callback to update parent state

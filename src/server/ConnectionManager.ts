@@ -1,5 +1,6 @@
 import type * as Party from "partykit/server";
 import { UserManager } from "./UserManager";
+import { broadcastMessage, logUsers } from "./utils";
 
 export class ConnectionManager {
   constructor(
@@ -7,10 +8,7 @@ export class ConnectionManager {
     private room: Party.Room
   ) {}
 
-  // Helper method to broadcast messages to all connections
-  private broadcastMessage(message: any): void {
-    this.room.broadcast(JSON.stringify(message));
-  }
+
 
   async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext): Promise<void> {
     // Connection established, but user needs to send join message
@@ -44,13 +42,9 @@ export class ConnectionManager {
   private broadcastUsers(): void {
     const usersList = this.userManager.getAllUsersWithToggles();
 
-    console.log(`Broadcasting users list: ${usersList.length} users`);
-    console.log(
-      "Users:",
-      usersList.map((u) => `${u.name} (${u.id})`)
-    );
+    logUsers(usersList);
 
-    this.broadcastMessage({
+    broadcastMessage(this.room, {
       type: "users",
       users: usersList,
     });

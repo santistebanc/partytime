@@ -1,12 +1,8 @@
 import { useCallback } from 'react';
+import { useSocketMessage } from './useSocketMessage';
 
 export const useTopicManagement = (topics: string[], socket: any) => {
-  // Helper function to send messages without manually calling JSON.stringify
-  const sendMessage = useCallback((message: any) => {
-    if (socket) {
-      socket.send(JSON.stringify(message));
-    }
-  }, [socket]);
+  const sendMessage = useSocketMessage(socket);
 
   const addTopic = useCallback((topic: string) => {
     if (topic.trim() && !topics.includes(topic.trim())) {

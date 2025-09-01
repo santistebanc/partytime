@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigation, getStoredUserName, getStoredRoomId } from '../contexts/NavigationContext';
 import { PartytimeLogo } from './PartytimeLogo';
+import { generateRoomId } from '../utils';
 
 interface LobbyProps {
   onNavigateToRoom: (roomId: string, userName: string) => void;
@@ -53,7 +54,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
     
     // If room ID is empty, generate a random one
     if (!finalRoomId) {
-      finalRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+      finalRoomId = generateRoomId();
     }
     
     onNavigateToRoom(finalRoomId, name);

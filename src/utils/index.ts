@@ -97,3 +97,6 @@ export const sleep = (ms: number): Promise<void> => {
 
 // Export localStorage utilities
 export { LocalStorageUtils, localstorage } from './localStorage';
+
+// Export common utilities
+export { generateRoomId, generateUserId } from './common';

@@ -4,6 +4,8 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 import type { QuizQuestion } from "../types/quiz";
 import { QuizQuestionEntry } from "./QuizQuestionEntry";
+import { useSocketMessage } from '../hooks/useSocketMessage';
+import { generateId } from '../utils';
 
 interface QuestionManagerProps {
   questions: QuizQuestion[];
@@ -28,12 +30,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
 }) => {
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
-  // Helper function to send messages without manually calling JSON.stringify
-  const sendMessage = useCallback((message: any) => {
-    if (socket) {
-      socket.send(JSON.stringify(message));
-    }
-  }, [socket]);
+  const sendMessage = useSocketMessage(socket);
 
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
@@ -62,7 +59,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
   const addQuestion = useCallback((question: Omit<QuizQuestion, "id">) => {
     const newQuestion: QuizQuestion = {
       ...question,
-      id: crypto.randomUUID(),
+      id: generateId(),
     };
     
     // Update local state immediately for responsiveness

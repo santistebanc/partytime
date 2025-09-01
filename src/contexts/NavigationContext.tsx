@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import type { ReactNode } from 'react';
+import { generateRoomId } from '../utils';
 
 interface NavigationContextType {
   roomId: string | null;
@@ -98,7 +99,7 @@ export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children
   }, [updateURL]);
 
   const createRoom = useCallback((newUserName: string) => {
-    const randomRoomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+    const randomRoomId = generateRoomId();
     navigateToRoom(randomRoomId, newUserName);
   }, [navigateToRoom]);
 

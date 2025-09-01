@@ -2,6 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { useSocket } from '../contexts/SocketContext';
 import { getStoredUserId, setStoredUserId } from '../contexts/NavigationContext';
 import type { QuizQuestion, User } from '../types/quiz';
+import { generateUserId } from '../utils';
+import { useSocketListener } from './useSocketListener';
 
 export const useRoom = (roomId: string, userName: string) => {
   const [users, setUsers] = useState<User[]>([]);
@@ -19,7 +21,7 @@ export const useRoom = (roomId: string, userName: string) => {
     if (isConnected && socket) {
       let userId = getStoredUserId();
       if (!userId) {
-        userId = crypto.randomUUID();
+        userId = generateUserId();
         setStoredUserId(userId);
       }
       
@@ -34,67 +36,63 @@ export const useRoom = (roomId: string, userName: string) => {
   }, [isConnected, socket, roomId, userName, sendMessage]);
 
   // Handle socket messages
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        console.log('Received message:', data);
+  const handleMessage = useCallback((event: MessageEvent) => {
+    try {
+      const data = JSON.parse(event.data);
+      console.log('Received message:', data);
+      
+      if (data.type === 'joined') {
+        console.log('Joined room confirmation:', data);
+        setCurrentUserId(data.userId);
         
-        if (data.type === 'joined') {
-          console.log('Joined room confirmation:', data);
-          setCurrentUserId(data.userId);
-          
-          // Set user toggle states from server
-          if (data.userToggles) {
-            setIsPlayer(data.userToggles.isPlayer);
-            setIsNarrator(data.userToggles.isNarrator);
-            setIsAdmin(data.userToggles.isAdmin);
-          }
-        } else if (data.type === 'nameChanged') {
-          console.log('Name changed:', data);
-          setUsers(prevUsers => 
-            prevUsers.map(user => 
-              user.id === data.userId 
-                ? { ...user, name: data.newName }
-                : user
-            )
-          );
-        } else if (data.type === 'questions') {
-          console.log('Received questions from server:', data.questions);
-          setInitialQuestions(data.questions);
-        } else if (data.type === 'topics') {
-          console.log('Received topics from server:', data.topics);
-          setInitialTopics(data.topics);
-        } else if (data.type === 'users') {
-          console.log('Setting users:', data.users);
-          setUsers(data.users);
-          
-          // Update current user's toggle states if available
-          if (currentUserId) {
-            const currentUser = data.users.find((user: User) => user.id === currentUserId);
-            if (currentUser) {
-              setIsPlayer(currentUser.isPlayer);
-              setIsNarrator(currentUser.isNarrator);
-              setIsAdmin(currentUser.isAdmin);
-            }
-          }
-        } else if (data.type === 'revealStateUpdated') {
-          console.log('Reveal state updated:', data);
-          setRevealState(prev => ({
-            ...prev,
-            [data.questionId]: data.revealed
-          }));
+        // Set user toggle states from server
+        if (data.userToggles) {
+          setIsPlayer(data.userToggles.isPlayer);
+          setIsNarrator(data.userToggles.isNarrator);
+          setIsAdmin(data.userToggles.isAdmin);
         }
-      } catch (error) {
-        console.error('Error parsing message:', error);
+      } else if (data.type === 'nameChanged') {
+        console.log('Name changed:', data);
+        setUsers(prevUsers => 
+          prevUsers.map(user => 
+            user.id === data.userId 
+              ? { ...user, name: data.newName }
+              : user
+          )
+        );
+      } else if (data.type === 'questions') {
+        console.log('Received questions from server:', data.questions);
+        setInitialQuestions(data.questions);
+      } else if (data.type === 'topics') {
+        console.log('Received topics from server:', data.topics);
+        setInitialTopics(data.topics);
+      } else if (data.type === 'users') {
+        console.log('Setting users:', data.users);
+        setUsers(data.users);
+        
+        // Update current user's toggle states if available
+        if (currentUserId) {
+          const currentUser = data.users.find((user: User) => user.id === currentUserId);
+          if (currentUser) {
+            setIsPlayer(currentUser.isPlayer);
+            setIsNarrator(currentUser.isNarrator);
+            setIsAdmin(currentUser.isAdmin);
+          }
+        }
+      } else if (data.type === 'revealStateUpdated') {
+        console.log('Reveal state updated:', data);
+        setRevealState(prev => ({
+          ...prev,
+          [data.questionId]: data.revealed
+        }));
       }
-    };
+    } catch (error) {
+      console.error('Error parsing message:', error);
+    }
+  }, [currentUserId]);
 
-    socket.addEventListener('message', handleMessage);
-    return () => socket.removeEventListener('message', handleMessage);
-  }, [socket, userName, currentUserId]);
+  // Use the shared socket listener hook
+  useSocketListener(socket, 'message', handleMessage);
 
   const handleNameChange = useCallback((newName: string) => {
     if (currentUserId) {

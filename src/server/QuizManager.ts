@@ -1,4 +1,5 @@
 import type * as Party from "partykit/server";
+import { generateId } from "../utils";
 
 export interface QuizQuestion {
   id: string;
@@ -118,7 +119,7 @@ export class QuizManager {
     // Hardcoded questions with moderate to high difficulty
     const questions: QuizQuestion[] = [
       {
-        id: crypto.randomUUID(),
+        id: generateId(),
         question: "What is the capital of Australia?",
         answer: "Canberra",
         options: ["Sydney", "Melbourne", "Canberra", "Brisbane"],
@@ -127,7 +128,7 @@ export class QuizManager {
         difficulty: "easy",
       },
       {
-        id: crypto.randomUUID(),
+        id: generateId(),
         question: "Which element has the chemical symbol 'Fe'?",
         answer: "Iron",
         options: ["Iron", "Fluorine", "Francium", "Fermium"],
@@ -136,7 +137,7 @@ export class QuizManager {
         difficulty: "medium",
       },
       {
-        id: crypto.randomUUID(),
+        id: generateId(),
         question: "In which year did World War II end?",
         answer: "1945",
         options: ["1943", "1944", "1945", "1946"],

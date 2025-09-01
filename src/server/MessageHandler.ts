@@ -1,6 +1,7 @@
 import type * as Party from "partykit/server";
 import { UserManager } from "./UserManager";
 import { QuizManager } from "./QuizManager";
+import { sendMessage, broadcastMessage, logUsers } from "./utils";
 
 export class MessageHandler {
   constructor(
@@ -9,15 +10,7 @@ export class MessageHandler {
     private room: Party.Room
   ) {}
 
-  // Helper method to send messages without manually calling JSON.stringify
-  private sendMessage(connection: Party.Connection, message: any): void {
-    connection.send(JSON.stringify(message));
-  }
 
-  // Helper method to broadcast messages to all connections
-  private broadcastMessage(message: any): void {
-    this.room.broadcast(JSON.stringify(message));
-  }
 
   async handleMessage(message: string, sender: Party.Connection): Promise<void> {
     try {
@@ -116,10 +109,10 @@ export class MessageHandler {
     // Send current questions to the joining user (if any exist)
     const currentQuestions = await this.quizManager.getQuestions();
     if (currentQuestions.length > 0) {
-      this.sendMessage(sender, {
-        type: "questions",
-        questions: currentQuestions,
-      });
+          sendMessage(sender, {
+      type: "questions",
+      questions: currentQuestions,
+    });
       console.log(
         `Sent ${currentQuestions.length} existing questions to joining user`
       );
@@ -128,10 +121,10 @@ export class MessageHandler {
     // Send current topics to the joining user (if any exist)
     const currentTopics = await this.quizManager.getTopics();
     if (currentTopics.length > 0) {
-      this.sendMessage(sender, {
-        type: "topics",
-        topics: currentTopics,
-      });
+          sendMessage(sender, {
+      type: "topics",
+      topics: currentTopics,
+    });
       console.log(
         `Sent ${currentTopics.length} existing topics to joining user`
       );
@@ -146,7 +139,7 @@ export class MessageHandler {
 
     // Send confirmation to the user with their toggle states
     const userToggles = this.userManager.getUserToggles(data.userId);
-    this.sendMessage(sender, {
+    sendMessage(sender, {
       type: "joined",
       userId: data.userId,
       roomId: this.room.id,
@@ -169,7 +162,7 @@ export class MessageHandler {
     this.userManager.removeConnection(sender.id);
     this.broadcastUsers();
 
-    this.sendMessage(sender, {
+    sendMessage(sender, {
       type: "left",
       userId: data.userId,
     });
@@ -189,12 +182,12 @@ export class MessageHandler {
       );
 
       // Broadcast the name change to all users in the room
-      this.broadcastMessage({
-        type: "nameChanged",
-        userId: data.userId,
-        oldName: data.oldName,
-        newName: data.newName,
-      });
+          broadcastMessage(this.room, {
+      type: "nameChanged",
+      userId: data.userId,
+      oldName: data.oldName,
+      newName: data.newName,
+    });
 
       // Also broadcast updated user list
       this.broadcastUsers();
@@ -253,7 +246,7 @@ export class MessageHandler {
 
   private async handleGetQuestions(sender: Party.Connection): Promise<void> {
     const questions = await this.quizManager.getQuestions();
-    this.sendMessage(sender, {
+    sendMessage(sender, {
       type: "questions",
       questions,
     });
@@ -281,7 +274,7 @@ export class MessageHandler {
 
   private async handleGetTopics(sender: Party.Connection): Promise<void> {
     const topics = await this.quizManager.getTopics();
-    this.sendMessage(sender, {
+    sendMessage(sender, {
       type: "topics",
       topics,
     });
@@ -294,7 +287,7 @@ export class MessageHandler {
     await this.quizManager.setRevealState(data.questionId, data.revealed);
     
     // Broadcast the reveal state update to all users
-    this.broadcastMessage({
+    broadcastMessage(this.room, {
       type: "revealStateUpdated",
       questionId: data.questionId,
       revealed: data.revealed,
@@ -327,13 +320,9 @@ export class MessageHandler {
   private broadcastUsers(): void {
     const usersList = this.userManager.getAllUsersWithToggles();
 
-    console.log(`Broadcasting users list: ${usersList.length} users`);
-    console.log(
-      "Users:",
-      usersList.map((u) => `${u.name} (${u.id})`)
-    );
+    logUsers(usersList);
 
-    this.broadcastMessage({
+    broadcastMessage(this.room, {
       type: "users",
       users: usersList,
     });
