@@ -26,6 +26,13 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
 }) => {
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
+  // Helper function to send messages without manually calling JSON.stringify
+  const sendMessage = useCallback((message: any) => {
+    if (socket) {
+      socket.send(JSON.stringify(message));
+    }
+  }, [socket]);
+
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
 
@@ -40,17 +47,15 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
       onQuestionsChange(newItems);
       
       // Send reorder to server
-      if (socket) {
-        socket.send(JSON.stringify({
-          type: 'reorderQuestions',
-          questionIds: newItems.map(q => q.id)
-        }));
-      }
+      sendMessage({
+        type: 'reorderQuestions',
+        questionIds: newItems.map(q => q.id)
+      });
       
       // Call the reorder callback
       onReorder(newItems.map(q => q.id));
     }
-  }, [questions, socket, onQuestionsChange, onReorder]);
+  }, [questions, onQuestionsChange, onReorder, sendMessage]);
 
   const addQuestion = useCallback((question: Omit<QuizQuestion, "id">) => {
     const newQuestion: QuizQuestion = {
@@ -62,16 +67,14 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
     onQuestionsChange([...questions, newQuestion]);
     
     // Send to server
-    if (socket) {
-      socket.send(JSON.stringify({
-        type: 'addQuestion',
-        question: newQuestion
-      }));
-    }
+    sendMessage({
+      type: 'addQuestion',
+      question: newQuestion
+    });
     
     // Call the add callback
     onQuestionAdd(question);
-  }, [questions, socket, onQuestionsChange, onQuestionAdd]);
+  }, [questions, onQuestionsChange, onQuestionAdd, sendMessage]);
 
   const updateQuestion = useCallback((updatedQuestion: QuizQuestion) => {
     // Update local state immediately for responsiveness
@@ -80,32 +83,28 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
     );
     
     // Send to server
-    if (socket) {
-      socket.send(JSON.stringify({
-        type: 'updateQuestion',
-        question: updatedQuestion
-      }));
-    }
+    sendMessage({
+      type: 'updateQuestion',
+      question: updatedQuestion
+    });
     
     // Call the update callback
     onQuestionUpdate(updatedQuestion);
-  }, [questions, socket, onQuestionsChange, onQuestionUpdate]);
+  }, [questions, onQuestionsChange, onQuestionUpdate, sendMessage]);
 
   const deleteQuestion = useCallback((id: string) => {
     // Update local state immediately for responsiveness
     onQuestionsChange(questions.filter((q) => q.id !== id));
     
     // Send delete to server
-    if (socket) {
-      socket.send(JSON.stringify({
-        type: 'deleteQuestion',
-        questionId: id
-      }));
-    }
+    sendMessage({
+      type: 'deleteQuestion',
+      questionId: id
+    });
     
     // Call the delete callback
     onQuestionDelete(id);
-  }, [questions, socket, onQuestionsChange, onQuestionDelete]);
+  }, [questions, onQuestionsChange, onQuestionDelete, sendMessage]);
 
   return (
     <div className="questions-section">

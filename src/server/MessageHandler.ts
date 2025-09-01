@@ -9,6 +9,16 @@ export class MessageHandler {
     private room: Party.Room
   ) {}
 
+  // Helper method to send messages without manually calling JSON.stringify
+  private sendMessage(connection: Party.Connection, message: any): void {
+    connection.send(JSON.stringify(message));
+  }
+
+  // Helper method to broadcast messages to all connections
+  private broadcastMessage(message: any): void {
+    this.room.broadcast(JSON.stringify(message));
+  }
+
   async handleMessage(message: string, sender: Party.Connection): Promise<void> {
     try {
       const data = JSON.parse(message);
@@ -105,12 +115,10 @@ export class MessageHandler {
     // Send current questions to the joining user (if any exist)
     const currentQuestions = await this.quizManager.getQuestions();
     if (currentQuestions.length > 0) {
-      sender.send(
-        JSON.stringify({
-          type: "questions",
-          questions: currentQuestions,
-        })
-      );
+      this.sendMessage(sender, {
+        type: "questions",
+        questions: currentQuestions,
+      });
       console.log(
         `Sent ${currentQuestions.length} existing questions to joining user`
       );
@@ -119,12 +127,10 @@ export class MessageHandler {
     // Send current topics to the joining user (if any exist)
     const currentTopics = await this.quizManager.getTopics();
     if (currentTopics.length > 0) {
-      sender.send(
-        JSON.stringify({
-          type: "topics",
-          topics: currentTopics,
-        })
-      );
+      this.sendMessage(sender, {
+        type: "topics",
+        topics: currentTopics,
+      });
       console.log(
         `Sent ${currentTopics.length} existing topics to joining user`
       );
@@ -139,18 +145,16 @@ export class MessageHandler {
 
     // Send confirmation to the user with their toggle states
     const userToggles = this.userManager.getUserToggles(data.userId);
-    sender.send(
-      JSON.stringify({
-        type: "joined",
-        userId: data.userId,
-        roomId: this.room.id,
-        userToggles: userToggles || {
-          isPlayer: true,
-          isNarrator: false,
-          isAdmin: this.userManager.getUserCount() === 1
-        }
-      })
-    );
+    this.sendMessage(sender, {
+      type: "joined",
+      userId: data.userId,
+      roomId: this.room.id,
+      userToggles: userToggles || {
+        isPlayer: true,
+        isNarrator: false,
+        isAdmin: this.userManager.getUserCount() === 1
+      }
+    });
 
     // Broadcast updated user list to ALL users in the room
     this.broadcastUsers();
@@ -164,12 +168,10 @@ export class MessageHandler {
     this.userManager.removeConnection(sender.id);
     this.broadcastUsers();
 
-    sender.send(
-      JSON.stringify({
-        type: "left",
-        userId: data.userId,
-      })
-    );
+    this.sendMessage(sender, {
+      type: "left",
+      userId: data.userId,
+    });
   }
 
   private async handleNameChange(
@@ -186,14 +188,12 @@ export class MessageHandler {
       );
 
       // Broadcast the name change to all users in the room
-      this.room.broadcast(
-        JSON.stringify({
-          type: "nameChanged",
-          userId: data.userId,
-          oldName: data.oldName,
-          newName: data.newName,
-        })
-      );
+      this.broadcastMessage({
+        type: "nameChanged",
+        userId: data.userId,
+        oldName: data.oldName,
+        newName: data.newName,
+      });
 
       // Also broadcast updated user list
       this.broadcastUsers();
@@ -252,12 +252,10 @@ export class MessageHandler {
 
   private async handleGetQuestions(sender: Party.Connection): Promise<void> {
     const questions = await this.quizManager.getQuestions();
-    sender.send(
-      JSON.stringify({
-        type: "questions",
-        questions,
-      })
-    );
+    this.sendMessage(sender, {
+      type: "questions",
+      questions,
+    });
   }
 
   private async handleAddTopic(
@@ -282,12 +280,10 @@ export class MessageHandler {
 
   private async handleGetTopics(sender: Party.Connection): Promise<void> {
     const topics = await this.quizManager.getTopics();
-    sender.send(
-      JSON.stringify({
-        type: "topics",
-        topics,
-      })
-    );
+    this.sendMessage(sender, {
+      type: "topics",
+      topics,
+    });
   }
 
   private async handleUpdateUserToggles(
@@ -320,11 +316,9 @@ export class MessageHandler {
       usersList.map((u) => `${u.name} (${u.id})`)
     );
 
-    this.room.broadcast(
-      JSON.stringify({
-        type: "users",
-        users: usersList,
-      })
-    );
+    this.broadcastMessage({
+      type: "users",
+      users: usersList,
+    });
   }
 }

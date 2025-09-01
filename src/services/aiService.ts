@@ -17,6 +17,13 @@ export class AIService {
     this.socket = socket;
   }
 
+  // Helper method to send messages without manually calling JSON.stringify
+  private sendMessage(message: any): void {
+    if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+      this.socket.send(JSON.stringify(message));
+    }
+  }
+
   public async generateQuizQuestions(request: AIQuestionRequest): Promise<AIQuestionResponse> {
     if (!this.socket || this.socket.readyState !== WebSocket.OPEN) {
       throw new Error('WebSocket connection not available');
@@ -46,10 +53,10 @@ export class AIService {
       this.socket!.addEventListener('message', handleMessage);
 
       // Send request to server
-      this.socket!.send(JSON.stringify({
+      this.sendMessage({
         type: 'generateQuestions',
         ...request
-      }));
+      });
 
       // Set timeout for request
       setTimeout(() => {

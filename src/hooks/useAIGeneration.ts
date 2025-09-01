@@ -1,10 +1,17 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { aiService } from '../services/aiService';
 import type { QuizQuestion } from '../types/quiz';
 
 export const useAIGeneration = (socket: any) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Helper function to send messages without manually calling JSON.stringify
+  const sendMessage = useCallback((message: any) => {
+    if (socket) {
+      socket.send(JSON.stringify(message));
+    }
+  }, [socket]);
 
   const generateQuestions = async (topics: string[], onQuestionsGenerated: (questions: QuizQuestion[]) => void) => {
     if (!topics.length) {
@@ -31,14 +38,12 @@ export const useAIGeneration = (socket: any) => {
         onQuestionsGenerated(newQuestions);
         
         // Send to server
-        if (socket) {
-          newQuestions.forEach(question => {
-            socket.send(JSON.stringify({
-              type: 'addQuestion',
-              question
-            }));
+        newQuestions.forEach(question => {
+          sendMessage({
+            type: 'addQuestion',
+            question
           });
-        }
+        });
       } else {
         setError("Failed to generate questions");
       }
