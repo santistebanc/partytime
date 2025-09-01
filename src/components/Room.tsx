@@ -402,7 +402,17 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                     >
                       <span className="current-name">{userName}</span>
                       <motion.button 
-                        onClick={() => setIsEditingName(true)} 
+                        onClick={() => {
+                          setIsEditingName(true);
+                          // Auto-focus and select all text after state update
+                          setTimeout(() => {
+                            const nameInput = document.getElementById('userName') as HTMLInputElement;
+                            if (nameInput) {
+                              nameInput.focus();
+                              nameInput.select();
+                            }
+                          }, 0);
+                        }} 
                         className="btn btn-edit"
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
@@ -614,7 +624,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
           transition={{ duration: 0.2, ease: "easeInOut" }}
         >
           <div className="members-content">
-            <h3>Members ({users.length})</h3>
+            <h3>Members</h3>
             {users.length === 0 ? (
               <p className="no-users">No users in room yet...</p>
             ) : (

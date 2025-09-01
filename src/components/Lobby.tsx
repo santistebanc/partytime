@@ -62,15 +62,6 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
   return (
     <div className="lobby">
       <div className="lobby-container">
-        <motion.div 
-          className="lobby-logo"
-          initial={{ opacity: 0, y: -30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.4, ease: "easeOut" }}
-        >
-          <PartytimeLogo size={120} />
-        </motion.div>
-        
         <motion.form 
           onSubmit={handleJoinRoom} 
           className="lobby-form"
