@@ -74,7 +74,7 @@ For each question:
 2. Create a clear, engaging question about that topic that requires knowledge and critical thinking
 3. Provide the correct answer
 4. Provide three plausible but incorrect options that could reasonably be chosen
-5. Assign a difficulty level (easy: 10 points, medium: 20 points, hard: 30 points). Aim for moderate to high difficulty on average - prefer medium and hard questions over easy ones. Most questions should be medium (20 points) or hard (30 points).
+5. Assign points based on difficulty (10 points for easy, 20 points for medium, 30 points for hard). Aim for moderate to high difficulty on average - prefer medium and hard questions over easy ones. Most questions should be 20 or 30 points.
 6. Use the selected topic as the topic tag
 
 Format the response as JSON:
@@ -86,12 +86,12 @@ Format the response as JSON:
       "options": ["Correct answer", "Wrong option 1", "Wrong option 2", "Wrong option 3"],
       "topic": "selected_topic_from_list",
       "points": 30,
-      "difficulty": "hard"
+
     }
   ]
 }
 
-Important: Each question should use a DIFFERENT topic from the list, and topics should be distributed randomly across the questions. Make sure the questions are educational, engaging, and appropriate for a general audience. Remember to maintain moderate to high difficulty on average.`;
+Important: Each question should use a DIFFERENT topic from the list, and topics should be distributed randomly across the questions. Make sure the questions are educational, engaging, and appropriate for a general audience. Remember to maintain moderate to high difficulty on average, with most questions being 20 or 30 points.`;
   }
 
   private parseAIResponse(content: string): AIQuestionResponse {

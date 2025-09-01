@@ -379,6 +379,7 @@ body {
   background: rgba(102, 126, 234, 0.05);
   border-radius: 8px;
   transition: all 0.3s ease;
+  position: relative;
 }
 
 .user-item:hover {
@@ -394,6 +395,7 @@ body {
 .user-name {
   font-weight: 500;
   color: #333;
+  flex: 1;
 }
 
 .no-users {
@@ -492,6 +494,26 @@ body {
   justify-content: center;
   box-shadow: 0 8px 25px rgba(102, 126, 234, 0.2);
   overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.qr-code-container.clickable:hover {
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+  transform: translateY(-2px);
+  border-color: #5a67d8;
+}
+
+.copied-message {
+  text-align: center;
+  margin-top: 15px;
+  padding: 8px 16px;
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.9rem;
+  border: 1px solid rgba(34, 197, 94, 0.2);
 }
 
 .qr-code-image {
@@ -523,26 +545,7 @@ body {
   margin-top: 10px;
 }
 
-.room-link {
-  margin-top: 20px;
-}
 
-.room-link a {
-  color: #667eea;
-  text-decoration: none;
-  font-weight: 500;
-  word-break: break-all;
-  padding: 10px;
-  background: rgba(102, 126, 234, 0.1);
-  border-radius: 8px;
-  display: inline-block;
-  transition: all 0.3s ease;
-}
-
-.room-link a:hover {
-  background: rgba(102, 126, 234, 0.2);
-  transform: translateY(-2px);
-}
 
 /* Settings Page */
 .settings-page {
@@ -561,7 +564,8 @@ body {
   margin-bottom: 25px;
 }
 
-.setting-item label {
+.setting-item label,
+.setting-item .setting-label {
   display: block;
   margin-bottom: 10px;
   font-weight: 600;
@@ -690,6 +694,7 @@ body {
   align-items: center;
   margin-bottom: 2rem;
   padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
 }
 
 .admin-header h2 {
@@ -697,6 +702,7 @@ body {
   color: #333;
   font-size: 1.8rem;
 }
+
 
 
 
@@ -1536,4 +1542,97 @@ body {
   .lobby-logo .partytime-logo-text {
     font-size: 60px !important;
   }
+}
+
+/* Toggle Controls */
+.toggle-control {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  transition: 0.3s;
+  border-radius: 24px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #667eea;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+}
+
+.toggle-label {
+  font-weight: 500;
+  color: #667eea;
+  min-width: 30px;
+}
+
+/* User Toggle Icons */
+.user-toggles {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.toggle-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.25rem;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.player-icon {
+  background-color: rgba(34, 197, 94, 0.2);
+  color: #16a34a;
+}
+
+.narrator-icon {
+  background-color: rgba(59, 130, 246, 0.2);
+  color: #2563eb;
+}
+
+.admin-icon {
+  background-color: rgba(245, 158, 11, 0.2);
+  color: #d97706;
+}
+
+.toggle-icon:hover {
+  transform: scale(1.1);
 }

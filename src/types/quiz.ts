@@ -5,7 +5,7 @@ export interface QuizQuestion {
   options: string[];
   topic: string;
   points: number;
-  difficulty: 'easy' | 'medium' | 'hard';
+  difficulty: "easy" | "medium" | "hard";
 }
 
 export interface QuizTopic {
@@ -30,4 +30,12 @@ export interface AIQuestionRequest {
 
 export interface AIQuestionResponse {
   questions: Omit<QuizQuestion, 'id'>[];
+}
+
+export interface User {
+  id: string;
+  name: string;
+  isPlayer: boolean;
+  isNarrator: boolean;
+  isAdmin: boolean;
 }

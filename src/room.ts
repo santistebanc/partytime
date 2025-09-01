@@ -5,6 +5,9 @@ import { aiService } from "./aiService";
 interface User {
   id: string;
   name: string;
+  isPlayer: boolean;
+  isNarrator: boolean;
+  isAdmin: boolean;
 }
 
 interface QuizQuestion {
@@ -21,6 +24,7 @@ export default class RoomServer implements Party.Server {
   private users: Map<string, User> = new Map();
   private connections: Map<string, string> = new Map(); // connectionId -> userId
   private questionsGenerated = false;
+  private userToggles: Map<string, { isPlayer: boolean; isNarrator: boolean; isAdmin: boolean }> = new Map();
 
   constructor(readonly room: Party.Room) {}
 
@@ -70,6 +74,9 @@ export default class RoomServer implements Party.Server {
         case "getTopics":
           await this.handleGetTopics(sender);
           break;
+        case "updateUserToggles":
+          await this.handleUpdateUserToggles(data, sender);
+          break;
       }
     } catch (error) {
       console.error("Error handling message:", error);
@@ -103,19 +110,47 @@ export default class RoomServer implements Party.Server {
   ) {
     console.log("handleJoin", data, sender);
 
+    // Load user toggles from storage on first connection
+    if (this.userToggles.size === 0) {
+      this.loadUserTogglesFromStorage();
+    }
+    
     // Check if this user already exists
     const existingUser = this.users.get(data.userId);
     if (existingUser) {
       console.log(
         `User ${data.name} (${data.userId}) adding new connection to room ${this.room.id}`
       );
+      
+      // Restore user toggle states from storage
+      const storedToggles = this.userToggles.get(data.userId);
+      if (storedToggles) {
+        existingUser.isPlayer = storedToggles.isPlayer;
+        existingUser.isNarrator = storedToggles.isNarrator;
+        existingUser.isAdmin = storedToggles.isAdmin;
+      }
     } else {
       // New user joining
       const user: User = {
         id: data.userId,
         name: data.name,
+        isPlayer: true,
+        isNarrator: false,
+        isAdmin: this.users.size === 0, // First user gets admin by default
       };
       this.users.set(data.userId, user);
+      
+      // Store user toggles in room storage
+      const userToggleData = {
+        isPlayer: user.isPlayer,
+        isNarrator: user.isNarrator,
+        isAdmin: user.isAdmin
+      };
+      this.userToggles.set(data.userId, userToggleData);
+      
+      // Save to room storage
+      this.saveUserTogglesToStorage();
+      
       console.log(
         `New user ${data.name} (${data.userId}) joined room ${this.room.id}`
       );
@@ -161,12 +196,18 @@ export default class RoomServer implements Party.Server {
       `Total users in room: ${this.users.size}, total connections: ${this.connections.size}`
     );
 
-    // Send confirmation to the user
+    // Send confirmation to the user with their toggle states
+    const userToggles = this.userToggles.get(data.userId);
     sender.send(
       JSON.stringify({
         type: "joined",
         userId: data.userId,
         roomId: this.room.id,
+        userToggles: userToggles || {
+          isPlayer: true,
+          isNarrator: false,
+          isAdmin: this.users.size === 1
+        }
       })
     );
 
@@ -285,7 +326,7 @@ export default class RoomServer implements Party.Server {
         options: ["Sydney", "Melbourne", "Canberra", "Brisbane"],
         topic: "Geography",
         points: 20,
-        difficulty: "medium",
+        difficulty: "easy",
       },
       {
         id: crypto.randomUUID(),
@@ -294,7 +335,7 @@ export default class RoomServer implements Party.Server {
         options: ["Iron", "Fluorine", "Francium", "Fermium"],
         topic: "Science",
         points: 30,
-        difficulty: "hard",
+        difficulty: "medium",
       },
       {
         id: crypto.randomUUID(),
@@ -303,7 +344,7 @@ export default class RoomServer implements Party.Server {
         options: ["1943", "1944", "1945", "1946"],
         topic: "History",
         points: 20,
-        difficulty: "medium",
+        difficulty: "easy",
       },
       {
         id: crypto.randomUUID(),
@@ -317,7 +358,6 @@ export default class RoomServer implements Party.Server {
         ],
         topic: "Literature",
         points: 30,
-        difficulty: "hard",
       },
       {
         id: crypto.randomUUID(),
@@ -326,7 +366,6 @@ export default class RoomServer implements Party.Server {
         options: ["Saturn", "Jupiter", "Neptune", "Uranus"],
         topic: "Science",
         points: 20,
-        difficulty: "medium",
       },
       {
         id: crypto.randomUUID(),
@@ -335,7 +374,6 @@ export default class RoomServer implements Party.Server {
         options: ["New Zealand", "Australia", "South Africa", "Brazil"],
         topic: "Geography",
         points: 20,
-        difficulty: "medium",
       },
       {
         id: crypto.randomUUID(),
@@ -344,7 +382,6 @@ export default class RoomServer implements Party.Server {
         options: ["10", "11", "12", "13"],
         topic: "Mathematics",
         points: 30,
-        difficulty: "medium",
       },
       {
         id: crypto.randomUUID(),
@@ -353,7 +390,6 @@ export default class RoomServer implements Party.Server {
         options: ["Michelangelo", "Leonardo da Vinci", "Raphael", "Donatello"],
         topic: "Art",
         points: 30,
-        difficulty: "hard",
       },
       {
         id: crypto.randomUUID(),
@@ -362,7 +398,6 @@ export default class RoomServer implements Party.Server {
         options: ["Helium", "Hydrogen", "Oxygen", "Carbon"],
         topic: "Science",
         points: 20,
-        difficulty: "medium",
       },
       {
         id: crypto.randomUUID(),
@@ -371,7 +406,6 @@ export default class RoomServer implements Party.Server {
         options: ["English", "Spanish", "Mandarin Chinese", "Hindi"],
         topic: "General Knowledge",
         points: 30,
-        difficulty: "hard",
       },
     ];
 
@@ -564,6 +598,56 @@ export default class RoomServer implements Party.Server {
       })
     );
     console.log(`Broadcasted ${topics.length} topics to all users`);
+  }
+
+  private saveUserTogglesToStorage() {
+    const togglesData: Record<string, { isPlayer: boolean; isNarrator: boolean; isAdmin: boolean }> = {};
+    this.userToggles.forEach((toggles, userId) => {
+      togglesData[userId] = toggles;
+    });
+    (this.room.storage as any).userToggles = togglesData;
+    console.log(`Saved ${this.userToggles.size} user toggles to room storage`);
+  }
+
+  private loadUserTogglesFromStorage() {
+    const storedToggles = (this.room.storage as any).userToggles || {};
+    this.userToggles.clear();
+    Object.entries(storedToggles).forEach(([userId, toggles]: [string, any]) => {
+      this.userToggles.set(userId, toggles);
+    });
+    console.log(`Loaded ${this.userToggles.size} user toggles from room storage`);
+  }
+
+  private async handleUpdateUserToggles(
+    data: { userId: string; isPlayer?: boolean; isNarrator?: boolean; isAdmin?: boolean },
+    sender: Party.Connection
+  ) {
+    const user = this.users.get(data.userId);
+    if (user) {
+      if (data.isPlayer !== undefined) {
+        user.isPlayer = data.isPlayer;
+      }
+      if (data.isNarrator !== undefined) {
+        user.isNarrator = data.isNarrator;
+      }
+      if (data.isAdmin !== undefined) {
+        user.isAdmin = data.isAdmin;
+      }
+      
+      // Update user toggles in memory and save to room storage
+      const userToggleData = {
+        isPlayer: user.isPlayer,
+        isNarrator: user.isNarrator,
+        isAdmin: user.isAdmin
+      };
+      this.userToggles.set(data.userId, userToggleData);
+      this.saveUserTogglesToStorage();
+      
+      console.log(`Updated user ${user.name} toggles: player=${user.isPlayer}, narrator=${user.isNarrator}, admin=${user.isAdmin}`);
+      
+      // Broadcast updated user list to all users
+      this.broadcastUsers();
+    }
   }
 }
 

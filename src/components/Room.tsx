@@ -11,19 +11,16 @@ import {
   Edit3,
   Save,
   X,
-  User
+  User as UserIcon,
+  Mic,
+  Gamepad
 } from 'lucide-react';
 import { useSocket } from '../contexts/SocketContext';
 import QRCode from 'qrcode';
 import { PartytimeLogo } from './PartytimeLogo';
 import { getStoredUserId, setStoredUserId } from '../contexts/NavigationContext';
 import { QuizAdminPage } from './QuizAdminPage';
-import type { QuizQuestion } from '../types/quiz';
-
-interface User {
-  id: string;
-  name: string;
-}
+import type { QuizQuestion, User } from '../types/quiz';
 
 interface RoomProps {
   roomId: string;
@@ -44,6 +41,10 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [initialQuestions, setInitialQuestions] = useState<QuizQuestion[]>([]);
   const [initialTopics, setInitialTopics] = useState<string[]>([]);
+  const [isPlayer, setIsPlayer] = useState(true);
+  const [isNarrator, setIsNarrator] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const { socket, isConnected, sendMessage } = useSocket();
   const membersPanelRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
@@ -126,9 +127,13 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
         if (data.type === 'joined') {
           console.log('Joined room confirmation:', data);
           setCurrentUserId(data.userId);
-        } else if (data.type === 'users') {
-          console.log('Setting users:', data.users);
-          setUsers(data.users);
+          
+          // Set user toggle states from server
+          if (data.userToggles) {
+            setIsPlayer(data.userToggles.isPlayer);
+            setIsNarrator(data.userToggles.isNarrator);
+            setIsAdmin(data.userToggles.isAdmin);
+          }
         } else if (data.type === 'nameChanged') {
           console.log('Name changed:', data);
           // Update the user's name in the local state
@@ -159,6 +164,19 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
         } else if (data.type === 'topics') {
           console.log('Received topics from server:', data.topics);
           setInitialTopics(data.topics);
+        } else if (data.type === 'users') {
+          console.log('Setting users:', data.users);
+          setUsers(data.users);
+          
+          // Update current user's toggle states if available
+          if (currentUserId) {
+            const currentUser = data.users.find((user: User) => user.id === currentUserId);
+            if (currentUser) {
+              setIsPlayer(currentUser.isPlayer);
+              setIsNarrator(currentUser.isNarrator);
+              setIsAdmin(currentUser.isAdmin);
+            }
+          }
         }
       } catch (error) {
         console.error('Error parsing message:', error);
@@ -189,6 +207,40 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
       // No change, empty name, or no user ID, just close edit mode
       setIsEditingName(false);
       setEditingName(userName); // Reset to original name
+    }
+  };
+
+  const handlePlayerToggle = (newValue: boolean) => {
+    setIsPlayer(newValue);
+    if (currentUserId) {
+      sendMessage({
+        type: 'updateUserToggles',
+        userId: currentUserId,
+        isPlayer: newValue
+      });
+    }
+  };
+
+  const handleNarratorToggle = (newValue: boolean) => {
+    setIsNarrator(newValue);
+    if (currentUserId) {
+      sendMessage({
+        type: 'updateUserToggles',
+        userId: currentUserId,
+        isNarrator: newValue
+      });
+    }
+  };
+
+  const handleAdminToggle = (newValue: boolean) => {
+    setIsAdmin(newValue);
+    
+    if (currentUserId) {
+      sendMessage({
+        type: 'updateUserToggles',
+        userId: currentUserId,
+        isAdmin: newValue
+      });
     }
   };
 
@@ -235,13 +287,23 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                 <div className="qr-code">
                   {qrCodeDataUrl ? (
                     <motion.div 
-                      className="qr-code-container"
+                      className="qr-code-container clickable"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
+                      onClick={() => {
+                        const roomUrl = `${window.location.origin}?roomId=${roomId}`;
+                        navigator.clipboard.writeText(roomUrl).then(() => {
+                          setShowCopiedMessage(true);
+                          setTimeout(() => setShowCopiedMessage(false), 2000);
+                        }).catch(err => {
+                          console.error('Failed to copy URL:', err);
+                        });
+                      }}
+                      title="Click to copy room URL"
                     >
                       <img 
                         src={qrCodeDataUrl} 
-                        alt="QR Code to join this room"
+                        alt="QR Code to join this room (click to copy URL)"
                         className="qr-code-image"
                       />
                     </motion.div>
@@ -255,12 +317,17 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                       <span>Generating QR Code...</span>
                     </motion.div>
                   )}
+                  {showCopiedMessage && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -10 }}
+                      className="copied-message"
+                    >
+                      ✓ Room URL copied to clipboard!
+                    </motion.div>
+                  )}
                 </div>
-                <p className="room-link">
-                  <a href={`${window.location.origin}?roomId=${roomId}`} target="_blank" rel="noopener noreferrer">
-                    {window.location.origin}?roomId={roomId}
-                  </a>
-                </p>
               </motion.div>
             </div>
           </motion.div>
@@ -290,7 +357,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.1, duration: 0.15 }}
               >
-                <label htmlFor="userName">Your Name:</label>
+                <span className="setting-label">Your Name:</span>
                 <div className="name-edit">
                   {isEditingName ? (
                     <motion.div
@@ -347,11 +414,88 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                   )}
                 </div>
               </motion.div>
+              
+                            {/* Player Toggle */}
+              <motion.div 
+                className="setting-item"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.15, duration: 0.15 }}
+              >
+                <span className="setting-label">Participate in Game:</span>
+                <div className="toggle-control">
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      id="isPlayer"
+                      checked={isPlayer}
+                      onChange={(e) => handlePlayerToggle(e.target.checked)}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                  <span className="toggle-label">
+                    {isPlayer ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </motion.div>
+
+                            {/* Narrator Toggle */}
+              <motion.div 
+                className="setting-item"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.2, duration: 0.15 }}
+              >
+                <span className="setting-label">Read Questions Aloud:</span>
+                <div className="toggle-control">
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      id="isNarrator"
+                      checked={isNarrator}
+                      onChange={(e) => handleNarratorToggle(e.target.checked)}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                  <span className="toggle-label">
+                    {isNarrator ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Admin Toggle */}
+              <motion.div 
+                className="setting-item"
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.25, duration: 0.15 }}
+              >
+                <span className="setting-label">Admin Access:</span>
+                <div className="toggle-control">
+                  <label className="toggle-switch">
+                    <input
+                      type="checkbox"
+                      id="isAdmin"
+                      checked={isAdmin}
+                      onChange={(e) => handleAdminToggle(e.target.checked)}
+                    />
+                    <span className="toggle-slider"></span>
+                  </label>
+                  <span className="toggle-label">
+                    {isAdmin ? 'Yes' : 'No'}
+                  </span>
+                </div>
+              </motion.div>
             </div>
           </motion.div>
         );
       
       case 'admin':
+        if (!isAdmin) {
+          // Redirect to game page if user doesn't have admin access
+          setCurrentPage('game');
+          return null;
+        }
         return (
           <motion.div 
             key="admin"
@@ -430,15 +574,17 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
             >
               <Settings size={18} />
             </motion.button>
-            <motion.button 
-              onClick={() => setCurrentPage('admin')} 
-              className={`header-btn ${currentPage === 'admin' ? 'active' : ''}`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              title="Admin"
-            >
-              <Crown size={18} />
-            </motion.button>
+            {isAdmin && (
+              <motion.button 
+                onClick={() => setCurrentPage('admin')} 
+                className={`header-btn ${currentPage === 'admin' ? 'active' : ''}`}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                title="Admin"
+              >
+                <Crown size={18} />
+              </motion.button>
+            )}
  
             <motion.button 
               onClick={handleLeaveRoom} 
@@ -483,8 +629,25 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ delay: index * 0.05, duration: 0.15 }}
                     >
-                      <User size={16} className="user-avatar" />
+                      <UserIcon size={16} className="user-avatar" />
                       <span className="user-name">{user.name}</span>
+                      <div className="user-toggles">
+                        {user.isPlayer && (
+                          <div className="toggle-icon player-icon" title="Player">
+                            <Gamepad size={14} />
+                          </div>
+                        )}
+                        {user.isNarrator && (
+                          <div className="toggle-icon narrator-icon" title="Narrator">
+                            <Mic size={14} />
+                          </div>
+                        )}
+                        {user.isAdmin && (
+                          <div className="toggle-icon admin-icon" title="Admin">
+                            <Crown size={14} />
+                          </div>
+                        )}
+                      </div>
                     </motion.li>
                   ))}
                 </AnimatePresence>

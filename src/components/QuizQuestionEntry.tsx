@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Trash2, Save, X, ChevronDown, Eye } from 'lucide-react';
 import type { QuizQuestion } from '../types/quiz';
@@ -21,6 +21,24 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
   const [editedQuestion, setEditedQuestion] = useState<QuizQuestion>(question);
   const [showOptions, setShowOptions] = useState(false);
   const [isRevealed, setIsRevealed] = useState(false);
+
+  // Load revealed state from localStorage on component mount
+  useEffect(() => {
+    const revealedQuestions = JSON.parse(localStorage.getItem('partytime_revealed_questions') || '{}');
+    setIsRevealed(!!revealedQuestions[question.id]);
+  }, [question.id]);
+
+  // Save revealed state to localStorage when it changes
+  const handleRevealToggle = (revealed: boolean) => {
+    setIsRevealed(revealed);
+    const revealedQuestions = JSON.parse(localStorage.getItem('partytime_revealed_questions') || '{}');
+    if (revealed) {
+      revealedQuestions[question.id] = true;
+    } else {
+      delete revealedQuestions[question.id];
+    }
+    localStorage.setItem('partytime_revealed_questions', JSON.stringify(revealedQuestions));
+  };
 
   const handleSave = () => {
     onUpdate(editedQuestion);
@@ -110,21 +128,7 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
               />
             </div>
 
-            <div className="form-group">
-              <label>Difficulty:</label>
-              <select
-                value={editedQuestion.difficulty}
-                onChange={(e) => setEditedQuestion({ 
-                  ...editedQuestion, 
-                  difficulty: e.target.value as 'easy' | 'medium' | 'hard',
-                  points: e.target.value === 'easy' ? 10 : e.target.value === 'medium' ? 20 : 30
-                })}
-              >
-                <option value="easy">10 points</option>
-                <option value="medium">20 points</option>
-                <option value="hard">30 points</option>
-              </select>
-            </div>
+
 
             <div className="form-group">
               <label>Points:</label>
@@ -134,6 +138,7 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
                 onChange={(e) => setEditedQuestion({ ...editedQuestion, points: parseInt(e.target.value) || 10 })}
                 min="10"
                 max="30"
+                step="10"
               />
             </div>
           </div>
@@ -163,7 +168,7 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
             <div className="action-buttons">
               {!isRevealed ? (
                 <button
-                  onClick={() => setIsRevealed(true)}
+                  onClick={() => handleRevealToggle(true)}
                   className="btn-reveal-question"
                   title="Reveal question"
                 >
