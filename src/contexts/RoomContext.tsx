@@ -1,11 +1,38 @@
-import { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import type { ReactNode } from 'react';
+import { useNavigation } from '../hooks/useNavigation';
 import { useSocket } from '../contexts/SocketContext';
 import { getStoredUserId, setStoredUserId } from '../contexts/NavigationContext';
 import type { QuizQuestion, User } from '../types/quiz';
 import { generateUserId } from '../utils';
-import { useSocketListener } from './useSocketListener';
+import { useSocketListener } from '../hooks/useSocketListener';
 
-export const useRoom = (roomId: string, userName: string) => {
+interface RoomContextType {
+  users: User[];
+  currentUserId: string;
+  initialQuestions: QuizQuestion[];
+  initialTopics: string[];
+  revealState: Record<string, boolean>;
+  isPlayer: boolean;
+  isNarrator: boolean;
+  isAdmin: boolean;
+  socket: any;
+  handleNameChange: (newName: string) => void;
+  handlePlayerToggle: (value: boolean) => void;
+  handleNarratorToggle: (value: boolean) => void;
+  handleAdminToggle: (value: boolean) => void;
+}
+
+const RoomContext = createContext<RoomContextType | null>(null);
+
+interface RoomProviderProps {
+  children: ReactNode;
+}
+
+export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
+  const { roomId, userName } = useNavigation();
+  const { socket, isConnected, sendMessage } = useSocket();
+  
   const [users, setUsers] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>('');
   const [initialQuestions, setInitialQuestions] = useState<QuizQuestion[]>([]);
@@ -14,7 +41,6 @@ export const useRoom = (roomId: string, userName: string) => {
   const [isPlayer, setIsPlayer] = useState(true);
   const [isNarrator, setIsNarrator] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
-  const { socket, isConnected, sendMessage } = useSocket();
 
   // Join room when socket connects
   useEffect(() => {
@@ -138,7 +164,7 @@ export const useRoom = (roomId: string, userName: string) => {
     }
   }, [currentUserId, sendMessage]);
 
-  return {
+  const roomState: RoomContextType = {
     users,
     currentUserId,
     initialQuestions,
@@ -153,4 +179,18 @@ export const useRoom = (roomId: string, userName: string) => {
     handleNarratorToggle,
     handleAdminToggle
   };
+  
+  return (
+    <RoomContext.Provider value={roomState}>
+      {children}
+    </RoomContext.Provider>
+  );
+};
+
+export const useRoomContext = (): RoomContextType => {
+  const context = useContext(RoomContext);
+  if (!context) {
+    throw new Error('useRoomContext must be used within a RoomProvider');
+  }
+  return context;
 };

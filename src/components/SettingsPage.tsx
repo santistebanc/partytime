@@ -1,34 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Edit3, Save, X } from 'lucide-react';
+import { useRoomContext } from '../contexts/RoomContext';
 
-interface SettingsPageProps {
-  userName: string;
-  isPlayer: boolean;
-  isNarrator: boolean;
-  isAdmin: boolean;
-  onNameChange: (newName: string) => void;
-  onPlayerToggle: (value: boolean) => void;
-  onNarratorToggle: (value: boolean) => void;
-  onAdminToggle: (value: boolean) => void;
-}
-
-export const SettingsPage: React.FC<SettingsPageProps> = ({
-  userName,
-  isPlayer,
-  isNarrator,
-  isAdmin,
-  onNameChange,
-  onPlayerToggle,
-  onNarratorToggle,
-  onAdminToggle
-}) => {
+export const SettingsPage: React.FC = () => {
+  const { 
+    users, 
+    isPlayer, 
+    isNarrator, 
+    isAdmin, 
+    handleNameChange,
+    handlePlayerToggle,
+    handleNarratorToggle,
+    handleAdminToggle 
+  } = useRoomContext();
+  
+  // Get current user's name from users array
+  const currentUser = users.find(user => user.isCurrentUser) || users[0];
+  const userName = currentUser?.name || '';
   const [editingName, setEditingName] = useState(userName);
   const [isEditingName, setIsEditingName] = useState(false);
 
   const handleNameSave = () => {
     if (editingName.trim() && editingName !== userName) {
-      onNameChange(editingName.trim());
+      handleNameChange(editingName.trim());
     }
     setIsEditingName(false);
   };
@@ -145,7 +140,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 type="checkbox"
                 id="isPlayer"
                 checked={isPlayer}
-                onChange={(e) => onPlayerToggle(e.target.checked)}
+                onChange={(e) => handlePlayerToggle(e.target.checked)}
               />
               <span className="toggle-slider"></span>
             </label>
@@ -169,7 +164,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 type="checkbox"
                 id="isNarrator"
                 checked={isNarrator}
-                onChange={(e) => onNarratorToggle(e.target.checked)}
+                onChange={(e) => handleNarratorToggle(e.target.checked)}
               />
               <span className="toggle-slider"></span>
             </label>
@@ -193,7 +188,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({
                 type="checkbox"
                 id="isAdmin"
                 checked={isAdmin}
-                onChange={(e) => onAdminToggle(e.target.checked)}
+                onChange={(e) => handleAdminToggle(e.target.checked)}
               />
               <span className="toggle-slider"></span>
             </label>

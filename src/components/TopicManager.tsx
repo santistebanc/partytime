@@ -1,34 +1,34 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
+import { useRoomContext } from '../contexts/RoomContext';
+import { useTopicManagement } from '../hooks/useTopicManagement';
 
-interface TopicManagerProps {
-  topics: string[];
-  onTopicsChange: (topics: string[]) => void;
-}
+interface TopicManagerProps {}
 
-export const TopicManager: React.FC<TopicManagerProps> = ({
-  topics,
-  onTopicsChange,
-}) => {
+export const TopicManager: React.FC<TopicManagerProps> = () => {
+  const { initialTopics: initialTopicsFromContext } = useRoomContext();
   const [newTopic, setNewTopic] = useState('');
-
-  const addTopic = () => {
+  
+    // Use the useTopicManagement hook directly
+  const { topics, addTopic, deleteTopic } = useTopicManagement(initialTopicsFromContext, null);
+  
+  const handleAddTopic = () => {
     const trimmedTopic = newTopic.trim();
     if (trimmedTopic && !topics.includes(trimmedTopic)) {
-      onTopicsChange([...topics, trimmedTopic]);
+      addTopic(trimmedTopic);
       setNewTopic('');
     }
   };
 
-  const removeTopic = (topicToRemove: string) => {
-    onTopicsChange(topics.filter(topic => topic !== topicToRemove));
+  const handleRemoveTopic = (topicToRemove: string) => {
+    deleteTopic(topicToRemove);
   };
-
+  
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       e.preventDefault();
-      addTopic();
+      handleAddTopic();
     }
   };
 
@@ -64,7 +64,7 @@ export const TopicManager: React.FC<TopicManagerProps> = ({
                 >
                   <span className="topic-name">{topic}</span>
                   <button
-                    onClick={() => removeTopic(topic)}
+                    onClick={() => handleRemoveTopic(topic)}
                     className="btn-remove-topic"
                     title="Remove topic"
                   >
@@ -83,7 +83,7 @@ export const TopicManager: React.FC<TopicManagerProps> = ({
             />
             {newTopic.trim() && (
               <button
-                onClick={addTopic}
+                onClick={handleAddTopic}
                 className="btn-add-topic-inline"
                 title="Add topic"
               >

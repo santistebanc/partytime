@@ -1,19 +1,18 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserIcon, Mic, Gamepad, Crown } from 'lucide-react';
-import type { User } from '../types/quiz';
+import { useRoomContext } from '../contexts/RoomContext';
 
 interface MembersPanelProps {
-  users: User[];
   showMembersPanel: boolean;
   onRef: (ref: HTMLDivElement | null) => void;
 }
 
 export const MembersPanel: React.FC<MembersPanelProps> = ({
-  users,
   showMembersPanel,
   onRef
 }) => {
+  const { users } = useRoomContext();
   return (
     <motion.div 
       ref={onRef}

@@ -1,10 +1,11 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { NavigationProvider } from '../contexts/NavigationContext';
-import { useNavigation } from '../hooks/useNavigation';
-import { SocketProvider } from '../contexts/SocketContext';
-import { Lobby } from './Lobby';
-import { Room } from './Room';
+import React from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { NavigationProvider } from "../contexts/NavigationContext";
+import { useNavigation } from "../hooks/useNavigation";
+import { SocketProvider } from "../contexts/SocketContext";
+import { Lobby } from "./Lobby";
+import { Room } from "./Room";
+import { RoomProvider } from "../contexts/RoomContext";
 
 const AppContent: React.FC = () => {
   const { roomId, userName } = useNavigation();
@@ -20,11 +21,10 @@ const AppContent: React.FC = () => {
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <SocketProvider roomId={roomId}>
-              <Room 
-                roomId={roomId} 
-                userName={userName} 
-              />
+            <SocketProvider>
+              <RoomProvider>
+                <Room />
+              </RoomProvider>
             </SocketProvider>
           </motion.div>
         ) : (

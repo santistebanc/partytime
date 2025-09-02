@@ -4,26 +4,20 @@ import { Wand2, AlertCircle } from "lucide-react";
 import type { QuizQuestion } from "../types/quiz";
 import { QuestionManager } from "./QuestionManager";
 import { TopicManager } from "./TopicManager";
-import { useSocket } from "../contexts/SocketContext";
+import { useRoomContext } from "../contexts/RoomContext";
 import { useAIGeneration } from "../hooks/useAIGeneration";
 import { useTopicManagement } from "../hooks/useTopicManagement";
 
 
-interface QuizAdminPageProps {
-  initialQuestions?: QuizQuestion[];
-  initialTopics?: string[];
-  socket?: any; // PartySocket instance
-  revealState?: Record<string, boolean>;
-}
+interface QuizAdminPageProps {}
 
-export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
-  initialQuestions = [],
-  initialTopics = [],
-  socket,
-  revealState = {},
-}) => {
-  const { socket: contextSocket } = useSocket();
-  const activeSocket = socket || contextSocket;
+export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
+  const { 
+    initialQuestions = [], 
+    initialTopics = [], 
+    socket: activeSocket, 
+    revealState = {} 
+  } = useRoomContext();
   
   // Questions are now managed directly from props, no local state needed
   
@@ -87,10 +81,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
           
           <div className="topics-ai-content">
             <div className="topics-input-area">
-              <TopicManager
-                topics={topics}
-                onTopicsChange={handleTopicsChange}
-              />
+              <TopicManager />
             </div>
             
             <div className="generate-button-area">
@@ -115,16 +106,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = ({
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3, duration: 0.2 }}
         >
-          <QuestionManager
-            questions={initialQuestions}
-            onQuestionsChange={() => {}} // Not needed anymore
-            onQuestionAdd={() => {}} // Not needed anymore
-            onQuestionUpdate={() => {}} // Not needed anymore
-            onQuestionDelete={() => {}} // Not needed anymore
-            onReorder={() => {}} // Not needed anymore
-            socket={activeSocket}
-            revealState={revealState}
-          />
+          <QuestionManager />
         </motion.div>
       </div>
     </div>

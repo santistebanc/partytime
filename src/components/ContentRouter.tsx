@@ -3,62 +3,34 @@ import { AnimatePresence } from 'framer-motion';
 import { GamePage } from './GamePage';
 import { SettingsPage } from './SettingsPage';
 import { QuizAdminPage } from './QuizAdminPage';
-import type { QuizQuestion } from '../types/quiz';
+import { useNavigation } from '../hooks/useNavigation';
+import { useRoomContext } from '../contexts/RoomContext';
 
 interface ContentRouterProps {
   currentPage: 'game' | 'settings' | 'admin';
-  roomId: string;
-  userName: string;
-  isPlayer: boolean;
-  isNarrator: boolean;
-  isAdmin: boolean;
-  initialQuestions: QuizQuestion[];
-  initialTopics: string[];
-  revealState: Record<string, boolean>;
-  socket: any;
-  onNameChange: (newName: string) => void;
-  onPlayerToggle: (value: boolean) => void;
-  onNarratorToggle: (value: boolean) => void;
-  onAdminToggle: (value: boolean) => void;
 }
 
 export const ContentRouter: React.FC<ContentRouterProps> = ({
-  currentPage,
-  roomId,
-  userName,
-  isPlayer,
-  isNarrator,
-  isAdmin,
-  initialQuestions,
-  initialTopics,
-  revealState,
-  socket,
-  onNameChange,
-  onPlayerToggle,
-  onNarratorToggle,
-  onAdminToggle
+  currentPage
 }) => {
+  const { roomId, userName } = useNavigation();
+  const { isPlayer, isNarrator, isAdmin } = useRoomContext();
+  
+  // Ensure roomId and userName are strings (they should be since we're in Room component)
+  const roomIdStr = roomId || '';
+  const userNameStr = userName || '';
   const renderContent = () => {
     switch (currentPage) {
       case 'game':
         return (
           <GamePage 
-            roomId={roomId}
+            roomId={roomIdStr}
           />
         );
       
       case 'settings':
         return (
-          <SettingsPage
-            userName={userName}
-            isPlayer={isPlayer}
-            isNarrator={isNarrator}
-            isAdmin={isAdmin}
-            onNameChange={onNameChange}
-            onPlayerToggle={onPlayerToggle}
-            onNarratorToggle={onNarratorToggle}
-            onAdminToggle={onAdminToggle}
-          />
+          <SettingsPage />
         );
       
       case 'admin':
@@ -66,12 +38,7 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
           return null;
         }
         return (
-          <QuizAdminPage 
-            initialQuestions={initialQuestions} 
-            initialTopics={initialTopics} 
-            socket={socket}
-            revealState={revealState}
-          />
+          <QuizAdminPage />
         );
       
       default:

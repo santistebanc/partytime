@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { 
   Gamepad2, 
@@ -7,34 +7,41 @@ import {
   Users, 
   LogOut
 } from 'lucide-react';
+import { useRoomContext } from '../contexts/RoomContext';
+import { useNavigation } from '../hooks/useNavigation';
 
 interface RoomHeaderProps {
-  roomId: string;
   currentPage: 'game' | 'settings' | 'admin';
-  usersCount: number;
-  isAdmin: boolean;
-  showMembersPanel: boolean;
   onPageChange: (page: 'game' | 'settings' | 'admin') => void;
-  onToggleMembersPanel: () => void;
-  onLeaveRoom: () => void;
+  onMembersPanelToggle: (show: boolean) => void;
 }
 
 export const RoomHeader: React.FC<RoomHeaderProps> = ({
-  roomId,
   currentPage,
-  usersCount,
-  isAdmin,
-  showMembersPanel,
   onPageChange,
-  onToggleMembersPanel,
-  onLeaveRoom
+  onMembersPanelToggle
 }) => {
+  const [showMembersPanel, setShowMembersPanel] = useState(false);
+  const { roomId, userName, navigateToLobby } = useNavigation();
+  const { users, isAdmin } = useRoomContext();
+  
+  const handleLeaveRoom = () => {
+    navigateToLobby();
+  };
+  
+  const toggleMembersPanel = () => {
+    const newShowState = !showMembersPanel;
+    setShowMembersPanel(newShowState);
+    onMembersPanelToggle(newShowState);
+  };
+  
+  const usersCount = users.length;
   return (
     <motion.header className="room-header">
       <div className="header-content">
         {/* Members Toggle Button - Left Side */}
         <motion.button 
-          onClick={onToggleMembersPanel} 
+          onClick={toggleMembersPanel} 
           className={`members-toggle-btn ${showMembersPanel ? 'active' : ''}`}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
@@ -96,7 +103,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
             </motion.button>
           )}
           <motion.button 
-            onClick={onLeaveRoom} 
+            onClick={handleLeaveRoom} 
             className="header-btn btn-leave"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}

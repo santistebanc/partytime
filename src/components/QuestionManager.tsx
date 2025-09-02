@@ -5,29 +5,13 @@ import type { DropResult } from "@hello-pangea/dnd";
 import type { QuizQuestion } from "../types/quiz";
 import { QuizQuestionEntry } from "./QuizQuestionEntry";
 import { useSocketMessage } from '../hooks/useSocketMessage';
+import { useRoomContext } from '../contexts/RoomContext';
 import { generateId } from '../utils';
 
-interface QuestionManagerProps {
-  questions: QuizQuestion[];
-  onQuestionsChange: (questions: QuizQuestion[]) => void;
-  onQuestionAdd: (question: Omit<QuizQuestion, "id">) => void;
-  onQuestionUpdate: (question: QuizQuestion) => void;
-  onQuestionDelete: (id: string) => void;
-  onReorder: (questionIds: string[]) => void;
-  socket: any;
-  revealState: Record<string, boolean>;
-}
+interface QuestionManagerProps {}
 
-export const QuestionManager: React.FC<QuestionManagerProps> = ({
-  questions,
-  onQuestionsChange,
-  onQuestionAdd,
-  onQuestionUpdate,
-  onQuestionDelete,
-  onReorder,
-  socket,
-  revealState
-}) => {
+export const QuestionManager: React.FC<QuestionManagerProps> = () => {
+  const { initialQuestions: questions, socket, revealState } = useRoomContext();
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
   const sendMessage = useSocketMessage(socket);
@@ -42,19 +26,13 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
       const [removed] = newItems.splice(source.index, 1);
       newItems.splice(destination.index, 0, removed);
       
-      // Update local state immediately for responsiveness
-      onQuestionsChange(newItems);
-      
       // Send reorder to server
       sendMessage({
         type: 'reorderQuestions',
         questionIds: newItems.map(q => q.id)
       });
-      
-      // Call the reorder callback
-      onReorder(newItems.map(q => q.id));
     }
-  }, [questions, onQuestionsChange, onReorder, sendMessage]);
+  }, [questions, sendMessage]);
 
   const addQuestion = useCallback((question: Omit<QuizQuestion, "id">) => {
     const newQuestion: QuizQuestion = {
@@ -62,48 +40,28 @@ export const QuestionManager: React.FC<QuestionManagerProps> = ({
       id: generateId(),
     };
     
-    // Update local state immediately for responsiveness
-    onQuestionsChange([...questions, newQuestion]);
-    
     // Send to server
     sendMessage({
       type: 'addQuestion',
       question: newQuestion
     });
-    
-    // Call the add callback
-    onQuestionAdd(question);
-  }, [questions, onQuestionsChange, onQuestionAdd, sendMessage]);
+  }, [sendMessage]);
 
   const updateQuestion = useCallback((updatedQuestion: QuizQuestion) => {
-    // Update local state immediately for responsiveness
-    onQuestionsChange(
-      questions.map((q) => (q.id === updatedQuestion.id ? updatedQuestion : q))
-    );
-    
     // Send to server
     sendMessage({
       type: 'updateQuestion',
       question: updatedQuestion
     });
-    
-    // Call the update callback
-    onQuestionUpdate(updatedQuestion);
-  }, [questions, onQuestionsChange, onQuestionUpdate, sendMessage]);
+  }, [sendMessage]);
 
   const deleteQuestion = useCallback((id: string) => {
-    // Update local state immediately for responsiveness
-    onQuestionsChange(questions.filter((q) => q.id !== id));
-    
     // Send delete to server
     sendMessage({
       type: 'deleteQuestion',
       questionId: id
     });
-    
-    // Call the delete callback
-    onQuestionDelete(id);
-  }, [questions, onQuestionsChange, onQuestionDelete, sendMessage]);
+  }, [sendMessage]);
 
   const handleRevealToggle = useCallback((questionId: string, revealed: boolean) => {
     // Send reveal state update to server
