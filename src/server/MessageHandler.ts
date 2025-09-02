@@ -16,10 +16,10 @@ export class MessageHandler {
     try {
       const data = JSON.parse(message);
 
-      // Handle legacy message types for backward compatibility
+      // Only handle unified state change messages
       if (data.type !== 'stateChange') {
-        console.warn(`Legacy message type received: ${data.type}. Please update to use unified messaging.`);
-        await this.handleLegacyMessage(data, sender);
+        console.warn(`Invalid message type received: ${data.type}. Only 'stateChange' messages are supported.`);
+        await this.sendErrorResponse(sender, `Invalid message type: ${data.type}`);
         return;
       }
 
@@ -100,55 +100,7 @@ export class MessageHandler {
     }
   }
 
-  private async handleLegacyMessage(data: any, sender: Party.Connection): Promise<void> {
-    // Legacy message handling for backward compatibility
-    switch (data.type) {
-      case "join":
-        await this.handleJoin(data, sender);
-        break;
-      case "leave":
-        await this.handleLeave(data, sender);
-        break;
-      case "changeName":
-        await this.handleNameChange(data, sender);
-        break;
-      case "generateQuestions":
-        await this.handleGenerateQuestions(data, sender);
-        break;
-      case "addQuestion":
-        await this.handleAddQuestion(data, sender);
-        break;
-      case "updateQuestion":
-        await this.handleUpdateQuestion(data, sender);
-        break;
-      case "deleteQuestion":
-        await this.handleDeleteQuestion(data, sender);
-        break;
-      case "reorderQuestions":
-        await this.handleReorderQuestions(data, sender);
-        break;
-      case "getQuestions":
-        await this.handleGetQuestions(sender);
-        break;
-      case "addTopic":
-        await this.handleAddTopic(data, sender);
-        break;
-      case "removeTopic":
-        await this.handleRemoveTopic(data, sender);
-        break;
-      case "getTopics":
-        await this.handleGetTopics(sender);
-        break;
-      case "updateRevealState":
-        await this.handleUpdateRevealState(data, sender);
-        break;
-      case "updateUserToggles":
-        await this.handleUpdateUserToggles(data, sender);
-        break;
-      default:
-        console.warn(`Unknown message type: ${data.type}`);
-    }
-  }
+
 
   private async sendErrorResponse(sender: Party.Connection, message: string, error?: any): Promise<void> {
     const response: StateUpdateResponse = {
@@ -197,22 +149,7 @@ export class MessageHandler {
       `Total users in room: ${this.gameStateManager.getUserCount()}, total connections: ${this.gameStateManager.getConnectionCount()}`
     );
 
-    // Send confirmation to the user
-    const user = this.gameStateManager.getUser(data.userId);
-    sendMessage(sender, {
-      type: "joined",
-      userId: data.userId,
-      roomId: this.room.id,
-      userToggles: user ? {
-        isPlayer: user.isPlayer,
-        isNarrator: user.isNarrator,
-        isAdmin: user.isAdmin
-      } : {
-        isPlayer: true,
-        isNarrator: false,
-        isAdmin: this.gameStateManager.getUserCount() === 1
-      }
-    });
+
   }
 
   private async handleLeave(
@@ -220,11 +157,6 @@ export class MessageHandler {
     sender: Party.Connection
   ): Promise<void> {
     await this.gameStateManager.removeUser(data.userId, sender.id);
-
-    sendMessage(sender, {
-      type: "left",
-      userId: data.userId,
-    });
   }
 
   private async handleNameChange(
@@ -251,21 +183,9 @@ export class MessageHandler {
         count: data.count || 5
       });
       
-      // Send success response
-      sendMessage(sender, {
-        type: "questionsGenerated",
-        questions: response.questions
-      });
-      
       console.log(`Generated ${response.questions.length} questions successfully`);
     } catch (error) {
       console.error("Error generating questions:", error);
-      
-      // Send error response
-      sendMessage(sender, {
-        type: "questionsGenerationError",
-        error: error instanceof Error ? error.message : "Failed to generate questions"
-      });
     }
   }
 
@@ -301,13 +221,7 @@ export class MessageHandler {
     console.log("Questions reordered");
   }
 
-  private async handleGetQuestions(sender: Party.Connection): Promise<void> {
-    const state = this.gameStateManager.getState();
-    sendMessage(sender, {
-      type: "questions",
-      questions: state.questions,
-    });
-  }
+
 
   private async handleAddTopic(
     data: { topic: string },
@@ -325,13 +239,7 @@ export class MessageHandler {
     console.log("Topic removed:", data.topic);
   }
 
-  private async handleGetTopics(sender: Party.Connection): Promise<void> {
-    const state = this.gameStateManager.getState();
-    sendMessage(sender, {
-      type: "topics",
-      topics: state.topics,
-    });
-  }
+
 
   private async handleUpdateRevealState(
     data: { questionId: string; revealed: boolean },
