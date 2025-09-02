@@ -5,15 +5,12 @@ import QRCode from 'qrcode';
 
 interface QRCodeSectionProps {
   roomId: string;
-  showCopiedMessage: boolean;
-  onCopyMessage: () => void;
 }
 
 export const QRCodeSection: React.FC<QRCodeSectionProps> = ({ 
-  roomId, 
-  showCopiedMessage, 
-  onCopyMessage 
+  roomId
 }) => {
+  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
 
   // Generate QR code for the room
@@ -44,7 +41,8 @@ export const QRCodeSection: React.FC<QRCodeSectionProps> = ({
     try {
       const roomUrl = `${window.location.origin}?roomId=${roomId}`;
       await navigator.clipboard.writeText(roomUrl);
-      onCopyMessage();
+      setShowCopiedMessage(true);
+      setTimeout(() => setShowCopiedMessage(false), 2000);
     } catch (err) {
       console.error('Failed to copy URL:', err);
     }

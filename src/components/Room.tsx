@@ -14,11 +14,9 @@ interface RoomProps {
 export const Room: React.FC<RoomProps> = ({ roomId, userName }) => {
   const [currentPage, setCurrentPage] = useState<'game' | 'settings' | 'admin'>('game');
   const [showMembersPanel, setShowMembersPanel] = useState(false);
-  const [showCopiedMessage, setShowCopiedMessage] = useState(false);
   
   const {
     users,
-    currentUserId,
     initialQuestions,
     initialTopics,
     revealState,
@@ -68,10 +66,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName }) => {
     setShowMembersPanel(!showMembersPanel);
   };
 
-  const handleCopyMessage = () => {
-    setShowCopiedMessage(true);
-    setTimeout(() => setShowCopiedMessage(false), 2000);
-  };
+
 
 
 
@@ -104,7 +99,6 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName }) => {
           isPlayer={isPlayer}
           isNarrator={isNarrator}
           isAdmin={isAdmin}
-          showCopiedMessage={showCopiedMessage}
           initialQuestions={initialQuestions}
           initialTopics={initialTopics}
           revealState={revealState}
@@ -113,7 +107,6 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName }) => {
           onPlayerToggle={handlePlayerToggle}
           onNarratorToggle={handleNarratorToggle}
           onAdminToggle={handleAdminToggle}
-          onCopyMessage={handleCopyMessage}
         />
       </div>
     </div>

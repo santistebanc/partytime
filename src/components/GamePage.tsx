@@ -5,14 +5,10 @@ import { QRCodeSection } from './QRCodeSection';
 
 interface GamePageProps {
   roomId: string;
-  showCopiedMessage: boolean;
-  onCopyMessage: () => void;
 }
 
 export const GamePage: React.FC<GamePageProps> = ({
-  roomId,
-  showCopiedMessage,
-  onCopyMessage
+  roomId
 }) => {
   return (
     <motion.div 
@@ -42,8 +38,6 @@ export const GamePage: React.FC<GamePageProps> = ({
         
         <QRCodeSection 
           roomId={roomId}
-          showCopiedMessage={showCopiedMessage}
-          onCopyMessage={onCopyMessage}
         />
       </div>
     </motion.div>

@@ -12,7 +12,6 @@ interface ContentRouterProps {
   isPlayer: boolean;
   isNarrator: boolean;
   isAdmin: boolean;
-  showCopiedMessage: boolean;
   initialQuestions: QuizQuestion[];
   initialTopics: string[];
   revealState: Record<string, boolean>;
@@ -21,7 +20,6 @@ interface ContentRouterProps {
   onPlayerToggle: (value: boolean) => void;
   onNarratorToggle: (value: boolean) => void;
   onAdminToggle: (value: boolean) => void;
-  onCopyMessage: () => void;
 }
 
 export const ContentRouter: React.FC<ContentRouterProps> = ({
@@ -31,7 +29,6 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
   isPlayer,
   isNarrator,
   isAdmin,
-  showCopiedMessage,
   initialQuestions,
   initialTopics,
   revealState,
@@ -39,8 +36,7 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
   onNameChange,
   onPlayerToggle,
   onNarratorToggle,
-  onAdminToggle,
-  onCopyMessage
+  onAdminToggle
 }) => {
   const renderContent = () => {
     switch (currentPage) {
@@ -48,8 +44,6 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
         return (
           <GamePage 
             roomId={roomId}
-            showCopiedMessage={showCopiedMessage}
-            onCopyMessage={onCopyMessage}
           />
         );
       

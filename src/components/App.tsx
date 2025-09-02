@@ -9,8 +9,6 @@ import { Room } from './Room';
 const AppContent: React.FC = () => {
   const { roomId, userName } = useNavigation();
 
-
-
   return (
     <div className="app">
       <AnimatePresence mode="wait">
