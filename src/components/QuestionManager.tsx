@@ -1,76 +1,61 @@
-import React, { useState, useCallback, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import React, { useCallback } from "react";
+import { motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
-import type { QuizQuestion } from "../types/quiz";
 import { QuizQuestionEntry } from "./QuizQuestionEntry";
-import { useSocketMessage } from '../hooks/useSocketMessage';
-import { useRoomContext } from '../contexts/RoomContext';
-import { generateId } from '../utils';
+import { useSocketMessage } from "../hooks/useSocketMessage";
+import { useRoomContext } from "../contexts/RoomContext";
 
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
   const { gameState, socket } = useRoomContext();
-  const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
   const sendMessage = useSocketMessage(socket);
 
-  const handleDragEnd = useCallback((result: DropResult) => {
-    if (!result.destination) return;
+  const handleDragEnd = useCallback(
+    (result: DropResult) => {
+      if (!result.destination) return;
 
-    const { source, destination } = result;
+      const { source, destination } = result;
 
-    if (source.index !== destination.index) {
-      const newItems = Array.from(gameState.questions);
-      const [removed] = newItems.splice(source.index, 1);
-      newItems.splice(destination.index, 0, removed);
-      
-      // Send reorder to server
+      if (source.index !== destination.index) {
+        const newItems = Array.from(gameState.questions);
+        const [removed] = newItems.splice(source.index, 1);
+        newItems.splice(destination.index, 0, removed);
+
+        // Send reorder to server
+        sendMessage({
+          type: "reorderQuestions",
+          questionIds: newItems.map((q) => q.id),
+        });
+      }
+    },
+    [gameState.questions, sendMessage]
+  );
+
+  const deleteQuestion = useCallback(
+    (id: string) => {
+      // Send delete to server
       sendMessage({
-        type: 'reorderQuestions',
-        questionIds: newItems.map(q => q.id)
+        type: "deleteQuestion",
+        questionId: id,
       });
-    }
-  }, [gameState.questions, sendMessage]);
+    },
+    [sendMessage]
+  );
 
-  const addQuestion = useCallback((question: Omit<QuizQuestion, "id">) => {
-    const newQuestion: QuizQuestion = {
-      ...question,
-      id: generateId(),
-    };
-    
-    // Send to server
-    sendMessage({
-      type: 'addQuestion',
-      question: newQuestion
-    });
-  }, [sendMessage]);
-
-  const updateQuestion = useCallback((updatedQuestion: QuizQuestion) => {
-    // Send to server
-    sendMessage({
-      type: 'updateQuestion',
-      question: updatedQuestion
-    });
-  }, [sendMessage]);
-
-  const deleteQuestion = useCallback((id: string) => {
-    // Send delete to server
-    sendMessage({
-      type: 'deleteQuestion',
-      questionId: id
-    });
-  }, [sendMessage]);
-
-  const handleRevealToggle = useCallback((questionId: string, revealed: boolean) => {
-    // Send reveal state update to server
-    sendMessage({
-      type: 'updateRevealState',
-      questionId,
-      revealed
-    });
-  }, [sendMessage]);
+  const handleRevealToggle = useCallback(
+    (questionId: string, revealed: boolean) => {
+      // Send reveal state update to server
+      sendMessage({
+        type: "updateRevealState",
+        questionId,
+        revealed,
+      });
+    },
+    [sendMessage]
+  );
 
   return (
     <div className="questions-section">
@@ -81,14 +66,14 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
       >
         Questions ({gameState.questions.length})
       </motion.h3>
-      
+
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="questions">
           {(provided) => (
             <div
-              {...provided.droppableProps}
-              ref={provided.innerRef}
               className="questions-list"
+              ref={provided.innerRef}
+              {...provided.droppableProps}
             >
               {gameState.questions.map((question, index) => (
                 <Draggable
@@ -100,24 +85,15 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
                     <div
                       ref={provided.innerRef}
                       {...provided.draggableProps}
-                      style={{
-                        ...provided.draggableProps.style,
-                        transform: snapshot.isDragging
-                          ? provided.draggableProps.style?.transform
-                          : 'none',
-                      }}
+                      {...provided.dragHandleProps}
+                      className={snapshot.isDragging ? "dragging" : ""}
                     >
-                      <div {...provided.dragHandleProps} style={{ cursor: 'grab' }}>
-                        <QuizQuestionEntry
-                          question={question}
-                          onUpdate={updateQuestion}
-                          onDelete={deleteQuestion}
-                          isEditing={editingQuestionId === question.id}
-                          onEditToggle={() => setEditingQuestionId(editingQuestionId === question.id ? null : question.id)}
-                          isRevealed={false}
-                          onRevealToggle={handleRevealToggle}
-                        />
-                      </div>
+                      <QuizQuestionEntry
+                        question={question}
+                        onDelete={deleteQuestion}
+                        isRevealed={false}
+                        onRevealToggle={handleRevealToggle}
+                      />
                     </div>
                   )}
                 </Draggable>
@@ -127,8 +103,6 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
           )}
         </Droppable>
       </DragDropContext>
-      
-
     </div>
   );
 };
