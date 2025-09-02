@@ -8,7 +8,8 @@ import { useApp } from "../contexts/AppContext";
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
-  const { gameState, sendMessage } = useApp();
+  const { questions, reorderQuestions, deleteQuestion, updateRevealState } =
+    useApp();
 
   const handleDragEnd = useCallback(
     (result: DropResult) => {
@@ -17,31 +18,31 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
       const { source, destination } = result;
 
       if (source.index !== destination.index) {
-        const newItems = Array.from(gameState.questions);
+        const newItems = Array.from(questions);
         const [removed] = newItems.splice(source.index, 1);
         newItems.splice(destination.index, 0, removed);
 
         // Send reorder to server
-        sendMessage('reorderQuestions', { questionIds: newItems.map((q) => q.id) });
+        reorderQuestions(newItems.map((q) => q.id));
       }
     },
-    [gameState.questions, sendMessage]
+    [questions, reorderQuestions]
   );
 
   const handleDeleteQuestion = useCallback(
     (id: string) => {
       // Send delete to server
-      sendMessage('deleteQuestion', { questionId: id });
+      deleteQuestion(id);
     },
-    [sendMessage]
+    [deleteQuestion]
   );
 
   const handleRevealToggle = useCallback(
     (questionId: string, revealed: boolean) => {
       // Send reveal state update to server
-      sendMessage('updateRevealState', { questionId, revealed });
+      updateRevealState(questionId, revealed);
     },
-    [sendMessage]
+    [updateRevealState]
   );
 
   return (
@@ -51,7 +52,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.2 }}
       >
-        Questions ({gameState.questions.length})
+        Questions ({questions.length})
       </motion.h3>
 
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -62,7 +63,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
               ref={provided.innerRef}
               {...provided.droppableProps}
             >
-              {gameState.questions.map((question, index) => (
+              {questions.map((question, index) => (
                 <Draggable
                   key={question.id}
                   draggableId={question.id}

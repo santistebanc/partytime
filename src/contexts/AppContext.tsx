@@ -34,6 +34,15 @@ interface AppContextType {
   
   // Game State
   gameState: GameState;
+  users: User[];
+  connections: Record<string, string>;
+  status: string;
+  topics: string[];
+  questions: any[];
+  currentQuestionIndex: number;
+  history: any[];
+  currentRespondent: string;
+  captions: string;
   currentUserId: string;
   isPlayer: boolean;
   isNarrator: boolean;
@@ -45,6 +54,21 @@ interface AppContextType {
   handlePlayerToggle: (value: boolean) => void;
   handleNarratorToggle: (value: boolean) => void;
   handleAdminToggle: (value: boolean) => void;
+  
+  // Game Actions
+  addTopic: (topic: string) => void;
+  removeTopic: (topic: string) => void;
+  addQuestion: (question: any) => void;
+  updateQuestion: (question: any) => void;
+  updateRevealState: (questionId: string, revealed: boolean) => void;
+  deleteQuestion: (questionId: string) => void;
+  reorderQuestions: (questionIds: string[]) => void;
+  generateQuestions: (topics: string[], count: number) => void;
+  setGameStatus: (status: string) => void;
+  setCurrentQuestionIndex: (index: number) => void;
+  setCurrentRespondent: (userId: string) => void;
+  setCaptions: (captions: string) => void;
+  addRound: (round: any) => void;
 }
 
 const AppContext = createContext<AppContextType | null>(null);
@@ -223,6 +247,59 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [currentUserId, sendMessage]);
 
+  // Game Actions
+  const addTopic = useCallback((topic: string) => {
+    sendMessage('addTopic', { topic });
+  }, [sendMessage]);
+
+  const removeTopic = useCallback((topic: string) => {
+    sendMessage('removeTopic', { topic });
+  }, [sendMessage]);
+
+  const addQuestion = useCallback((question: any) => {
+    sendMessage('addQuestion', { question });
+  }, [sendMessage]);
+
+  const updateQuestion = useCallback((question: any) => {
+    sendMessage('updateQuestion', { question });
+  }, [sendMessage]);
+
+  const updateRevealState = useCallback((questionId: string, revealed: boolean) => {
+    sendMessage('updateRevealState', { questionId, revealed });
+  }, [sendMessage]);
+
+  const deleteQuestion = useCallback((questionId: string) => {
+    sendMessage('deleteQuestion', { questionId });
+  }, [sendMessage]);
+
+  const reorderQuestions = useCallback((questionIds: string[]) => {
+    sendMessage('reorderQuestions', { questionIds });
+  }, [sendMessage]);
+
+  const generateQuestions = useCallback((topics: string[], count: number) => {
+    sendMessage('generateQuestions', { topics, count });
+  }, [sendMessage]);
+
+  const setGameStatus = useCallback((status: string) => {
+    sendMessage('setGameStatus', { status });
+  }, [sendMessage]);
+
+  const setCurrentQuestionIndex = useCallback((index: number) => {
+    sendMessage('setCurrentQuestionIndex', { index });
+  }, [sendMessage]);
+
+  const setCurrentRespondent = useCallback((userId: string) => {
+    sendMessage('setCurrentRespondent', { userId });
+  }, [sendMessage]);
+
+  const setCaptions = useCallback((captions: string) => {
+    sendMessage('setCaptions', { captions });
+  }, [sendMessage]);
+
+  const addRound = useCallback((round: any) => {
+    sendMessage('addRound', { round });
+  }, [sendMessage]);
+
   const value: AppContextType = {
     // Navigation
     roomId,
@@ -236,6 +313,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     
     // Game State
     gameState,
+    users: gameState.users,
+    connections: gameState.connections,
+    status: gameState.status,
+    topics: gameState.topics,
+    questions: gameState.questions,
+    currentQuestionIndex: gameState.currentQuestionIndex,
+    history: gameState.history,
+    currentRespondent: gameState.currentRespondent,
+    captions: gameState.captions,
     currentUserId,
     isPlayer: gameState.users.find(u => u.id === currentUserId)?.isPlayer ?? false,
     isNarrator: gameState.users.find(u => u.id === currentUserId)?.isNarrator ?? false,
@@ -247,6 +333,21 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     handlePlayerToggle,
     handleNarratorToggle,
     handleAdminToggle,
+    
+    // Game Actions
+    addTopic,
+    removeTopic,
+    addQuestion,
+    updateQuestion,
+    updateRevealState,
+    deleteQuestion,
+    reorderQuestions,
+    generateQuestions,
+    setGameStatus,
+    setCurrentQuestionIndex,
+    setCurrentRespondent,
+    setCaptions,
+    addRound,
   };
 
   return (

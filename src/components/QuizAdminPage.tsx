@@ -11,8 +11,8 @@ interface QuizAdminPageProps {}
 
 export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
   const { 
-    gameState,
-    sendMessage
+    topics,
+    generateQuestions
   } = useApp();
   
   // Questions are now managed directly from props, no local state needed
@@ -21,7 +21,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerateQuestions = async () => {
-    if (!gameState.topics.length) {
+    if (!topics.length) {
       setError("Please add at least one topic first.");
       return;
     }
@@ -30,10 +30,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
     setError(null);
 
     try {
-      sendMessage('generateQuestions', { 
-        topics: gameState.topics, 
-        count: 5 
-      });
+      generateQuestions(topics, 5);
     } catch (err) {
       setError("Failed to generate questions. Please try again.");
       console.error("Error generating questions:", err);
@@ -88,7 +85,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
             <div className="generate-button-area">
               <motion.button
                 onClick={handleGenerateQuestions}
-                disabled={isGenerating || !gameState.topics.length}
+                disabled={isGenerating || !topics.length}
                 className="btn btn-generate"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

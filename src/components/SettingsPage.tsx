@@ -5,7 +5,7 @@ import { useApp } from '../contexts/AppContext';
 
 export const SettingsPage: React.FC = () => {
   const { 
-    gameState,
+    users,
     currentUserId,
     isPlayer, 
     isNarrator, 
@@ -17,7 +17,7 @@ export const SettingsPage: React.FC = () => {
   } = useApp();
   
   // Get current user's name from users array
-  const currentUser = gameState.users.find(user => user.id === currentUserId) || gameState.users[0];
+  const currentUser = users.find(user => user.id === currentUserId) || users[0];
   const userName = currentUser?.name || '';
   const [editingName, setEditingName] = useState(userName);
   const [isEditingName, setIsEditingName] = useState(false);

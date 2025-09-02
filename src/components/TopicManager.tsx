@@ -6,19 +6,19 @@ import { useApp } from '../contexts/AppContext';
 interface TopicManagerProps {}
 
 export const TopicManager: React.FC<TopicManagerProps> = () => {
-  const { gameState, sendMessage } = useApp();
+  const { topics, addTopic, removeTopic } = useApp();
   const [newTopic, setNewTopic] = useState('');
   
   const handleAddTopic = () => {
     const trimmedTopic = newTopic.trim();
-    if (trimmedTopic && !gameState.topics.includes(trimmedTopic)) {
-      sendMessage('addTopic', { topic: trimmedTopic });
+    if (trimmedTopic && !topics.includes(trimmedTopic)) {
+      addTopic(trimmedTopic);
       setNewTopic('');
     }
   };
 
   const handleRemoveTopic = (topicToRemove: string) => {
-    sendMessage('removeTopic', { topic: topicToRemove });
+    removeTopic(topicToRemove);
   };
   
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -48,9 +48,9 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
     <div className="topic-manager">
       <div className="topic-input-section">
         <div className="topic-input-container">
-          <div className={`topic-tags-display ${gameState.topics.length > 0 ? 'has-tags' : ''}`}>
+          <div className={`topic-tags-display ${topics.length > 0 ? 'has-tags' : ''}`}>
             <AnimatePresence>
-              {gameState.topics.map((topic) => (
+              {topics.map((topic) => (
                 <motion.div
                   key={topic}
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -74,7 +74,7 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
               value={newTopic}
               onChange={(e) => setNewTopic(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={gameState.topics.length === 0 ? "Enter a new topic..." : ""}
+              placeholder={topics.length === 0 ? "Enter a new topic..." : ""}
               className="topic-input-inline"
             />
             {newTopic.trim() && (
@@ -90,7 +90,7 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
         </div>
       </div>
 
-      {gameState.topics.length === 0 && (
+      {topics.length === 0 && (
         <p className="no-topics">No topics added yet. Add some topics to generate questions!</p>
       )}
     </div>
