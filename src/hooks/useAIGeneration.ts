@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { aiService } from '../services/aiService';
 import type { QuizQuestion } from '../types/quiz';
 import { useSocketMessage } from './useSocketMessage';
@@ -9,6 +9,13 @@ export const useAIGeneration = (socket: any) => {
   const [error, setError] = useState<string | null>(null);
 
   const sendMessage = useSocketMessage(socket);
+
+  // Set the socket in the AI service when it's available
+  useEffect(() => {
+    if (socket) {
+      aiService.setSocket(socket);
+    }
+  }, [socket]);
 
   const generateQuestions = async (topics: string[], onQuestionsGenerated: (questions: QuizQuestion[]) => void) => {
     if (!topics.length) {

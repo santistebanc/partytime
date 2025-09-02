@@ -23,7 +23,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
 }) => {
   const [showMembersPanel, setShowMembersPanel] = useState(false);
   const { roomId, userName, navigateToLobby } = useNavigation();
-  const { users, isAdmin } = useRoomContext();
+  const { gameState, isAdmin } = useRoomContext();
   
   const handleLeaveRoom = () => {
     navigateToLobby();
@@ -35,7 +35,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
     onMembersPanelToggle(newShowState);
   };
   
-  const usersCount = users.length;
+  const usersCount = gameState.users.length;
   return (
     <motion.header className="room-header">
       <div className="header-content">

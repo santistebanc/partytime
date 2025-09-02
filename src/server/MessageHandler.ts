@@ -1,12 +1,11 @@
 import type * as Party from "partykit/server";
-import { UserManager } from "./UserManager";
-import { QuizManager } from "./QuizManager";
-import { sendMessage, broadcastMessage, logUsers } from "./utils";
+import { GameStateManager } from "./GameStateManager";
+import { sendMessage, logUsers } from "./utils";
+import { aiService } from "../aiService";
 
 export class MessageHandler {
   constructor(
-    private userManager: UserManager,
-    private quizManager: QuizManager,
+    private gameStateManager: GameStateManager,
     private room: Party.Room
   ) {}
 
@@ -73,77 +72,57 @@ export class MessageHandler {
   ): Promise<void> {
     console.log("handleJoin", data, sender);
 
+    // Load state from storage
+    await this.gameStateManager.loadStateFromStorage();
+
     // Check if this user already exists
-    const existingUser = this.userManager.getUser(data.userId);
+    const existingUser = this.gameStateManager.getUser(data.userId);
     if (existingUser) {
       console.log(
         `User ${data.name} (${data.userId}) adding new connection to room ${this.room.id}`
       );
     } else {
       // New user joining
-      const isFirstUser = this.userManager.isFirstUser();
-      this.userManager.addUser(data.userId, data.name, isFirstUser);
-      
+      await this.gameStateManager.addUser(data.userId, data.name, sender.id);
       console.log(
         `New user ${data.name} (${data.userId}) joined room ${this.room.id}`
       );
     }
 
-    // Send current questions to the joining user (if any exist)
-    const currentQuestions = await this.quizManager.getQuestions();
-    if (currentQuestions.length > 0) {
-      sendMessage(sender, {
-        type: "questions",
-        questions: currentQuestions,
-      });
-      console.log(
-        `Sent ${currentQuestions.length} existing questions to joining user`
-      );
-    }
-
-    // Send current topics to the joining user (if any exist)
-    const currentTopics = await this.quizManager.getTopics();
-    if (currentTopics.length > 0) {
-      sendMessage(sender, {
-        type: "topics",
-        topics: currentTopics,
-      });
-      console.log(
-        `Sent ${currentTopics.length} existing topics to joining user`
-      );
-    }
-
-    // Store connection mapping
-    this.userManager.addConnection(sender.id, data.userId);
+    // Send current game state to the joining user
+    const currentState = this.gameStateManager.getState();
+    sendMessage(sender, {
+      type: "gameState",
+      state: currentState,
+    });
 
     console.log(
-      `Total users in room: ${this.userManager.getUserCount()}, total connections: ${this.userManager.getConnectionCount()}`
+      `Total users in room: ${this.gameStateManager.getUserCount()}, total connections: ${this.gameStateManager.getConnectionCount()}`
     );
 
-    // Send confirmation to the user with their toggle states
-    const userToggles = this.userManager.getUserToggles(data.userId);
+    // Send confirmation to the user
+    const user = this.gameStateManager.getUser(data.userId);
     sendMessage(sender, {
       type: "joined",
       userId: data.userId,
       roomId: this.room.id,
-      userToggles: userToggles || {
+      userToggles: user ? {
+        isPlayer: user.isPlayer,
+        isNarrator: user.isNarrator,
+        isAdmin: user.isAdmin
+      } : {
         isPlayer: true,
         isNarrator: false,
-        isAdmin: this.userManager.getUserCount() === 1
+        isAdmin: this.gameStateManager.getUserCount() === 1
       }
     });
-
-    // Broadcast updated user list to ALL users in the room
-    this.broadcastUsers();
   }
 
   private async handleLeave(
     data: { userId: string },
     sender: Party.Connection
   ): Promise<void> {
-    this.userManager.removeUser(data.userId);
-    this.userManager.removeConnection(sender.id);
-    this.broadcastUsers();
+    await this.gameStateManager.removeUser(data.userId, sender.id);
 
     sendMessage(sender, {
       type: "left",
@@ -157,109 +136,79 @@ export class MessageHandler {
   ): Promise<void> {
     console.log(`User ${data.oldName} changing name to ${data.newName}`);
 
-    // Update the user's name in our local state
-    const success = this.userManager.updateUserName(data.userId, data.newName);
-    if (success) {
-      console.log(
-        `Name updated for user ${data.userId}: ${data.oldName} -> ${data.newName}`
-      );
-
-      // Broadcast the name change to all users in the room
-          broadcastMessage(this.room, {
-      type: "nameChanged",
-      userId: data.userId,
-      oldName: data.oldName,
-      newName: data.newName,
-    });
-
-      // Also broadcast updated user list
-      this.broadcastUsers();
-    } else {
-      console.error(`User ${data.userId} not found for name change`);
-    }
+    await this.gameStateManager.updateUserName(data.userId, data.newName);
+    console.log(
+      `Name updated for user ${data.userId}: ${data.oldName} -> ${data.newName}`
+    );
   }
 
   private async handleGenerateQuestions(
-    data: any,
+    data: { topics: string[]; count: number },
     sender: Party.Connection
   ): Promise<void> {
-    // This would integrate with AI service
-    console.log("AI question generation requested");
+    console.log("AI question generation requested for topics:", data.topics);
+    
+    try {
+      const response = await aiService.generateQuizQuestions({
+        topics: data.topics,
+        count: data.count || 5
+      });
+      
+      // Send success response
+      sendMessage(sender, {
+        type: "questionsGenerated",
+        questions: response.questions
+      });
+      
+      console.log(`Generated ${response.questions.length} questions successfully`);
+    } catch (error) {
+      console.error("Error generating questions:", error);
+      
+      // Send error response
+      sendMessage(sender, {
+        type: "questionsGenerationError",
+        error: error instanceof Error ? error.message : "Failed to generate questions"
+      });
+    }
   }
 
   private async handleAddQuestion(
     data: { question: any },
     sender: Party.Connection
   ): Promise<void> {
-    await this.quizManager.addQuestion(data.question);
+    await this.gameStateManager.addQuestion(data.question);
     console.log("Question added:", data.question.id);
-    
-    // Broadcast updated questions to all users
-    const questions = await this.quizManager.getQuestions();
-    broadcastMessage(this.room, {
-      type: "questions",
-      questions,
-    });
   }
 
   private async handleUpdateQuestion(
     data: { question: any },
     sender: Party.Connection
   ): Promise<void> {
-    const success = await this.quizManager.updateQuestion(data.question);
-    if (success) {
-      console.log("Question updated:", data.question.id);
-      
-      // Broadcast updated questions to all users
-      const questions = await this.quizManager.getQuestions();
-      broadcastMessage(this.room, {
-        type: "questions",
-        questions,
-      });
-    } else {
-      console.error("Question not found for update:", data.question.id);
-    }
+    await this.gameStateManager.updateQuestion(data.question);
+    console.log("Question updated:", data.question.id);
   }
 
   private async handleDeleteQuestion(
     data: { questionId: string },
     sender: Party.Connection
   ): Promise<void> {
-    const success = await this.quizManager.deleteQuestion(data.questionId);
-    if (success) {
-      console.log("Question deleted:", data.questionId);
-      
-      // Broadcast updated questions to all users
-      const questions = await this.quizManager.getQuestions();
-      broadcastMessage(this.room, {
-        type: "questions",
-        questions,
-      });
-    } else {
-      console.error("Question not found for deletion:", data.questionId);
-    }
+    await this.gameStateManager.deleteQuestion(data.questionId);
+    console.log("Question deleted:", data.questionId);
   }
 
   private async handleReorderQuestions(
     data: { questionIds: string[] },
     sender: Party.Connection
   ): Promise<void> {
-    await this.quizManager.reorderQuestions(data.questionIds);
+    await this.gameStateManager.reorderQuestions(data.questionIds);
     console.log("Questions reordered");
-    
-    // Broadcast updated questions to all users
-    const questions = await this.quizManager.getQuestions();
-    broadcastMessage(this.room, {
-      type: "questions",
-      questions,
-    });
   }
 
   private async handleGetQuestions(sender: Party.Connection): Promise<void> {
-    const questions = await this.quizManager.getQuestions();
+    const state = this.gameStateManager.getState();
     sendMessage(sender, {
       type: "questions",
-      questions,
+      questions: state.questions,
     });
   }
 
@@ -267,41 +216,23 @@ export class MessageHandler {
     data: { topic: string },
     sender: Party.Connection
   ): Promise<void> {
-    await this.quizManager.addTopic(data.topic);
+    await this.gameStateManager.addTopic(data.topic);
     console.log("Topic added:", data.topic);
-    
-    // Broadcast updated topics to all users
-    const topics = await this.quizManager.getTopics();
-    broadcastMessage(this.room, {
-      type: "topics",
-      topics,
-    });
   }
 
   private async handleRemoveTopic(
     data: { topic: string },
     sender: Party.Connection
   ): Promise<void> {
-    const success = await this.quizManager.removeTopic(data.topic);
-    if (success) {
-      console.log("Topic removed:", data.topic);
-      
-      // Broadcast updated topics to all users
-      const topics = await this.quizManager.getTopics();
-      broadcastMessage(this.room, {
-        type: "topics",
-        topics,
-      });
-    } else {
-      console.error("Topic not found for removal:", data.topic);
-    }
+    await this.gameStateManager.removeTopic(data.topic);
+    console.log("Topic removed:", data.topic);
   }
 
   private async handleGetTopics(sender: Party.Connection): Promise<void> {
-    const topics = await this.quizManager.getTopics();
+    const state = this.gameStateManager.getState();
     sendMessage(sender, {
       type: "topics",
-      topics,
+      topics: state.topics,
     });
   }
 
@@ -309,15 +240,8 @@ export class MessageHandler {
     data: { questionId: string; revealed: boolean },
     sender: Party.Connection
   ): Promise<void> {
-    await this.quizManager.setRevealState(data.questionId, data.revealed);
-    
-    // Broadcast the reveal state update to all users
-    broadcastMessage(this.room, {
-      type: "revealStateUpdated",
-      questionId: data.questionId,
-      revealed: data.revealed,
-    });
-    
+    // This would be handled by the GameStateManager in a more complex implementation
+    // For now, we'll just log it
     console.log(`Question ${data.questionId} reveal state updated to ${data.revealed}`);
   }
 
@@ -330,25 +254,7 @@ export class MessageHandler {
     if (data.isNarrator !== undefined) toggles.isNarrator = data.isNarrator;
     if (data.isAdmin !== undefined) toggles.isAdmin = data.isAdmin;
 
-    const success = this.userManager.updateUserToggles(data.userId, toggles);
-    if (success) {
-      console.log(`User toggles updated for ${data.userId}:`, toggles);
-      
-      // Broadcast updated user list
-      this.broadcastUsers();
-    } else {
-      console.error(`User ${data.userId} not found for toggle update`);
-    }
-  }
-
-  private broadcastUsers(): void {
-    const usersList = this.userManager.getAllUsersWithToggles();
-
-    logUsers(usersList);
-
-    broadcastMessage(this.room, {
-      type: "users",
-      users: usersList,
-    });
+    await this.gameStateManager.updateUserToggles(data.userId, toggles);
+    console.log(`User toggles updated for ${data.userId}:`, toggles);
   }
 }

@@ -3,15 +3,13 @@ import type { ReactNode } from 'react';
 import { useNavigation } from '../hooks/useNavigation';
 import { useSocket } from '../contexts/SocketContext';
 import { getStoredUserId, setStoredUserId } from '../contexts/NavigationContext';
-import type { QuizQuestion, User } from '../types/quiz';
+import type { GameState, User, Question } from '../types/quiz';
 import { generateUserId } from '../utils';
 import { useSocketListener } from '../hooks/useSocketListener';
 
 interface RoomContextType {
-  users: User[];
+  gameState: GameState;
   currentUserId: string;
-  initialTopics: string[];
-  revealState: Record<string, boolean>;
   isPlayer: boolean;
   isNarrator: boolean;
   isAdmin: boolean;
@@ -32,10 +30,18 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
   const { roomId, userName } = useNavigation();
   const { socket, isConnected, sendMessage } = useSocket();
   
-  const [users, setUsers] = useState<User[]>([]);
+  const [gameState, setGameState] = useState<GameState>({
+    users: [],
+    connections: {},
+    status: "unstarted",
+    topics: [],
+    questions: [],
+    currentQuestionIndex: 0,
+    history: [],
+    currentRespondent: "",
+    captions: "",
+  });
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [initialTopics, setInitialTopics] = useState<string[]>([]);
-  const [revealState, setRevealState] = useState<Record<string, boolean>>({});
   const [isPlayer, setIsPlayer] = useState(true);
   const [isNarrator, setIsNarrator] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -75,37 +81,19 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
           setIsNarrator(data.userToggles.isNarrator);
           setIsAdmin(data.userToggles.isAdmin);
         }
-      } else if (data.type === 'nameChanged') {
-        console.log('Name changed:', data);
-        setUsers(prevUsers => 
-          prevUsers.map(user => 
-            user.id === data.userId 
-              ? { ...user, name: data.newName }
-              : user
-          )
-        );
-      } else if (data.type === 'topics') {
-        console.log('Received topics from server:', data.topics);
-        setInitialTopics(data.topics);
-      } else if (data.type === 'users') {
-        console.log('Setting users:', data.users);
-        setUsers(data.users);
+      } else if (data.type === 'gameState') {
+        console.log('Received game state from server:', data.state);
+        setGameState(data.state);
         
         // Update current user's toggle states if available
         if (currentUserId) {
-          const currentUser = data.users.find((user: User) => user.id === currentUserId);
+          const currentUser = data.state.users.find((user: User) => user.id === currentUserId);
           if (currentUser) {
             setIsPlayer(currentUser.isPlayer);
             setIsNarrator(currentUser.isNarrator);
             setIsAdmin(currentUser.isAdmin);
           }
         }
-      } else if (data.type === 'revealStateUpdated') {
-        console.log('Reveal state updated:', data);
-        setRevealState(prev => ({
-          ...prev,
-          [data.questionId]: data.revealed
-        }));
       }
     } catch (error) {
       console.error('Error parsing message:', error);
@@ -160,10 +148,8 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
   }, [currentUserId, sendMessage]);
 
   const roomState: RoomContextType = {
-    users,
+    gameState,
     currentUserId,
-    initialTopics,
-    revealState,
     isPlayer,
     isNarrator,
     isAdmin,

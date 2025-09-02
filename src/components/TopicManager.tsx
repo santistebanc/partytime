@@ -7,11 +7,11 @@ import { useTopicManagement } from '../hooks/useTopicManagement';
 interface TopicManagerProps {}
 
 export const TopicManager: React.FC<TopicManagerProps> = () => {
-  const { initialTopics: initialTopicsFromContext } = useRoomContext();
+  const { gameState, socket } = useRoomContext();
   const [newTopic, setNewTopic] = useState('');
   
     // Use the useTopicManagement hook directly
-  const { topics, addTopic, deleteTopic } = useTopicManagement(initialTopicsFromContext, null);
+  const { topics, addTopic, deleteTopic } = useTopicManagement(gameState.topics, socket);
   
   const handleAddTopic = () => {
     const trimmedTopic = newTopic.trim();

@@ -13,9 +13,8 @@ interface QuizAdminPageProps {}
 
 export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
   const { 
-    initialTopics = [], 
-    socket: activeSocket, 
-    revealState = {} 
+    gameState,
+    socket: activeSocket
   } = useRoomContext();
   
   // Questions are now managed directly from props, no local state needed
@@ -23,7 +22,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
   const {
     topics,
     handleTopicsChange
-  } = useTopicManagement(initialTopics, activeSocket);
+  } = useTopicManagement(gameState.topics, activeSocket);
   
   const {
     isGenerating,

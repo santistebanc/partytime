@@ -1,22 +1,17 @@
 import type * as Party from "partykit/server";
-import {
-  UserManager,
-  QuizManager,
-  MessageHandler,
-  ConnectionManager
-} from "./server";
+import { GameStateManager } from "./server/GameStateManager";
+import { MessageHandler } from "./server/MessageHandler";
+import { ConnectionManager } from "./server/ConnectionManager";
 
 export default class RoomServer implements Party.Server {
-  private userManager: UserManager;
-  private quizManager: QuizManager;
+  private gameStateManager: GameStateManager;
   private messageHandler: MessageHandler;
   private connectionManager: ConnectionManager;
 
   constructor(readonly room: Party.Room) {
-    this.userManager = new UserManager(room);
-    this.quizManager = new QuizManager(room);
-    this.messageHandler = new MessageHandler(this.userManager, this.quizManager, room);
-    this.connectionManager = new ConnectionManager(this.userManager, room);
+    this.gameStateManager = new GameStateManager(room);
+    this.messageHandler = new MessageHandler(this.gameStateManager, room);
+    this.connectionManager = new ConnectionManager(this.gameStateManager, room);
   }
 
   async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {

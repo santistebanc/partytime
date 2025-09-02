@@ -1,3 +1,11 @@
+export interface User {
+  id: string;
+  name: string;
+  isPlayer: boolean;
+  isNarrator: boolean;
+  isAdmin: boolean;
+}
+
 export interface Question {
   id: string;
   question: string;
@@ -32,22 +40,4 @@ export interface GameState {
   history: Round[];
   currentRespondent: string; // userId
   captions: string;
-}
-
-export interface User {
-  id: string;
-  name: string;
-  isPlayer: boolean;
-  isNarrator: boolean;
-  isAdmin: boolean;
-}
-
-// Legacy types for backward compatibility
-export interface QuizQuestion extends Question {}
-export interface AIQuestionRequest {
-  topics: string[];
-  count: number;
-}
-export interface AIQuestionResponse {
-  questions: Omit<Question, 'id'>[];
 }

@@ -1,10 +1,9 @@
 import type * as Party from "partykit/server";
-import { UserManager } from "./UserManager";
-import { broadcastMessage, logUsers } from "./utils";
+import { GameStateManager } from "./GameStateManager";
 
 export class ConnectionManager {
   constructor(
-    private userManager: UserManager,
+    private gameStateManager: GameStateManager,
     private room: Party.Room
   ) {}
 
@@ -17,36 +16,12 @@ export class ConnectionManager {
 
   async onClose(conn: Party.Connection): Promise<void> {
     // Handle connection close
-    const userId = this.userManager.getUserIdByConnection(conn.id);
+    const userId = this.gameStateManager.getUserByConnection(conn.id)?.id;
     if (userId) {
       console.log(`Connection closed for user ${userId}`);
 
-      // Remove the connection mapping
-      this.userManager.removeConnection(conn.id);
-
-      // Check if user has any other active connections
-      if (!this.userManager.hasActiveConnections(userId)) {
-        console.log(
-          `User ${userId} has no more active connections, removing from room`
-        );
-        this.userManager.removeUser(userId);
-        
-        // Broadcast updated user list
-        this.broadcastUsers();
-      } else {
-        console.log(`User ${userId} still has active connections`);
-      }
+      // Remove the user and connection
+      await this.gameStateManager.removeUser(userId, conn.id);
     }
-  }
-
-  private broadcastUsers(): void {
-    const usersList = this.userManager.getAllUsersWithToggles();
-
-    logUsers(usersList);
-
-    broadcastMessage(this.room, {
-      type: "users",
-      users: usersList,
-    });
   }
 }

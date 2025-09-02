@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import * as LucideIcons from 'lucide-react';
+import type { LucideIcon } from 'lucide-react';
 
 interface IconProps {
   name: keyof typeof LucideIcons;
@@ -19,7 +20,7 @@ export const Icon: React.FC<IconProps> = ({
   animated = false,
   onClick
 }) => {
-  const LucideIcon = LucideIcons[name];
+  const LucideIcon = LucideIcons[name] as LucideIcon;
   
   if (!LucideIcon) {
     console.warn(`Icon "${name}" not found in Lucide Icons`);

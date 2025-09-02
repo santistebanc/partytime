@@ -12,7 +12,7 @@ export const MembersPanel: React.FC<MembersPanelProps> = ({
   showMembersPanel,
   onRef
 }) => {
-  const { users } = useRoomContext();
+  const { gameState } = useRoomContext();
   return (
     <motion.div 
       ref={onRef}
@@ -26,13 +26,13 @@ export const MembersPanel: React.FC<MembersPanelProps> = ({
       transition={{ duration: 0.2, ease: "easeInOut" }}
     >
       <div className="members-content">
-        <h3>Members ({users.length})</h3>
-        {users.length === 0 ? (
+        <h3>Members ({gameState.users.length})</h3>
+        {gameState.users.length === 0 ? (
           <p className="no-users">No users in room yet...</p>
         ) : (
           <ul className="users-list">
             <AnimatePresence>
-              {users.map((user, index) => (
+              {gameState.users.map((user, index) => (
                 <motion.li 
                   key={user.id} 
                   className="user-item"

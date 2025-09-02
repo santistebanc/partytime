@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 import type { QuizQuestion } from "../types/quiz";
@@ -11,37 +11,10 @@ import { generateId } from '../utils';
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
-  const { socket, revealState } = useRoomContext();
-  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
+  const { gameState, socket } = useRoomContext();
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
   const sendMessage = useSocketMessage(socket);
-
-  // Fetch questions when component mounts
-  useEffect(() => {
-    if (socket) {
-      sendMessage({ type: 'getQuestions' });
-    }
-  }, [socket, sendMessage]);
-
-  // Listen for questions updates from server
-  useEffect(() => {
-    if (!socket) return;
-
-    const handleMessage = (event: MessageEvent) => {
-      try {
-        const data = JSON.parse(event.data);
-        if (data.type === 'questions') {
-          setQuestions(data.questions || []);
-        }
-      } catch (error) {
-        console.error('Error parsing message:', error);
-      }
-    };
-
-    socket.addEventListener('message', handleMessage);
-    return () => socket.removeEventListener('message', handleMessage);
-  }, [socket]);
 
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;
@@ -49,7 +22,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
     const { source, destination } = result;
 
     if (source.index !== destination.index) {
-      const newItems = Array.from(questions);
+      const newItems = Array.from(gameState.questions);
       const [removed] = newItems.splice(source.index, 1);
       newItems.splice(destination.index, 0, removed);
       
@@ -59,7 +32,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
         questionIds: newItems.map(q => q.id)
       });
     }
-  }, [questions, sendMessage]);
+  }, [gameState.questions, sendMessage]);
 
   const addQuestion = useCallback((question: Omit<QuizQuestion, "id">) => {
     const newQuestion: QuizQuestion = {
@@ -106,7 +79,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.2 }}
       >
-        Questions ({questions.length})
+        Questions ({gameState.questions.length})
       </motion.h3>
       
       <DragDropContext onDragEnd={handleDragEnd}>
@@ -117,44 +90,38 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
               ref={provided.innerRef}
               className="questions-list"
             >
-              <AnimatePresence>
-                {questions.map((question, index) => (
-                  <Draggable
-                    key={question.id}
-                    draggableId={question.id}
-                    index={index}
-                  >
-                    {(provided, snapshot) => (
-                      <motion.div
-                        ref={provided.innerRef}
-                        {...provided.draggableProps}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ delay: index * 0.05, duration: 0.15 }}
-                        style={{
-                          ...provided.draggableProps.style,
-                          transform: snapshot.isDragging
-                            ? provided.draggableProps.style?.transform
-                            : 'none',
-                        }}
-                      >
-                        <QuizQuestionEntry
-                          question={question}
-                          onUpdate={updateQuestion}
-                          onDelete={deleteQuestion}
-                          isEditing={editingQuestionId === question.id}
-                          onEditToggle={() => setEditingQuestionId(editingQuestionId === question.id ? null : question.id)}
-                          dragHandleProps={provided.dragHandleProps}
-                          isRevealed={!!revealState[question.id]}
-                          onRevealToggle={handleRevealToggle}
-                        />
-                      </motion.div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-              </AnimatePresence>
+              {gameState.questions.map((question, index) => (
+                <Draggable
+                  key={question.id}
+                  draggableId={question.id}
+                  index={index}
+                >
+                  {(provided, snapshot) => (
+                    <div
+                      ref={provided.innerRef}
+                      {...provided.draggableProps}
+                      style={{
+                        ...provided.draggableProps.style,
+                        transform: snapshot.isDragging
+                          ? provided.draggableProps.style?.transform
+                          : 'none',
+                      }}
+                    >
+                      <QuizQuestionEntry
+                        question={question}
+                        onUpdate={updateQuestion}
+                        onDelete={deleteQuestion}
+                        isEditing={editingQuestionId === question.id}
+                        onEditToggle={() => setEditingQuestionId(editingQuestionId === question.id ? null : question.id)}
+                        dragHandleProps={provided.dragHandleProps}
+                        isRevealed={false}
+                        onRevealToggle={handleRevealToggle}
+                      />
+                    </div>
+                  )}
+                </Draggable>
+              ))}
+              {provided.placeholder}
             </div>
           )}
         </Droppable>
