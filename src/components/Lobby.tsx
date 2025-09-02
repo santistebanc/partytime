@@ -1,41 +1,23 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { useNavigation, getStoredUserName, getStoredRoomId } from '../contexts/NavigationContext';
-import { useNavigation as useNavigationHook } from '../hooks/useNavigation';
+
+import { useNavigation } from '../hooks/useNavigation';
 import { PartytimeLogo } from './PartytimeLogo';
 import { generateRoomId } from '../utils';
 
 export const Lobby: React.FC = () => {
-  const { roomId: urlRoomId, userName: urlUserName } = useNavigation();
-  const { navigateToRoom } = useNavigationHook();
+  const { 
+    formName, 
+    setFormName, 
+    formRoomId, 
+    setFormRoomId, 
+    navigateToRoom 
+  } = useNavigation();
   
-  // Get stored values for prefilling (but don't navigate automatically)
-  const storedUserName = getStoredUserName();
-  const storedRoomId = getStoredRoomId();
-  
-  // Initialize with stored values, but query params take priority
-  const [name, setName] = useState((urlUserName || storedUserName || ''));
-  const [roomId, setRoomId] = useState((urlRoomId || storedRoomId || ''));
   const nameInputRef = useRef<HTMLInputElement>(null);
   const roomInputRef = useRef<HTMLInputElement>(null);
 
-  const isNameValid = name.length >= 2 && name.length <= 20;
-
-  // Prefill inputs from URL params or localStorage
-  useEffect(() => {
-    // Query params take priority
-    if (urlUserName) {
-      setName(urlUserName);
-    } else if (storedUserName) {
-      setName(storedUserName);
-    }
-    
-    if (urlRoomId) {
-      setRoomId(urlRoomId);
-    } else if (storedRoomId) {
-      setRoomId(storedRoomId);
-    }
-  }, [urlUserName, urlRoomId, storedUserName, storedRoomId]);
+  const isNameValid = formName.length >= 2 && formName.length <= 20;
 
   useEffect(() => {
     // Auto-focus the name input when component mounts
@@ -48,14 +30,14 @@ export const Lobby: React.FC = () => {
     e.preventDefault();
     if (!isNameValid) return;
     
-    let finalRoomId = (roomId || '').trim();
+    let finalRoomId = (formRoomId || '').trim();
     
     // If room ID is empty, generate a random one
     if (!finalRoomId) {
       finalRoomId = generateRoomId();
     }
     
-    navigateToRoom(finalRoomId, name);
+    navigateToRoom(finalRoomId, formName);
   };
 
   return (
@@ -80,20 +62,20 @@ export const Lobby: React.FC = () => {
               id="name"
               type="text"
               placeholder="Enter your name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              className={`name-input ${name.length > 0 ? (isNameValid ? 'valid' : 'invalid') : ''}`}
+              value={formName}
+              onChange={(e) => setFormName(e.target.value)}
+              className={`name-input ${formName.length > 0 ? (isNameValid ? 'valid' : 'invalid') : ''}`}
               maxLength={20}
               required
             />
-            {name.length > 0 && !isNameValid && (
+            {formName.length > 0 && !isNameValid && (
               <motion.div 
                 className="name-validation"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 transition={{ duration: 0.3 }}
               >
-                {name.length < 2 ? (
+                {formName.length < 2 ? (
                   <span className="error">Name must be at least 2 characters</span>
                 ) : (
                   <span className="error">Name must be 20 characters or less</span>
@@ -114,8 +96,8 @@ export const Lobby: React.FC = () => {
               id="room"
               type="text"
               placeholder="Leave empty to create a new room"
-              value={roomId || ''}
-              onChange={(e) => setRoomId(e.target.value)}
+              value={formRoomId || ''}
+              onChange={(e) => setFormRoomId(e.target.value)}
               className="room-input"
             />
             <motion.div 
@@ -138,7 +120,7 @@ export const Lobby: React.FC = () => {
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            {(roomId && roomId.trim()) ? 'Join Room' : 'Create Room'}
+            {(formRoomId && formRoomId.trim()) ? 'Join Room' : 'Create Room'}
           </motion.button>
         </motion.form>
       </div>
