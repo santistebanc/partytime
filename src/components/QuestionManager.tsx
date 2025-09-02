@@ -107,16 +107,17 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
                           : 'none',
                       }}
                     >
-                      <QuizQuestionEntry
-                        question={question}
-                        onUpdate={updateQuestion}
-                        onDelete={deleteQuestion}
-                        isEditing={editingQuestionId === question.id}
-                        onEditToggle={() => setEditingQuestionId(editingQuestionId === question.id ? null : question.id)}
-                        dragHandleProps={provided.dragHandleProps}
-                        isRevealed={false}
-                        onRevealToggle={handleRevealToggle}
-                      />
+                      <div {...provided.dragHandleProps} style={{ cursor: 'grab' }}>
+                        <QuizQuestionEntry
+                          question={question}
+                          onUpdate={updateQuestion}
+                          onDelete={deleteQuestion}
+                          isEditing={editingQuestionId === question.id}
+                          onEditToggle={() => setEditingQuestionId(editingQuestionId === question.id ? null : question.id)}
+                          isRevealed={false}
+                          onRevealToggle={handleRevealToggle}
+                        />
+                      </div>
                     </div>
                   )}
                 </Draggable>

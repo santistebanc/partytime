@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 
-import { Trash2, Save, X, ChevronDown, Eye, GripVertical } from 'lucide-react';
+import { Trash2, Save, X, ChevronDown, Eye } from 'lucide-react';
 import type { QuizQuestion } from '../types/quiz';
-import type { DraggableProvidedDragHandleProps } from '@hello-pangea/dnd';
 
 
 interface QuizQuestionEntryProps {
@@ -11,7 +10,6 @@ interface QuizQuestionEntryProps {
   onDelete: (id: string) => void;
   isEditing: boolean;
   onEditToggle: (id: string) => void;
-  dragHandleProps?: DraggableProvidedDragHandleProps | null;
   isRevealed: boolean;
   onRevealToggle: (questionId: string, revealed: boolean) => void;
 }
@@ -22,7 +20,6 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
   onDelete,
   isEditing,
   onEditToggle,
-  dragHandleProps,
   isRevealed,
   onRevealToggle,
 }) => {
@@ -160,16 +157,6 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
             </div>
             
             <div className="action-buttons">
-              {dragHandleProps && (
-                <div
-                  {...dragHandleProps}
-                  className="drag-handle"
-                  title="Drag to reorder"
-                >
-                  <GripVertical size={16} />
-                </div>
-              )}
-              
               {!isRevealed ? (
                 <button
                   onClick={() => handleRevealToggle(true)}
