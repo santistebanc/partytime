@@ -47,6 +47,7 @@ interface AppContextType {
   isPlayer: boolean;
   isNarrator: boolean;
   isAdmin: boolean;
+  revealedQuestions: Record<string, boolean>;
   
   // Actions
   sendMessage: (action: string, payload: any) => void;
@@ -101,6 +102,28 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   
   // User state
   const [currentUserId, setCurrentUserId] = useState<string>('');
+  
+  // Local UI state with localStorage persistence
+  const [revealedQuestions, setRevealedQuestions] = useState<Record<string, boolean>>(() => {
+    try {
+      const stored = localStorage.getItem('partytime_revealed_questions');
+      return stored ? JSON.parse(stored) : {};
+    } catch {
+      return {};
+    }
+  });
+  
+  // Optimistic state for all game actions
+  const [optimisticState, setOptimisticState] = useState<{
+    topics?: string[];
+    questions?: any[];
+    users?: User[];
+    status?: string;
+    currentQuestionIndex?: number;
+    currentRespondent?: string;
+    captions?: string;
+    history?: any[];
+  }>({});
 
   // Initialize from URL
   useEffect(() => {
@@ -111,6 +134,15 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setRoomId(urlRoomId);
     setUserName(urlUserName);
   }, []);
+
+  // Persist revealedQuestions to localStorage
+  useEffect(() => {
+    try {
+      localStorage.setItem('partytime_revealed_questions', JSON.stringify(revealedQuestions));
+    } catch {
+      // Ignore storage errors
+    }
+  }, [revealedQuestions]);
 
   // Navigation functions
   const updateURL = useCallback((newRoomId: string | null, newUserName: string | null) => {
@@ -188,6 +220,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
         if (data.type === 'stateUpdate' && data.success && data.state) {
           setGameState(data.state);
           
+          // Clear optimistic updates when server state updates
+          setOptimisticState({});
+          
           // User toggles are now computed from gameState
         }
       } catch (error) {
@@ -247,58 +282,112 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     }
   }, [currentUserId, sendMessage]);
 
-  // Game Actions
+  const updateRevealState = useCallback((questionId: string, revealed: boolean) => {
+    setRevealedQuestions(prev => ({
+      ...prev,
+      [questionId]: revealed
+    }));
+  }, []);
+
+  // Game Actions with optimistic updates
   const addTopic = useCallback((topic: string) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      topics: [...(prev.topics || gameState.topics), topic]
+    }));
     sendMessage('addTopic', { topic });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.topics]);
 
   const removeTopic = useCallback((topic: string) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      topics: (prev.topics || gameState.topics).filter(t => t !== topic)
+    }));
     sendMessage('removeTopic', { topic });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.topics]);
 
   const addQuestion = useCallback((question: any) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      questions: [...(prev.questions || gameState.questions), question]
+    }));
     sendMessage('addQuestion', { question });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.questions]);
 
   const updateQuestion = useCallback((question: any) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      questions: (prev.questions || gameState.questions).map(q => 
+        q.id === question.id ? question : q
+      )
+    }));
     sendMessage('updateQuestion', { question });
-  }, [sendMessage]);
-
-  const updateRevealState = useCallback((questionId: string, revealed: boolean) => {
-    sendMessage('updateRevealState', { questionId, revealed });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.questions]);
 
   const deleteQuestion = useCallback((questionId: string) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      questions: (prev.questions || gameState.questions).filter(q => q.id !== questionId)
+    }));
     sendMessage('deleteQuestion', { questionId });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.questions]);
 
   const reorderQuestions = useCallback((questionIds: string[]) => {
+    const reorderedQuestions = questionIds.map(id => 
+      (optimisticState.questions || gameState.questions).find(q => q.id === id)
+    ).filter(Boolean);
+    
+    setOptimisticState(prev => ({
+      ...prev,
+      questions: reorderedQuestions
+    }));
     sendMessage('reorderQuestions', { questionIds });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.questions, optimisticState.questions]);
 
   const generateQuestions = useCallback((topics: string[], count: number) => {
+    // For AI generation, we don't know the exact questions yet, so we'll let the server handle it
     sendMessage('generateQuestions', { topics, count });
   }, [sendMessage]);
 
   const setGameStatus = useCallback((status: string) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      status
+    }));
     sendMessage('setGameStatus', { status });
   }, [sendMessage]);
 
   const setCurrentQuestionIndex = useCallback((index: number) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      currentQuestionIndex: index
+    }));
     sendMessage('setCurrentQuestionIndex', { index });
   }, [sendMessage]);
 
   const setCurrentRespondent = useCallback((userId: string) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      currentRespondent: userId
+    }));
     sendMessage('setCurrentRespondent', { userId });
   }, [sendMessage]);
 
   const setCaptions = useCallback((captions: string) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      captions
+    }));
     sendMessage('setCaptions', { captions });
   }, [sendMessage]);
 
   const addRound = useCallback((round: any) => {
+    setOptimisticState(prev => ({
+      ...prev,
+      history: [...(gameState.history || []), round]
+    }));
     sendMessage('addRound', { round });
-  }, [sendMessage]);
+  }, [sendMessage, gameState.history]);
 
   const value: AppContextType = {
     // Navigation
@@ -311,21 +400,22 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     // Connection
     isConnected,
     
-    // Game State
+    // Game State (using optimistic state when available)
     gameState,
-    users: gameState.users,
+    users: optimisticState.users || gameState.users,
     connections: gameState.connections,
-    status: gameState.status,
-    topics: gameState.topics,
-    questions: gameState.questions,
-    currentQuestionIndex: gameState.currentQuestionIndex,
-    history: gameState.history,
-    currentRespondent: gameState.currentRespondent,
-    captions: gameState.captions,
+    status: optimisticState.status || gameState.status,
+    topics: optimisticState.topics || gameState.topics,
+    questions: optimisticState.questions || gameState.questions,
+    currentQuestionIndex: optimisticState.currentQuestionIndex ?? gameState.currentQuestionIndex,
+    history: optimisticState.history || gameState.history,
+    currentRespondent: optimisticState.currentRespondent || gameState.currentRespondent,
+    captions: optimisticState.captions || gameState.captions,
     currentUserId,
-    isPlayer: gameState.users.find(u => u.id === currentUserId)?.isPlayer ?? false,
-    isNarrator: gameState.users.find(u => u.id === currentUserId)?.isNarrator ?? false,
-    isAdmin: gameState.users.find(u => u.id === currentUserId)?.isAdmin ?? false,
+    isPlayer: (optimisticState.users || gameState.users).find(u => u.id === currentUserId)?.isPlayer ?? false,
+    isNarrator: (optimisticState.users || gameState.users).find(u => u.id === currentUserId)?.isNarrator ?? false,
+    isAdmin: (optimisticState.users || gameState.users).find(u => u.id === currentUserId)?.isAdmin ?? false,
+    revealedQuestions,
     
     // Actions
     sendMessage,
@@ -333,13 +423,13 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     handlePlayerToggle,
     handleNarratorToggle,
     handleAdminToggle,
+    updateRevealState,
     
     // Game Actions
     addTopic,
     removeTopic,
     addQuestion,
     updateQuestion,
-    updateRevealState,
     deleteQuestion,
     reorderQuestions,
     generateQuestions,

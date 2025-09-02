@@ -8,7 +8,7 @@ import { useApp } from "../contexts/AppContext";
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
-  const { questions, reorderQuestions, deleteQuestion, updateRevealState } =
+  const { questions, reorderQuestions, deleteQuestion, updateRevealState, revealedQuestions } =
     useApp();
 
   const handleDragEnd = useCallback(
@@ -76,12 +76,12 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
                       {...provided.dragHandleProps}
                       className={snapshot.isDragging ? "dragging" : ""}
                     >
-                      <QuizQuestionEntry
-                        question={question}
-                        onDelete={handleDeleteQuestion}
-                        isRevealed={false}
-                        onRevealToggle={handleRevealToggle}
-                      />
+                                              <QuizQuestionEntry
+                          question={question}
+                          onDelete={handleDeleteQuestion}
+                          isRevealed={revealedQuestions[question.id] || false}
+                          onRevealToggle={handleRevealToggle}
+                        />
                     </div>
                   )}
                 </Draggable>
