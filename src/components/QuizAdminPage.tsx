@@ -13,7 +13,6 @@ interface QuizAdminPageProps {}
 
 export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
   const { 
-    initialQuestions = [], 
     initialTopics = [], 
     socket: activeSocket, 
     revealState = {} 

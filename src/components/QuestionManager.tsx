@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -11,10 +11,37 @@ import { generateId } from '../utils';
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
-  const { initialQuestions: questions, socket, revealState } = useRoomContext();
+  const { socket, revealState } = useRoomContext();
+  const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [editingQuestionId, setEditingQuestionId] = useState<string | null>(null);
 
   const sendMessage = useSocketMessage(socket);
+
+  // Fetch questions when component mounts
+  useEffect(() => {
+    if (socket) {
+      sendMessage({ type: 'getQuestions' });
+    }
+  }, [socket, sendMessage]);
+
+  // Listen for questions updates from server
+  useEffect(() => {
+    if (!socket) return;
+
+    const handleMessage = (event: MessageEvent) => {
+      try {
+        const data = JSON.parse(event.data);
+        if (data.type === 'questions') {
+          setQuestions(data.questions || []);
+        }
+      } catch (error) {
+        console.error('Error parsing message:', error);
+      }
+    };
+
+    socket.addEventListener('message', handleMessage);
+    return () => socket.removeEventListener('message', handleMessage);
+  }, [socket]);
 
   const handleDragEnd = useCallback((result: DropResult) => {
     if (!result.destination) return;

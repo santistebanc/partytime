@@ -73,46 +73,29 @@ export class MessageHandler {
   ): Promise<void> {
     console.log("handleJoin", data, sender);
 
-    // Load user toggles from storage for every user joining
-    await this.userManager.loadUserTogglesFromStorage();
-    
     // Check if this user already exists
     const existingUser = this.userManager.getUser(data.userId);
     if (existingUser) {
       console.log(
         `User ${data.name} (${data.userId}) adding new connection to room ${this.room.id}`
       );
-      
-      // Restore user toggle states from storage
-      const storedToggles = this.userManager.getUserToggles(data.userId);
-      if (storedToggles) {
-        this.userManager.updateUserToggles(data.userId, storedToggles);
-      }
     } else {
       // New user joining
       const isFirstUser = this.userManager.isFirstUser();
       this.userManager.addUser(data.userId, data.name, isFirstUser);
       
-      // Save to room storage
-      await this.userManager.saveUserTogglesToStorage();
-      
       console.log(
         `New user ${data.name} (${data.userId}) joined room ${this.room.id}`
       );
-
-      // Generate initial questions if this is the first user and questions haven't been generated yet
-      if (isFirstUser && !this.quizManager.hasQuestions()) {
-        await this.quizManager.generateInitialQuestions();
-      }
     }
 
     // Send current questions to the joining user (if any exist)
     const currentQuestions = await this.quizManager.getQuestions();
     if (currentQuestions.length > 0) {
-          sendMessage(sender, {
-      type: "questions",
-      questions: currentQuestions,
-    });
+      sendMessage(sender, {
+        type: "questions",
+        questions: currentQuestions,
+      });
       console.log(
         `Sent ${currentQuestions.length} existing questions to joining user`
       );
@@ -121,10 +104,10 @@ export class MessageHandler {
     // Send current topics to the joining user (if any exist)
     const currentTopics = await this.quizManager.getTopics();
     if (currentTopics.length > 0) {
-          sendMessage(sender, {
-      type: "topics",
-      topics: currentTopics,
-    });
+      sendMessage(sender, {
+        type: "topics",
+        topics: currentTopics,
+      });
       console.log(
         `Sent ${currentTopics.length} existing topics to joining user`
       );
@@ -210,6 +193,13 @@ export class MessageHandler {
   ): Promise<void> {
     await this.quizManager.addQuestion(data.question);
     console.log("Question added:", data.question.id);
+    
+    // Broadcast updated questions to all users
+    const questions = await this.quizManager.getQuestions();
+    broadcastMessage(this.room, {
+      type: "questions",
+      questions,
+    });
   }
 
   private async handleUpdateQuestion(
@@ -219,6 +209,13 @@ export class MessageHandler {
     const success = await this.quizManager.updateQuestion(data.question);
     if (success) {
       console.log("Question updated:", data.question.id);
+      
+      // Broadcast updated questions to all users
+      const questions = await this.quizManager.getQuestions();
+      broadcastMessage(this.room, {
+        type: "questions",
+        questions,
+      });
     } else {
       console.error("Question not found for update:", data.question.id);
     }
@@ -231,6 +228,13 @@ export class MessageHandler {
     const success = await this.quizManager.deleteQuestion(data.questionId);
     if (success) {
       console.log("Question deleted:", data.questionId);
+      
+      // Broadcast updated questions to all users
+      const questions = await this.quizManager.getQuestions();
+      broadcastMessage(this.room, {
+        type: "questions",
+        questions,
+      });
     } else {
       console.error("Question not found for deletion:", data.questionId);
     }
@@ -242,6 +246,13 @@ export class MessageHandler {
   ): Promise<void> {
     await this.quizManager.reorderQuestions(data.questionIds);
     console.log("Questions reordered");
+    
+    // Broadcast updated questions to all users
+    const questions = await this.quizManager.getQuestions();
+    broadcastMessage(this.room, {
+      type: "questions",
+      questions,
+    });
   }
 
   private async handleGetQuestions(sender: Party.Connection): Promise<void> {
@@ -258,6 +269,13 @@ export class MessageHandler {
   ): Promise<void> {
     await this.quizManager.addTopic(data.topic);
     console.log("Topic added:", data.topic);
+    
+    // Broadcast updated topics to all users
+    const topics = await this.quizManager.getTopics();
+    broadcastMessage(this.room, {
+      type: "topics",
+      topics,
+    });
   }
 
   private async handleRemoveTopic(
@@ -267,6 +285,13 @@ export class MessageHandler {
     const success = await this.quizManager.removeTopic(data.topic);
     if (success) {
       console.log("Topic removed:", data.topic);
+      
+      // Broadcast updated topics to all users
+      const topics = await this.quizManager.getTopics();
+      broadcastMessage(this.room, {
+        type: "topics",
+        topics,
+      });
     } else {
       console.error("Topic not found for removal:", data.topic);
     }
@@ -307,7 +332,6 @@ export class MessageHandler {
 
     const success = this.userManager.updateUserToggles(data.userId, toggles);
     if (success) {
-      await this.userManager.saveUserTogglesToStorage();
       console.log(`User toggles updated for ${data.userId}:`, toggles);
       
       // Broadcast updated user list

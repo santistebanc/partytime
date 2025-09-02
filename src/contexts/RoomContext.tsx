@@ -10,7 +10,6 @@ import { useSocketListener } from '../hooks/useSocketListener';
 interface RoomContextType {
   users: User[];
   currentUserId: string;
-  initialQuestions: QuizQuestion[];
   initialTopics: string[];
   revealState: Record<string, boolean>;
   isPlayer: boolean;
@@ -35,7 +34,6 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
   
   const [users, setUsers] = useState<User[]>([]);
   const [currentUserId, setCurrentUserId] = useState<string>('');
-  const [initialQuestions, setInitialQuestions] = useState<QuizQuestion[]>([]);
   const [initialTopics, setInitialTopics] = useState<string[]>([]);
   const [revealState, setRevealState] = useState<Record<string, boolean>>({});
   const [isPlayer, setIsPlayer] = useState(true);
@@ -86,9 +84,6 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
               : user
           )
         );
-      } else if (data.type === 'questions') {
-        console.log('Received questions from server:', data.questions);
-        setInitialQuestions(data.questions);
       } else if (data.type === 'topics') {
         console.log('Received topics from server:', data.topics);
         setInitialTopics(data.topics);
@@ -167,7 +162,6 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
   const roomState: RoomContextType = {
     users,
     currentUserId,
-    initialQuestions,
     initialTopics,
     revealState,
     isPlayer,

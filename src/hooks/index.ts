@@ -1,4 +1,4 @@
-export { useRoom } from './useRoom';
+
 export { useAIGeneration } from './useAIGeneration';
 export { useTopicManagement } from './useTopicManagement';
 export { useForm } from './useForm';

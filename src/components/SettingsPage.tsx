@@ -6,6 +6,7 @@ import { useRoomContext } from '../contexts/RoomContext';
 export const SettingsPage: React.FC = () => {
   const { 
     users, 
+    currentUserId,
     isPlayer, 
     isNarrator, 
     isAdmin, 
@@ -16,7 +17,7 @@ export const SettingsPage: React.FC = () => {
   } = useRoomContext();
   
   // Get current user's name from users array
-  const currentUser = users.find(user => user.isCurrentUser) || users[0];
+  const currentUser = users.find(user => user.id === currentUserId) || users[0];
   const userName = currentUser?.name || '';
   const [editingName, setEditingName] = useState(userName);
   const [isEditingName, setIsEditingName] = useState(false);

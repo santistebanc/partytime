@@ -14,7 +14,6 @@ export interface UserToggles {
 export class UserManager {
   private users: Map<string, User> = new Map();
   private connections: Map<string, string> = new Map(); // connectionId -> userId
-  private userToggles: Map<string, UserToggles> = new Map();
 
   constructor(private room: Party.Room) {}
 
@@ -28,14 +27,14 @@ export class UserManager {
     this.users.set(userId, user);
     
     // Check if user toggles already exist in storage, otherwise create defaults
-    const existingToggles = this.userToggles.get(userId);
+    const existingToggles = this.getUserToggles(userId);
     if (!existingToggles) {
       const userToggleData: UserToggles = {
         isPlayer: true,
         isNarrator: false,
         isAdmin: isFirstUser,
       };
-      this.userToggles.set(userId, userToggleData);
+      this.updateUserToggles(userId, userToggleData);
     }
     
     return user;
@@ -71,7 +70,7 @@ export class UserManager {
 
   getAllUsersWithToggles(): (User & UserToggles)[] {
     return Array.from(this.users.values()).map(user => {
-      const toggles = this.userToggles.get(user.id) || {
+      const toggles = this.getUserToggles(user.id) || {
         isPlayer: true,
         isNarrator: false,
         isAdmin: false
@@ -108,36 +107,30 @@ export class UserManager {
 
   // User Toggles Management
   getUserToggles(userId: string): UserToggles | undefined {
-    return this.userToggles.get(userId);
+    const storedToggles = (this.room.storage as any).userToggles || {};
+    return storedToggles[userId];
   }
 
   updateUserToggles(userId: string, toggles: Partial<UserToggles>): boolean {
-    const currentToggles = this.userToggles.get(userId);
+    const storedToggles = (this.room.storage as any).userToggles || {};
+    const currentToggles = storedToggles[userId];
     
     if (currentToggles) {
       const updatedToggles = { ...currentToggles, ...toggles };
-      this.userToggles.set(userId, updatedToggles);
+      storedToggles[userId] = updatedToggles;
+      (this.room.storage as any).userToggles = storedToggles;
       return true;
-    }
-    return false;
-  }
-
-  // Storage Operations
-  async saveUserTogglesToStorage(): Promise<void> {
-    const togglesData: Record<string, UserToggles> = {};
-    for (const [userId, toggles] of this.userToggles.entries()) {
-      togglesData[userId] = toggles;
-    }
-    
-    (this.room.storage as any).userToggles = togglesData;
-  }
-
-  async loadUserTogglesFromStorage(): Promise<void> {
-    const storedToggles = (this.room.storage as any).userToggles || {};
-    
-    for (const [userId, toggles] of Object.entries(storedToggles)) {
-      const userToggles = toggles as UserToggles;
-      this.userToggles.set(userId, userToggles);
+    } else {
+      // Create new toggles if they don't exist
+      const newToggles: UserToggles = {
+        isPlayer: true,
+        isNarrator: false,
+        isAdmin: false,
+        ...toggles
+      };
+      storedToggles[userId] = newToggles;
+      (this.room.storage as any).userToggles = storedToggles;
+      return true;
     }
   }
 
