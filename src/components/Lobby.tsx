@@ -1,21 +1,19 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
-import { useNavigation } from '../hooks/useNavigation';
-import { getStoredUserName, getStoredRoomId } from '../contexts/NavigationContext';
+import { useApp } from '../contexts/AppContext';
 import { PartytimeLogo } from './PartytimeLogo';
-import { generateRoomId } from '../utils';
 
 export const Lobby: React.FC = () => {
-  const { roomId, userName, navigateToRoom } = useNavigation();
+  const { roomId, userName, navigateToRoom, createRoom } = useApp();
   
-  // Form state with priority: URL params → stored values → empty
+  // Form state with priority: URL params → empty
   const [formName, setFormName] = useState(() => {
-    return userName || getStoredUserName() || '';
+    return userName || '';
   });
   
   const [formRoomId, setFormRoomId] = useState(() => {
-    return roomId || getStoredRoomId() || '';
+    return roomId || '';
   });
   
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -34,14 +32,14 @@ export const Lobby: React.FC = () => {
     e.preventDefault();
     if (!isNameValid) return;
     
-    let finalRoomId = (formRoomId || '').trim();
+    const finalRoomId = (formRoomId || '').trim();
     
-    // If room ID is empty, generate a random one
+    // If room ID is empty, create a new room
     if (!finalRoomId) {
-      finalRoomId = generateRoomId();
+      createRoom(formName);
+    } else {
+      navigateToRoom(finalRoomId, formName);
     }
-    
-    navigateToRoom(finalRoomId, formName);
   };
 
   return (

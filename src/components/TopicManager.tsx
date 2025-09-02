@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
-import { useRoomContext } from '../contexts/RoomContext';
-import { useTopicManagement } from '../hooks/useTopicManagement';
+import { useApp } from '../contexts/AppContext';
 
 interface TopicManagerProps {}
 
 export const TopicManager: React.FC<TopicManagerProps> = () => {
-  const { gameState, socket } = useRoomContext();
+  const { gameState, sendMessage } = useApp();
   const [newTopic, setNewTopic] = useState('');
-  
-    // Use the useTopicManagement hook directly
-  const { topics, addTopic, deleteTopic } = useTopicManagement(gameState.topics, socket);
   
   const handleAddTopic = () => {
     const trimmedTopic = newTopic.trim();
-    if (trimmedTopic && !topics.includes(trimmedTopic)) {
-      addTopic(trimmedTopic);
+    if (trimmedTopic && !gameState.topics.includes(trimmedTopic)) {
+      sendMessage('addTopic', { topic: trimmedTopic });
       setNewTopic('');
     }
   };
 
   const handleRemoveTopic = (topicToRemove: string) => {
-    deleteTopic(topicToRemove);
+    sendMessage('removeTopic', { topic: topicToRemove });
   };
   
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -52,9 +48,9 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
     <div className="topic-manager">
       <div className="topic-input-section">
         <div className="topic-input-container">
-          <div className={`topic-tags-display ${topics.length > 0 ? 'has-tags' : ''}`}>
+          <div className={`topic-tags-display ${gameState.topics.length > 0 ? 'has-tags' : ''}`}>
             <AnimatePresence>
-              {topics.map((topic) => (
+              {gameState.topics.map((topic) => (
                 <motion.div
                   key={topic}
                   initial={{ opacity: 0, scale: 0.8 }}
@@ -78,7 +74,7 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
               value={newTopic}
               onChange={(e) => setNewTopic(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder={topics.length === 0 ? "Enter a new topic..." : ""}
+              placeholder={gameState.topics.length === 0 ? "Enter a new topic..." : ""}
               className="topic-input-inline"
             />
             {newTopic.trim() && (
@@ -94,7 +90,7 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
         </div>
       </div>
 
-      {topics.length === 0 && (
+      {gameState.topics.length === 0 && (
         <p className="no-topics">No topics added yet. Add some topics to generate questions!</p>
       )}
     </div>

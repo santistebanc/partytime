@@ -1,12 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Wand2, AlertCircle } from "lucide-react";
-import type { QuizQuestion } from "../types/quiz";
+import type { QuizQuestion } from "../types";
 import { QuestionManager } from "./QuestionManager";
 import { TopicManager } from "./TopicManager";
-import { useRoomContext } from "../contexts/RoomContext";
-import { useAIGeneration } from "../hooks/useAIGeneration";
-import { useTopicManagement } from "../hooks/useTopicManagement";
+import { useApp } from "../contexts/AppContext";
 
 
 interface QuizAdminPageProps {}
@@ -14,29 +12,34 @@ interface QuizAdminPageProps {}
 export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
   const { 
     gameState,
-    socket: activeSocket
-  } = useRoomContext();
+    sendMessage
+  } = useApp();
   
   // Questions are now managed directly from props, no local state needed
   
-  const {
-    topics,
-    handleTopicsChange
-  } = useTopicManagement(gameState.topics, activeSocket);
-  
-  const {
-    isGenerating,
-    error,
-    generateQuestions,
-    clearError
-  } = useAIGeneration(activeSocket);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const handleGenerateQuestions = async () => {
-    // Questions are now sent directly to server via useAIGeneration
-    await generateQuestions(topics, (questions) => {
-      // Questions are automatically sent to server in the hook
-      console.log('Generated questions:', questions);
-    });
+    if (!gameState.topics.length) {
+      setError("Please add at least one topic first.");
+      return;
+    }
+
+    setIsGenerating(true);
+    setError(null);
+
+    try {
+      sendMessage('generateQuestions', { 
+        topics: gameState.topics, 
+        count: 5 
+      });
+    } catch (err) {
+      setError("Failed to generate questions. Please try again.");
+      console.error("Error generating questions:", err);
+    } finally {
+      setIsGenerating(false);
+    }
   };
 
 
@@ -85,7 +88,7 @@ export const QuizAdminPage: React.FC<QuizAdminPageProps> = () => {
             <div className="generate-button-area">
               <motion.button
                 onClick={handleGenerateQuestions}
-                disabled={isGenerating || !topics.length}
+                disabled={isGenerating || !gameState.topics.length}
                 className="btn btn-generate"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}

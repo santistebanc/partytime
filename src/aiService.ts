@@ -1,4 +1,4 @@
-import type { AIQuestionRequest, AIQuestionResponse } from './types/quiz';
+import type { AIQuestionRequest, AIQuestionResponse } from './types';
 
 export class AIService {
   private static instance: AIService;

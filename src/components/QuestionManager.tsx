@@ -3,14 +3,12 @@ import { motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 import { QuizQuestionEntry } from "./QuizQuestionEntry";
-import { useRoomContext } from "../contexts/RoomContext";
-import { useUnifiedMessage } from "../hooks/useUnifiedMessage";
+import { useApp } from "../contexts/AppContext";
 
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
-  const { gameState, socket } = useRoomContext();
-  const { deleteQuestion, reorderQuestions, updateRevealState } = useUnifiedMessage(socket);
+  const { gameState, sendMessage } = useApp();
 
   const handleDragEnd = useCallback(
     (result: DropResult) => {
@@ -24,26 +22,26 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
         newItems.splice(destination.index, 0, removed);
 
         // Send reorder to server
-        reorderQuestions(newItems.map((q) => q.id));
+        sendMessage('reorderQuestions', { questionIds: newItems.map((q) => q.id) });
       }
     },
-    [gameState.questions, reorderQuestions]
+    [gameState.questions, sendMessage]
   );
 
   const handleDeleteQuestion = useCallback(
     (id: string) => {
       // Send delete to server
-      deleteQuestion(id);
+      sendMessage('deleteQuestion', { questionId: id });
     },
-    [deleteQuestion]
+    [sendMessage]
   );
 
   const handleRevealToggle = useCallback(
     (questionId: string, revealed: boolean) => {
       // Send reveal state update to server
-      updateRevealState(questionId, revealed);
+      sendMessage('updateRevealState', { questionId, revealed });
     },
-    [updateRevealState]
+    [sendMessage]
   );
 
   return (

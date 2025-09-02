@@ -31,3 +31,17 @@ export const logUsers = (users: any[]): void => {
 export const sendMessage = (connection: Party.Connection, message: any): void => {
   connection.send(JSON.stringify(message));
 };
+
+/**
+ * Generate a random room ID
+ */
+export const generateRoomId = (): string => {
+  return Math.random().toString(36).substring(2, 8).toUpperCase();
+};
+
+/**
+ * Generate a random user ID
+ */
+export const generateUserId = (): string => {
+  return crypto.randomUUID();
+};

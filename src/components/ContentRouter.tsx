@@ -3,8 +3,7 @@ import { AnimatePresence } from 'framer-motion';
 import { GamePage } from './GamePage';
 import { SettingsPage } from './SettingsPage';
 import { QuizAdminPage } from './QuizAdminPage';
-import { useNavigation } from '../hooks/useNavigation';
-import { useRoomContext } from '../contexts/RoomContext';
+import { useApp } from '../contexts/AppContext';
 
 interface ContentRouterProps {
   currentPage: 'game' | 'settings' | 'admin';
@@ -13,8 +12,7 @@ interface ContentRouterProps {
 export const ContentRouter: React.FC<ContentRouterProps> = ({
   currentPage
 }) => {
-  const { roomId, userName } = useNavigation();
-  const { isPlayer, isNarrator, isAdmin } = useRoomContext();
+  const { roomId, userName, isPlayer, isNarrator, isAdmin } = useApp();
   
   // Ensure roomId and userName are strings (they should be since we're in Room component)
   const roomIdStr = roomId || '';

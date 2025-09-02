@@ -7,8 +7,7 @@ import {
   Users, 
   LogOut
 } from 'lucide-react';
-import { useRoomContext } from '../contexts/RoomContext';
-import { useNavigation } from '../hooks/useNavigation';
+import { useApp } from '../contexts/AppContext';
 
 interface RoomHeaderProps {
   currentPage: 'game' | 'settings' | 'admin';
@@ -22,8 +21,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
   onMembersPanelToggle
 }) => {
   const [showMembersPanel, setShowMembersPanel] = useState(false);
-  const { roomId, userName, navigateToLobby } = useNavigation();
-  const { gameState, isAdmin } = useRoomContext();
+  const { roomId, userName, navigateToLobby, gameState, isAdmin } = useApp();
   
   const handleLeaveRoom = () => {
     navigateToLobby();

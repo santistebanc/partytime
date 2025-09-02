@@ -2,18 +2,9 @@ import React, { useState, useRef } from "react";
 import { RoomHeader } from "./RoomHeader";
 import { MembersPanel } from "./MembersPanel";
 import { ContentRouter } from "./ContentRouter";
-import { RoomProvider } from "../contexts/RoomContext";
 import { useClickOutside } from "../hooks/useClickOutside";
 
 export const Room: React.FC = () => {
-  return (
-    <RoomProvider>
-      <RoomContent />
-    </RoomProvider>
-  );
-};
-
-const RoomContent: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"game" | "settings" | "admin">(
     "game"
   );

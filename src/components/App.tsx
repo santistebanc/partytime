@@ -1,14 +1,11 @@
 import React from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { NavigationProvider } from "../contexts/NavigationContext";
-import { useNavigation } from "../hooks/useNavigation";
-import { SocketProvider } from "../contexts/SocketContext";
+import { AppProvider, useApp } from "../contexts/AppContext";
 import { Lobby } from "./Lobby";
 import { Room } from "./Room";
-import { RoomProvider } from "../contexts/RoomContext";
 
 const AppContent: React.FC = () => {
-  const { roomId, userName } = useNavigation();
+  const { roomId, userName } = useApp();
 
   return (
     <div className="app">
@@ -21,11 +18,7 @@ const AppContent: React.FC = () => {
             exit={{ opacity: 0, x: -100 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <SocketProvider>
-              <RoomProvider>
-                <Room />
-              </RoomProvider>
-            </SocketProvider>
+            <Room />
           </motion.div>
         ) : (
           <motion.div
@@ -45,9 +38,9 @@ const AppContent: React.FC = () => {
 
 const App: React.FC = () => {
   return (
-    <NavigationProvider>
+    <AppProvider>
       <AppContent />
-    </NavigationProvider>
+    </AppProvider>
   );
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserIcon, Mic, Gamepad, Crown } from 'lucide-react';
-import { useRoomContext } from '../contexts/RoomContext';
+import { useApp } from '../contexts/AppContext';
 
 interface MembersPanelProps {
   showMembersPanel: boolean;
@@ -12,7 +12,7 @@ export const MembersPanel: React.FC<MembersPanelProps> = ({
   showMembersPanel,
   onRef
 }) => {
-  const { gameState } = useRoomContext();
+  const { gameState } = useApp();
   return (
     <motion.div 
       ref={onRef}

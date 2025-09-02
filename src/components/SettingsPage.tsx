@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Edit3, Save, X } from 'lucide-react';
-import { useRoomContext } from '../contexts/RoomContext';
+import { useApp } from '../contexts/AppContext';
 
 export const SettingsPage: React.FC = () => {
   const { 
@@ -14,7 +14,7 @@ export const SettingsPage: React.FC = () => {
     handlePlayerToggle,
     handleNarratorToggle,
     handleAdminToggle 
-  } = useRoomContext();
+  } = useApp();
   
   // Get current user's name from users array
   const currentUser = gameState.users.find(user => user.id === currentUserId) || gameState.users[0];
