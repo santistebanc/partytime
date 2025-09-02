@@ -4,15 +4,14 @@ import { RoomHeader } from './RoomHeader';
 import { MembersPanel } from './MembersPanel';
 import { ContentRouter } from './ContentRouter';
 import { useRoom } from '../hooks/useRoom';
+import { useNavigation } from '../hooks/useNavigation';
 
 interface RoomProps {
   roomId: string;
   userName: string;
-  onNavigateToLobby: () => void;
-  onNameChange?: (newName: string) => void;
 }
 
-export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby, onNameChange }) => {
+export const Room: React.FC<RoomProps> = ({ roomId, userName }) => {
   const [currentPage, setCurrentPage] = useState<'game' | 'settings' | 'admin'>('game');
   const [showMembersPanel, setShowMembersPanel] = useState(false);
   const [showCopiedMessage, setShowCopiedMessage] = useState(false);
@@ -32,6 +31,8 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
     handleNarratorToggle,
     handleAdminToggle
   } = useRoom(roomId, userName);
+
+  const { navigateToLobby } = useNavigation();
   
   const membersPanelRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
@@ -60,7 +61,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
   }, []);
 
   const handleLeaveRoom = () => {
-    onNavigateToLobby();
+    navigateToLobby();
   };
 
   const toggleMembersPanel = () => {
@@ -72,12 +73,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
     setTimeout(() => setShowCopiedMessage(false), 2000);
   };
 
-  const handleNameChangeWithCallback = (newName: string) => {
-    handleNameChange(newName);
-    if (onNameChange) {
-      onNameChange(newName);
-    }
-  };
+
 
   return (
     <div className="room">
@@ -113,7 +109,7 @@ export const Room: React.FC<RoomProps> = ({ roomId, userName, onNavigateToLobby,
           initialTopics={initialTopics}
           revealState={revealState}
           socket={socket}
-          onNameChange={handleNameChangeWithCallback}
+          onNameChange={handleNameChange}
           onPlayerToggle={handlePlayerToggle}
           onNarratorToggle={handleNarratorToggle}
           onAdminToggle={handleAdminToggle}

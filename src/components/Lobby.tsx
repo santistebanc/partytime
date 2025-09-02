@@ -1,15 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigation, getStoredUserName, getStoredRoomId } from '../contexts/NavigationContext';
+import { useNavigation as useNavigationHook } from '../hooks/useNavigation';
 import { PartytimeLogo } from './PartytimeLogo';
 import { generateRoomId } from '../utils';
 
-interface LobbyProps {
-  onNavigateToRoom: (roomId: string, userName: string) => void;
-}
-
-export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
+export const Lobby: React.FC = () => {
   const { roomId: urlRoomId, userName: urlUserName } = useNavigation();
+  const { navigateToRoom } = useNavigationHook();
   
   // Get stored values for prefilling (but don't navigate automatically)
   const storedUserName = getStoredUserName();
@@ -57,7 +55,7 @@ export const Lobby: React.FC<LobbyProps> = ({ onNavigateToRoom }) => {
       finalRoomId = generateRoomId();
     }
     
-    onNavigateToRoom(finalRoomId, name);
+    navigateToRoom(finalRoomId, name);
   };
 
   return (

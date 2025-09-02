@@ -1,19 +1,15 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { NavigationProvider, useNavigation } from '../contexts/NavigationContext';
+import { NavigationProvider } from '../contexts/NavigationContext';
+import { useNavigation } from '../hooks/useNavigation';
 import { SocketProvider } from '../contexts/SocketContext';
 import { Lobby } from './Lobby';
 import { Room } from './Room';
 
 const AppContent: React.FC = () => {
-  const { roomId, userName, navigateToRoom, navigateToLobby } = useNavigation();
+  const { roomId, userName } = useNavigation();
 
-  const handleNameChange = (newName: string) => {
-    // Update the URL with the new name
-    // We need to get the current user ID from the Room component
-    // For now, just update the name without changing the user ID
-    navigateToRoom(roomId!, newName);
-  };
+
 
   return (
     <div className="app">
@@ -30,8 +26,6 @@ const AppContent: React.FC = () => {
               <Room 
                 roomId={roomId} 
                 userName={userName} 
-                onNavigateToLobby={navigateToLobby}
-                onNameChange={handleNameChange}
               />
             </SocketProvider>
           </motion.div>
@@ -43,7 +37,7 @@ const AppContent: React.FC = () => {
             exit={{ opacity: 0, x: 100 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
           >
-            <Lobby onNavigateToRoom={navigateToRoom} />
+            <Lobby />
           </motion.div>
         )}
       </AnimatePresence>
