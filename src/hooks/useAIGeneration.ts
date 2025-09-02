@@ -1,14 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
 import { aiService } from '../services/aiService';
 import type { QuizQuestion } from '../types/quiz';
-import { useSocketMessage } from './useSocketMessage';
+import { useUnifiedMessage } from './useUnifiedMessage';
 import { generateId } from '../utils';
 
 export const useAIGeneration = (socket: any) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const sendMessage = useSocketMessage(socket);
+  const { addQuestion } = useUnifiedMessage(socket);
 
   // Set the socket in the AI service when it's available
   useEffect(() => {
@@ -43,10 +43,7 @@ export const useAIGeneration = (socket: any) => {
         
         // Send to server
         newQuestions.forEach(question => {
-          sendMessage({
-            type: 'addQuestion',
-            question
-          });
+          addQuestion(question);
         });
       } else {
         setError("Failed to generate questions");

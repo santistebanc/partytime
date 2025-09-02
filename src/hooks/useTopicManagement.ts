@@ -1,26 +1,20 @@
 import { useCallback } from 'react';
-import { useSocketMessage } from './useSocketMessage';
+import { useUnifiedMessage } from './useUnifiedMessage';
 
 export const useTopicManagement = (topics: string[], socket: any) => {
-  const sendMessage = useSocketMessage(socket);
+  const { addTopic: addTopicUnified, removeTopic } = useUnifiedMessage(socket);
 
   const addTopic = useCallback((topic: string) => {
     if (topic.trim() && !topics.includes(topic.trim())) {
       // Send to server - no local state update needed
-      sendMessage({
-        type: 'addTopic',
-        topic: topic.trim()
-      });
+      addTopicUnified(topic.trim());
     }
-  }, [topics, sendMessage]);
+  }, [topics, addTopicUnified]);
 
   const deleteTopic = useCallback((topicToDelete: string) => {
     // Send to server - no local state update needed
-    sendMessage({
-      type: 'deleteTopic',
-      topic: topicToDelete
-    });
-  }, [sendMessage]);
+    removeTopic(topicToDelete);
+  }, [removeTopic]);
 
   const handleTopicsChange = useCallback((newTopics: string[]) => {
     // Handle topic changes from TopicManager

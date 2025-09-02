@@ -3,15 +3,14 @@ import { motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
 import { QuizQuestionEntry } from "./QuizQuestionEntry";
-import { useSocketMessage } from "../hooks/useSocketMessage";
 import { useRoomContext } from "../contexts/RoomContext";
+import { useUnifiedMessage } from "../hooks/useUnifiedMessage";
 
 interface QuestionManagerProps {}
 
 export const QuestionManager: React.FC<QuestionManagerProps> = () => {
   const { gameState, socket } = useRoomContext();
-
-  const sendMessage = useSocketMessage(socket);
+  const { deleteQuestion, reorderQuestions, updateRevealState } = useUnifiedMessage(socket);
 
   const handleDragEnd = useCallback(
     (result: DropResult) => {
@@ -25,36 +24,26 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
         newItems.splice(destination.index, 0, removed);
 
         // Send reorder to server
-        sendMessage({
-          type: "reorderQuestions",
-          questionIds: newItems.map((q) => q.id),
-        });
+        reorderQuestions(newItems.map((q) => q.id));
       }
     },
-    [gameState.questions, sendMessage]
+    [gameState.questions, reorderQuestions]
   );
 
-  const deleteQuestion = useCallback(
+  const handleDeleteQuestion = useCallback(
     (id: string) => {
       // Send delete to server
-      sendMessage({
-        type: "deleteQuestion",
-        questionId: id,
-      });
+      deleteQuestion(id);
     },
-    [sendMessage]
+    [deleteQuestion]
   );
 
   const handleRevealToggle = useCallback(
     (questionId: string, revealed: boolean) => {
       // Send reveal state update to server
-      sendMessage({
-        type: "updateRevealState",
-        questionId,
-        revealed,
-      });
+      updateRevealState(questionId, revealed);
     },
-    [sendMessage]
+    [updateRevealState]
   );
 
   return (
@@ -90,7 +79,7 @@ export const QuestionManager: React.FC<QuestionManagerProps> = () => {
                     >
                       <QuizQuestionEntry
                         question={question}
-                        onDelete={deleteQuestion}
+                        onDelete={handleDeleteQuestion}
                         isRevealed={false}
                         onRevealToggle={handleRevealToggle}
                       />

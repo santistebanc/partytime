@@ -48,8 +48,10 @@ export class GameStateManager {
 
   private async broadcastState(): Promise<void> {
     broadcastMessage(this.room, {
-      type: "gameState",
+      type: "stateUpdate",
       state: this.state,
+      success: true,
+      timestamp: Date.now()
     });
   }
 

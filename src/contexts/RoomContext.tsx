@@ -6,6 +6,8 @@ import { getStoredUserId, setStoredUserId } from '../contexts/NavigationContext'
 import type { GameState, User, Question } from '../types/quiz';
 import { generateUserId } from '../utils';
 import { useSocketListener } from '../hooks/useSocketListener';
+import { useUnifiedMessage } from '../hooks/useUnifiedMessage';
+import type { StateUpdateResponse } from '../types/UnifiedMessage';
 
 interface RoomContextType {
   gameState: GameState;
@@ -28,7 +30,8 @@ interface RoomProviderProps {
 
 export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
   const { roomId, userName } = useNavigation();
-  const { socket, isConnected, sendMessage } = useSocket();
+  const { socket, isConnected } = useSocket();
+  const { join, changeName, updateUserToggles } = useUnifiedMessage(socket);
   
   const [gameState, setGameState] = useState<GameState>({
     users: [],
@@ -57,13 +60,11 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
       
       console.log('Sending join message:', { name: userName, userId, roomId });
       
-      sendMessage({
-        type: 'join',
-        name: userName,
-        userId
-      });
+      if (userName) {
+        join(userName, userId);
+      }
     }
-  }, [isConnected, socket, roomId, userName, sendMessage]);
+  }, [isConnected, socket, roomId, userName, join]);
 
   // Handle socket messages
   const handleMessage = useCallback((event: MessageEvent) => {
@@ -81,8 +82,28 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
           setIsNarrator(data.userToggles.isNarrator);
           setIsAdmin(data.userToggles.isAdmin);
         }
+      } else if (data.type === 'stateUpdate') {
+        const stateUpdate = data as StateUpdateResponse;
+        console.log('Received state update from server:', stateUpdate);
+        
+        if (stateUpdate.success && stateUpdate.state) {
+          setGameState(stateUpdate.state);
+          
+          // Update current user's toggle states if available
+          if (currentUserId) {
+            const currentUser = stateUpdate.state.users.find((user: User) => user.id === currentUserId);
+            if (currentUser) {
+              setIsPlayer(currentUser.isPlayer);
+              setIsNarrator(currentUser.isNarrator);
+              setIsAdmin(currentUser.isAdmin);
+            }
+          }
+        } else if (stateUpdate.error) {
+          console.error('State update error:', stateUpdate.error);
+        }
       } else if (data.type === 'gameState') {
-        console.log('Received game state from server:', data.state);
+        // Legacy support for old gameState messages
+        console.log('Received legacy game state from server:', data.state);
         setGameState(data.state);
         
         // Update current user's toggle states if available
@@ -104,48 +125,31 @@ export const RoomProvider: React.FC<RoomProviderProps> = ({ children }) => {
   useSocketListener(socket, 'message', handleMessage);
 
   const handleNameChange = useCallback((newName: string) => {
-    if (currentUserId) {
-      sendMessage({
-        type: 'changeName',
-        oldName: userName,
-        newName: newName,
-        userId: currentUserId
-      });
+    if (currentUserId && userName) {
+      changeName(userName, newName, currentUserId);
     }
-  }, [currentUserId, userName, sendMessage]);
+  }, [currentUserId, userName, changeName]);
 
   const handlePlayerToggle = useCallback((newValue: boolean) => {
     setIsPlayer(newValue);
     if (currentUserId) {
-      sendMessage({
-        type: 'updateUserToggles',
-        userId: currentUserId,
-        isPlayer: newValue
-      });
+      updateUserToggles(currentUserId, { isPlayer: newValue });
     }
-  }, [currentUserId, sendMessage]);
+  }, [currentUserId, updateUserToggles]);
 
   const handleNarratorToggle = useCallback((newValue: boolean) => {
     setIsNarrator(newValue);
     if (currentUserId) {
-      sendMessage({
-        type: 'updateUserToggles',
-        userId: currentUserId,
-        isNarrator: newValue
-      });
+      updateUserToggles(currentUserId, { isNarrator: newValue });
     }
-  }, [currentUserId, sendMessage]);
+  }, [currentUserId, updateUserToggles]);
 
   const handleAdminToggle = useCallback((newValue: boolean) => {
     setIsAdmin(newValue);
     if (currentUserId) {
-      sendMessage({
-        type: 'updateUserToggles',
-        userId: currentUserId,
-        isAdmin: newValue
-      });
+      updateUserToggles(currentUserId, { isAdmin: newValue });
     }
-  }, [currentUserId, sendMessage]);
+  }, [currentUserId, updateUserToggles]);
 
   const roomState: RoomContextType = {
     gameState,
