@@ -53,6 +53,8 @@ export const setStoredUserId = (userId: string): void => {
 export const NavigationProvider: React.FC<NavigationProviderProps> = ({ children }) => {
   const [roomId, setRoomId] = useState<string | null>(null);
   const [userName, setUserName] = useState<string | null>(null);
+  
+
 
   // Initialize from URL on mount, fallback to localStorage for prefilling only
   useEffect(() => {

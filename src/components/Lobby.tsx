@@ -2,17 +2,21 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 import { useNavigation } from '../hooks/useNavigation';
+import { getStoredUserName, getStoredRoomId } from '../contexts/NavigationContext';
 import { PartytimeLogo } from './PartytimeLogo';
 import { generateRoomId } from '../utils';
 
 export const Lobby: React.FC = () => {
-  const { 
-    formName, 
-    setFormName, 
-    formRoomId, 
-    setFormRoomId, 
-    navigateToRoom 
-  } = useNavigation();
+  const { roomId, userName, navigateToRoom } = useNavigation();
+  
+  // Form state with priority: URL params → stored values → empty
+  const [formName, setFormName] = useState(() => {
+    return userName || getStoredUserName() || '';
+  });
+  
+  const [formRoomId, setFormRoomId] = useState(() => {
+    return roomId || getStoredRoomId() || '';
+  });
   
   const nameInputRef = useRef<HTMLInputElement>(null);
   const roomInputRef = useRef<HTMLInputElement>(null);
@@ -100,14 +104,6 @@ export const Lobby: React.FC = () => {
               onChange={(e) => setFormRoomId(e.target.value)}
               className="room-input"
             />
-            <motion.div 
-              className="room-hint"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
-            >
-              Leave empty to create a new room, or enter an existing room name to join
-            </motion.div>
           </motion.div>
 
           <motion.button
