@@ -47,6 +47,7 @@ export interface QuizQuestion extends Question {}
 export interface AIQuestionRequest {
   topics: string[];
   count: number;
+  existingQuestions?: Question[];
 }
 export interface AIQuestionResponse {
   questions: Omit<Question, 'id'>[];

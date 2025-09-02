@@ -208,7 +208,8 @@ export default class RoomServer implements Party.Server {
     try {
       const response = await aiService.generateQuizQuestions({
         topics: payload.topics,
-        count: payload.count || 5
+        count: payload.count || 5,
+        existingQuestions: this.state.questions
       });
       
       // Add generated questions to state
