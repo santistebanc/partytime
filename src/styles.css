@@ -1,5 +1,5 @@
 /* Import Inter font */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap");
 
 /* Reset and base styles */
 * {
@@ -9,8 +9,8 @@
 }
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto",
+    "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -47,7 +47,6 @@ body {
 .lobby-logo {
   display: flex;
   justify-content: center;
-
 }
 
 .lobby-logo .snapquiz-logo {
@@ -103,12 +102,10 @@ body {
 
 .name-input.valid {
   border-color: #495057;
-
 }
 
 .name-input.invalid {
   border-color: #e74c3c;
-
 }
 
 .name-validation {
@@ -151,7 +148,6 @@ body {
 
 .btn:not(:disabled):hover {
   transform: translateY(-2px);
-
 }
 
 .btn-join {
@@ -240,7 +236,6 @@ input:-webkit-autofill:active {
   background: #ffffff;
   backdrop-filter: blur(20px);
   border-bottom: 1px solid #e0e0e0;
-
 }
 
 .header-content {
@@ -296,8 +291,6 @@ input:-webkit-autofill:active {
   position: relative;
 }
 
-
-
 /* Members Toggle Button - Left Side */
 .menu-toggle-btn {
   padding: 8px;
@@ -321,7 +314,6 @@ input:-webkit-autofill:active {
   border-color: #007bff;
   border-width: 2px;
   transform: translateY(-1px);
-
 }
 
 .menu-toggle-btn.active {
@@ -329,7 +321,6 @@ input:-webkit-autofill:active {
   color: white;
   border-color: #007bff;
   border-width: 2px;
-
 }
 
 .menu-count-badge {
@@ -529,7 +520,6 @@ input:-webkit-autofill:active {
   border-color: #007bff;
   border-width: 2px;
   transform: translateX(5px);
-
 }
 
 .user-avatar {
@@ -593,7 +583,7 @@ input:-webkit-autofill:active {
 }
 
 .snapquiz-text-logo {
-  font-family: 'Inter', sans-serif;
+  font-family: "Inter", sans-serif;
   font-weight: 800;
   text-align: center;
   letter-spacing: -0.02em;
@@ -619,8 +609,6 @@ input:-webkit-autofill:active {
   background-clip: text;
   display: block;
 }
-
-
 
 .qr-section {
   margin-top: 40px;
@@ -653,7 +641,6 @@ input:-webkit-autofill:active {
 }
 
 .qr-code-container.clickable:hover {
-
   transform: translateY(-2px);
   border-color: #495057;
 }
@@ -698,8 +685,6 @@ input:-webkit-autofill:active {
   font-size: 0.9rem;
   margin-top: 10px;
 }
-
-
 
 /* Settings Page */
 .settings-page {
@@ -774,7 +759,6 @@ input:-webkit-autofill:active {
 .name-input:focus {
   border-color: #007bff;
   border-width: 2px;
-
 }
 
 .btn-edit,
@@ -825,22 +809,19 @@ input:-webkit-autofill:active {
 
 /* Admin Page */
 .admin-page {
-  text-align: center;
+  margin: 0 auto;
 }
 
 .admin-content {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 24px;
-  background: #ffffff;
-  border-radius: 20px;
-  border: 1px solid #e0e0e0;
 }
 
 .admin-content h2 {
-  margin-bottom: 20px;
+  margin-bottom: 30px;
   color: #495057;
   font-size: 1.8rem;
+  text-align: center;
 }
 
 .admin-content p {
@@ -869,9 +850,6 @@ input:-webkit-autofill:active {
   font-size: 1.8rem;
 }
 
-
-
-
 .admin-stats {
   display: flex;
   gap: 1rem;
@@ -890,7 +868,6 @@ input:-webkit-autofill:active {
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 2rem;
-
 }
 
 .admin-section h3 {
@@ -917,7 +894,6 @@ input:-webkit-autofill:active {
 }
 
 .topics-ai-header {
-  text-align: center;
   margin-bottom: 1.5rem;
 }
 
@@ -936,8 +912,6 @@ input:-webkit-autofill:active {
 .topics-ai-content {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  align-items: center;
 }
 
 .topics-input-area {
@@ -947,7 +921,6 @@ input:-webkit-autofill:active {
 
 .generate-button-area {
   display: flex;
-  justify-content: center;
 }
 
 .questions-section {
@@ -1112,7 +1085,6 @@ input:-webkit-autofill:active {
 
 .topic-tag:hover {
   transform: translateY(-1px);
-
 }
 
 .topic-name {
@@ -1152,8 +1124,6 @@ input:-webkit-autofill:active {
   padding: 1rem;
 }
 
-
-
 .btn-generate {
   padding: 0.75rem 1.5rem;
   background: #007bff;
@@ -1172,7 +1142,6 @@ input:-webkit-autofill:active {
 
 .btn-generate:hover:not(:disabled) {
   transform: translateY(-2px);
-
 }
 
 .btn-generate:disabled {
@@ -1245,12 +1214,6 @@ input:-webkit-autofill:active {
   line-height: 1;
 }
 
-
-
-
-
-
-
 .no-questions {
   text-align: center;
   color: #666;
@@ -1285,7 +1248,6 @@ input:-webkit-autofill:active {
 .quiz-question-entry:hover {
   border-color: #007bff;
   border-width: 2px;
-
 }
 
 .quiz-question-entry.reordering {
@@ -1329,8 +1291,6 @@ input:-webkit-autofill:active {
   cursor: grabbing;
 }
 
-
-
 .btn-reveal-question {
   background: #007bff;
   color: white;
@@ -1350,14 +1310,11 @@ input:-webkit-autofill:active {
 
 .btn-reveal-question:hover {
   transform: translateY(-2px);
-
 }
 
 .btn-reveal-question:active {
   transform: translateY(0);
 }
-
-
 
 .btn-delete,
 .btn-save,
@@ -1373,8 +1330,6 @@ input:-webkit-autofill:active {
   min-width: 32px;
   height: 32px;
 }
-
-
 
 .btn-delete {
   background: rgba(217, 77, 49, 0.1);
@@ -1460,12 +1415,6 @@ input:-webkit-autofill:active {
   flex-direction: row;
 }
 
-
-
-
-
-
-
 .btn-toggle-options {
   padding: 0.5rem;
   background: rgba(0, 123, 255, 0.1);
@@ -1486,8 +1435,6 @@ input:-webkit-autofill:active {
   border-color: rgba(0, 123, 255, 0.3);
   transform: translateY(-1px);
 }
-
-
 
 .options-list {
   display: grid;
@@ -1524,26 +1471,24 @@ input:-webkit-autofill:active {
     align-items: stretch;
     row-gap: 0.5rem;
   }
-  
+
   .question-text {
     min-width: 0;
     padding-right: 0;
     margin-bottom: 0;
   }
-  
+
   .question-actions {
     min-width: 0;
     justify-content: flex-end;
     gap: 1rem;
     margin-left: auto;
   }
-  
+
   .question-meta {
     order: -1;
   }
 }
-
-
 
 .option {
   display: flex;
@@ -1586,8 +1531,6 @@ input:-webkit-autofill:active {
   word-wrap: break-word;
   overflow-wrap: break-word;
 }
-
-
 
 .question-meta {
   display: flex;
@@ -1671,28 +1614,26 @@ input:-webkit-autofill:active {
     gap: 1rem;
     align-items: flex-start;
   }
-  
+
   .admin-stats {
     width: 100%;
     justify-content: space-between;
   }
-  
+
   .generation-controls {
     flex-direction: column;
     align-items: stretch;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .questions-header {
     flex-direction: column;
     gap: 1rem;
     align-items: stretch;
   }
-  
-
 }
 
 /* Responsive Design */
@@ -1701,36 +1642,34 @@ input:-webkit-autofill:active {
     padding: 30px 20px;
     margin: 10px;
   }
-  
+
   .lobby-logo .snapquiz-logo {
     transform: scale(0.8);
   }
-  
 
-  
   .btn {
     width: 100%;
   }
-  
+
   .join-room-form {
     flex-direction: column;
   }
-  
+
   /* Room responsive */
   .header-content {
     flex-direction: row;
     gap: 10px;
     padding: 10px 15px;
   }
-  
+
   .room-title h1 {
     font-size: 1.2rem;
   }
-  
+
   .header-buttons {
     gap: 6px;
   }
-  
+
   .menu-panel {
     position: fixed;
     left: 0;
@@ -1740,47 +1679,47 @@ input:-webkit-autofill:active {
     width: 200px;
     z-index: 40;
     transform: translateX(-100%);
-  
-    background: #adb5bd;
+    background: #ffffff;
+    border-right: 1px solid #e0e0e0;
     backdrop-filter: blur(10px);
     opacity: 0;
     pointer-events: none;
   }
-  
+
   .menu-panel.show {
     transform: translateX(0);
     opacity: 1;
     pointer-events: auto;
   }
-  
+
   .content-panel {
     padding: 15px;
     width: 100%;
   }
-  
+
   .header-btn,
   .menu-toggle-btn {
     min-width: 40px;
     height: 40px;
     padding: 6px;
   }
-  
+
   .header-btn svg,
   .menu-toggle-btn svg {
     width: 18px;
     height: 18px;
   }
-  
+
   .snapquiz-logo {
     transform: scale(0.7);
   }
-  
+
   .qr-code-container,
   .qr-loading {
     width: 150px;
     height: 150px;
   }
-  
+
   .qr-code-image {
     width: 100%;
     height: 100%;
@@ -1793,24 +1732,24 @@ input:-webkit-autofill:active {
     padding: 8px 10px;
     gap: 8px;
   }
-  
+
   .room-title h1 {
     font-size: 1rem;
   }
-  
+
   .header-btn,
   .menu-toggle-btn {
     min-width: 36px;
     height: 36px;
     padding: 5px;
   }
-  
+
   .header-btn svg,
   .menu-toggle-btn svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .menu-panel {
     position: fixed;
     top: 0;
@@ -1819,21 +1758,18 @@ input:-webkit-autofill:active {
     width: 180px;
     z-index: 40;
     transform: translateX(-100%);
-  
-    background: #adb5bd;
+    background: #ffffff;
+    border-right: 1px solid #e0e0e0;
     backdrop-filter: blur(10px);
     opacity: 0;
     pointer-events: none;
   }
 
-
-  
-  
   .content-panel {
     padding: 10px;
     width: 100%;
   }
-  
+
   .lobby-logo .snapquiz-logo {
     transform: scale(0.6);
   }
@@ -1844,25 +1780,25 @@ input:-webkit-autofill:active {
   .admin-content {
     padding: 15px;
   }
-  
+
   .admin-sections {
     gap: 1.5rem;
     margin-top: 1.5rem;
   }
-  
+
   .topics-ai-section,
   .questions-section {
     padding: 1rem;
   }
-  
+
   .topics-ai-header h3 {
     font-size: 1.2rem;
   }
-  
+
   .topics-ai-header p {
     font-size: 0.9rem;
   }
-  
+
   .topics-ai-content {
     gap: 1rem;
   }
@@ -1892,7 +1828,6 @@ input:-webkit-autofill:active {
 
 .btn-primary:hover:not(:disabled) {
   transform: translateY(-2px);
-
 }
 
 .btn-secondary {
@@ -2017,12 +1952,10 @@ input:-webkit-autofill:active {
 }
 
 .card-elevated {
-
 }
 
 .card-outlined {
   border: none;
-
 }
 
 .card-padding-none {
@@ -2043,7 +1976,6 @@ input:-webkit-autofill:active {
 
 .card-hover:hover {
   transform: translateY(-2px);
-
 }
 
 /* Loading Component */
@@ -2061,6 +1993,12 @@ input:-webkit-autofill:active {
   border: 3px solid #e5e7eb;
   border-top: 3px solid #007bff;
   border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }
 
 .loading-dots {
@@ -2104,10 +2042,10 @@ input:-webkit-autofill:active {
   height: 3rem;
 }
 
-  .loading-lg .loading-dot {
-    width: 0.75rem;
-    height: 0.75rem;
-  }
+.loading-lg .loading-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+}
 
 /* Error Boundary */
 .error-boundary {
@@ -2261,5 +2199,3 @@ input:-webkit-autofill:active {
 .toggle-icon:hover {
   transform: scale(1.1);
 }
-
-
