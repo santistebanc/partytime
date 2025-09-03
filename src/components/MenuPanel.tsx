@@ -91,7 +91,7 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
 
         {/* Members Section */}
         <div className="menu-section">
-          <h3>Room ({users.length})</h3>
+          <h3>Room</h3>
         {users.length === 0 ? (
           <p className="no-users">No users in room yet...</p>
         ) : (

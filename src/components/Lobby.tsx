@@ -7,13 +7,14 @@ import { SnapQuizLogo } from './SnapQuizLogo';
 export const Lobby: React.FC = () => {
   const { roomId, userName, navigateToRoom, createRoom } = useApp();
   
-  // Form state with priority: URL params → empty
+  // Form state with priority: URL params → localStorage → empty
   const [formName, setFormName] = useState(() => {
-    return userName || '';
+    return userName || localStorage.getItem('snapquiz-username') || '';
   });
   
   const [formRoomId, setFormRoomId] = useState(() => {
-    return roomId || '';
+    console.log('roomId', roomId)
+    return roomId || localStorage.getItem('snapquiz-roomname') || '';
   });
   
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -27,6 +28,20 @@ export const Lobby: React.FC = () => {
       nameInputRef.current.focus();
     }
   }, []);
+
+  // Save username to localStorage whenever it changes
+  useEffect(() => {
+    if (formName && formName.length >= 2) {
+      localStorage.setItem('snapquiz-username', formName);
+    }
+  }, [formName]);
+
+  // Save room name to localStorage whenever it changes
+  useEffect(() => {
+    if (formRoomId && formRoomId.trim()) {
+      localStorage.setItem('snapquiz-roomname', formRoomId);
+    }
+  }, [formRoomId]);
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();

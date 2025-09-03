@@ -89,10 +89,6 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
           </div>
         </div>
       </div>
-
-      {topics.length === 0 && (
-        <p className="no-topics">No topics added yet. Add some topics to generate questions!</p>
-      )}
     </div>
   );
 };

@@ -22,8 +22,8 @@ export const QRCodeSection: React.FC<QRCodeSectionProps> = ({
           width: 200,
           margin: 2,
           color: {
-            dark: '#2C3E3D',
-            light: '#7A8A89'
+            dark: '#000000',
+            light: '#ffffff'
           }
         });
         setQrCodeDataUrl(qrDataUrl);
@@ -77,7 +77,7 @@ export const QRCodeSection: React.FC<QRCodeSectionProps> = ({
             animate={{ opacity: [0.5, 1, 0.5] }}
             transition={{ duration: 1.5, repeat: Infinity }}
           >
-            <QrCode size={80} color="#2C3E3D" />
+            <QrCode size={80} color="#495057" />
             <span>Generating QR Code...</span>
           </motion.div>
         )}
