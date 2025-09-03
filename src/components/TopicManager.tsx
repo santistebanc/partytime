@@ -30,14 +30,14 @@ export const TopicManager: React.FC<TopicManagerProps> = () => {
 
   const getTopicColor = (topic: string) => {
     const colors = [
-      'bg-blue-50 text-blue-700 border-blue-200',
-      'bg-green-50 text-green-700 border-green-200',
-      'bg-purple-50 text-purple-700 border-purple-200',
-      'bg-pink-50 text-pink-700 border-pink-200',
-      'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'bg-yellow-50 text-yellow-700 border-yellow-200',
-      'bg-red-50 text-red-700 border-red-200',
-      'bg-teal-50 text-teal-700 border-teal-200',
+      'bg-yellow-100 text-yellow-800 border-yellow-300',
+      'bg-orange-100 text-orange-800 border-orange-300',
+      'bg-red-100 text-red-800 border-red-300',
+      'bg-teal-100 text-teal-800 border-teal-300',
+      'bg-amber-100 text-amber-800 border-amber-300',
+      'bg-rose-100 text-rose-800 border-rose-300',
+      'bg-cyan-100 text-cyan-800 border-cyan-300',
+      'bg-lime-100 text-lime-800 border-lime-300',
     ];
     
     const index = topic.charCodeAt(0) % colors.length;

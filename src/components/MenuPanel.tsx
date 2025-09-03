@@ -8,15 +8,19 @@ interface MenuPanelProps {
   onRef: (ref: HTMLDivElement | null) => void;
   currentPage: 'game' | 'settings' | 'admin';
   onPageChange: (page: 'game' | 'settings' | 'admin') => void;
+  onMenuToggle: (show: boolean) => void;
+  toggleButtonRef: React.RefObject<HTMLButtonElement | null>;
 }
 
 export const MenuPanel: React.FC<MenuPanelProps> = ({
   showMenuPanel,
   onRef,
   currentPage,
-  onPageChange
+  onPageChange,
+  onMenuToggle,
+  toggleButtonRef
 }) => {
-  const { users, isAdmin, navigateToLobby } = useApp();
+  const { users, isAdmin, navigateToLobby, roomId } = useApp();
   
   const handleLeaveRoom = () => {
     navigateToLobby();
@@ -34,6 +38,11 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
       transition={{ duration: 0.2, ease: "easeInOut" }}
     >
       <div className="menu-content">
+        {/* Room Name */}
+        <div className="room-name-section">
+          <h2 className="room-name">{roomId}</h2>
+        </div>
+
         {/* Navigation Buttons */}
         <div className="menu-navigation">
           <motion.button 
@@ -82,7 +91,7 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
 
         {/* Members Section */}
         <div className="menu-section">
-          <h3>Members ({users.length})</h3>
+          <h3>Room ({users.length})</h3>
         {users.length === 0 ? (
           <p className="no-users">No users in room yet...</p>
         ) : (

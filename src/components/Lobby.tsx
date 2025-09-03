@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 import { useApp } from '../contexts/AppContext';
-import { PartytimeLogo } from './PartytimeLogo';
+import { SnapQuizLogo } from './SnapQuizLogo';
 
 export const Lobby: React.FC = () => {
   const { roomId, userName, navigateToRoom, createRoom } = useApp();
@@ -45,6 +45,14 @@ export const Lobby: React.FC = () => {
   return (
     <div className="lobby">
       <div className="lobby-container">
+        <motion.div 
+          className="lobby-logo"
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+        >
+          <SnapQuizLogo size='20svh' />
+        </motion.div>
         <motion.form 
           onSubmit={handleJoinRoom} 
           className="lobby-form"

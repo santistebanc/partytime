@@ -1,6 +1,5 @@
 import React, { useState, useRef } from "react";
-import { RoomHeader } from "./RoomHeader";
-import { MembersPanel } from "./MembersPanel";
+import { MenuPanel } from "./MenuPanel";
 import { ContentRouter } from "./ContentRouter";
 import { useClickOutside } from "../hooks/useClickOutside";
 
@@ -8,37 +7,49 @@ export const Room: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"game" | "settings" | "admin">(
     "game"
   );
-  const [showMembersPanel, setShowMembersPanel] = useState(false);
+  const [showMenuPanel, setShowMenuPanel] = useState(false);
 
-  const membersPanelRef = useRef<HTMLDivElement>(null);
+  const menuPanelRef = useRef<HTMLDivElement>(null);
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
 
-  // Handle click outside members panel on mobile
-  useClickOutside(membersPanelRef, {
-    onClickOutside: () => setShowMembersPanel(false),
+  // Handle click outside menu panel on mobile
+  useClickOutside(menuPanelRef, {
+    onClickOutside: () => setShowMenuPanel(false),
     excludeRefs: [toggleButtonRef],
     mobileOnly: true,
-    enabled: showMembersPanel,
+    enabled: showMenuPanel,
   });
 
-  const handleMembersPanelToggle = (show: boolean) => {
-    setShowMembersPanel(show);
+  const handleMenuPanelToggle = (show: boolean) => {
+    setShowMenuPanel(show);
   };
 
   return (
     <div className="room">
-      <RoomHeader
-        currentPage={currentPage}
-        onPageChange={setCurrentPage}
-        onMembersPanelToggle={handleMembersPanelToggle}
-      />
+      {/* Floating Menu Toggle Button - Always Visible */}
+      <button 
+        ref={toggleButtonRef}
+        onClick={() => handleMenuPanelToggle(!showMenuPanel)}
+        className={`floating-menu-toggle ${showMenuPanel ? 'active' : ''}`}
+        title={showMenuPanel ? 'Hide Menu' : 'Show Menu'}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <line x1="3" y1="6" x2="21" y2="6"></line>
+          <line x1="3" y1="12" x2="21" y2="12"></line>
+          <line x1="3" y1="18" x2="21" y2="18"></line>
+        </svg>
+      </button>
 
       <div className="room-main">
-        <MembersPanel
-          showMembersPanel={showMembersPanel}
+        <MenuPanel
+          showMenuPanel={showMenuPanel}
           onRef={(ref) => {
-            membersPanelRef.current = ref;
+            menuPanelRef.current = ref;
           }}
+          currentPage={currentPage}
+          onPageChange={setCurrentPage}
+          onMenuToggle={handleMenuPanelToggle}
+          toggleButtonRef={toggleButtonRef}
         />
 
         <ContentRouter currentPage={currentPage} />

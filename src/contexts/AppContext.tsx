@@ -106,7 +106,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Local UI state with localStorage persistence
   const [revealedQuestions, setRevealedQuestions] = useState<Record<string, boolean>>(() => {
     try {
-      const stored = localStorage.getItem('partytime_revealed_questions');
+      const stored = localStorage.getItem('snapquiz_revealed_questions');
       return stored ? JSON.parse(stored) : {};
     } catch {
       return {};
@@ -138,7 +138,7 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Persist revealedQuestions to localStorage
   useEffect(() => {
     try {
-      localStorage.setItem('partytime_revealed_questions', JSON.stringify(revealedQuestions));
+      localStorage.setItem('snapquiz_revealed_questions', JSON.stringify(revealedQuestions));
     } catch {
       // Ignore storage errors
     }
@@ -159,8 +159,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     setRoomId(newRoomId);
     setUserName(newUserName);
     updateURL(newRoomId, newUserName);
-    setStored('partytime_last_user_name', newUserName);
-    setStored('partytime_last_room_id', newRoomId);
+    setStored('snapquiz_last_user_name', newUserName);
+    setStored('snapquiz_last_room_id', newRoomId);
   }, [updateURL]);
 
   const navigateToLobby = useCallback(() => {
@@ -191,10 +191,10 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       
       // Auto-join when connected
       if (userName) {
-        let userId = getStored('partytime_last_user_id');
+        let userId = getStored('snapquiz_last_user_id');
         if (!userId) {
           userId = generateUserId();
-          setStored('partytime_last_user_id', userId);
+          setStored('snapquiz_last_user_id', userId);
         }
         setCurrentUserId(userId);
         

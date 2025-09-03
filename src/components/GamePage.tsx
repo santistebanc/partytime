@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { PartytimeLogo } from './PartytimeLogo';
+import { SnapQuizLogo } from './SnapQuizLogo';
 import { QRCodeSection } from './QRCodeSection';
 
 interface GamePageProps {
@@ -21,7 +21,7 @@ export const GamePage: React.FC<GamePageProps> = ({
     >
       <div className="game-content">
         <motion.div 
-          className="partytime-logo"
+          className="snapquiz-logo"
           initial={{ scale: 0.8 }}
           animate={{ scale: 1 }}
           transition={{ duration: 0.2, ease: "easeOut" }}
@@ -32,7 +32,7 @@ export const GamePage: React.FC<GamePageProps> = ({
             transition={{ delay: 0.1, duration: 0.3 }}
             className="logo-container"
           >
-            <PartytimeLogo size={180} />
+            <SnapQuizLogo size='40svh' />
           </motion.div>
         </motion.div>
         

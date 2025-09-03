@@ -1,6 +1,6 @@
 {
   "$schema": "https://www.partykit.io/schema.json",
-  "name": "partytime",
+  "name": "snapquiz",
   "main": "src/room.ts",
   "compatibilityDate": "2025-08-31",
   "serve": {
