@@ -25,12 +25,16 @@ export const Room: React.FC = () => {
   };
 
   return (
-    <div className="room">
+    <div className="min-h-screen flex flex-col">
       {/* Floating Menu Toggle Button - Always Visible */}
       <button 
         ref={toggleButtonRef}
         onClick={() => handleMenuPanelToggle(!showMenuPanel)}
-        className={`floating-menu-toggle ${showMenuPanel ? 'active' : ''}`}
+        className={`fixed top-4 left-4 z-50 p-3 border border-gray-200 rounded-lg font-medium cursor-pointer transition-all duration-200 shadow-soft hover:-translate-y-0.5 ${
+          showMenuPanel 
+            ? 'bg-blue-500 text-white hover:bg-blue-600' 
+            : 'bg-white text-gray-700 hover:bg-gray-50'
+        }`}
         title={showMenuPanel ? 'Hide Menu' : 'Show Menu'}
       >
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -40,7 +44,7 @@ export const Room: React.FC = () => {
         </svg>
       </button>
 
-      <div className="room-main">
+      <div className="flex flex-1 min-h-screen">
         <MenuPanel
           showMenuPanel={showMenuPanel}
           onRef={(ref) => {
@@ -52,7 +56,7 @@ export const Room: React.FC = () => {
           toggleButtonRef={toggleButtonRef}
         />
 
-        <div className="content-panel">
+        <div className="flex-1 p-6 bg-white overflow-y-auto backdrop-blur-soft min-h-screen flex flex-col">
           <ContentRouter currentPage={currentPage} />
         </div>
       </div>

@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "partykit dev --live",
-    "build": "partykit build",
     "deploy": "partykit deploy",
+    "build:css": "tailwindcss -i ./src/styles.css -o ./public/dist/tailwind.css --minify",
     "preview": "partykit dev"
   },
   "dependencies": {
@@ -33,7 +33,10 @@
     "@babel/preset-react": "^7.27.1",
     "@babel/preset-typescript": "^7.27.1",
     "@types/qrcode": "^1.5.5",
+    "autoprefixer": "^10.4.21",
     "partykit": "^0.0.115",
+    "postcss": "^8.5.6",
+    "tailwindcss": "^3.4.17",
     "typescript": "^5.5.4"
   }
 }

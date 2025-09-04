@@ -24,26 +24,26 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
   };
 
   return (
-    <div className="quiz-question-entry">
-      <div className="question-content">
-        <div className="question-main-row">
-          <div className="question-text-container">
-            <h4 className={`question-text ${!isRevealed ? "blurred" : ""}`}>
+    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+      <div>
+        <div className="flex justify-between items-start mb-3">
+          <div className="flex-1 mr-4">
+            <h4 className={`text-lg font-medium text-gray-800 ${!isRevealed ? "blur-sm" : ""}`}>
               {question.question}
             </h4>
           </div>
 
-          <div className="question-actions">
-            <div className="question-meta">
-              <span className="topic-badge">{question.topic}</span>
-              <span className="points-badge">{question.points} points</span>
+          <div className="flex flex-col items-end gap-2">
+            <div className="flex gap-2">
+              <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">{question.topic}</span>
+              <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">{question.points} points</span>
             </div>
 
-            <div className="action-buttons">
+            <div className="flex gap-1">
               {!isRevealed ? (
                 <button
                   onClick={() => handleRevealToggle(true)}
-                  className="btn-reveal-question"
+                  className="p-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
                   title="Reveal question"
                 >
                   <Eye size={16} />
@@ -51,7 +51,7 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
               ) : (
                 <button
                   onClick={() => setShowOptions(!showOptions)}
-                  className="btn-toggle-options"
+                  className={`p-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors ${showOptions ? 'rotate-180' : ''}`}
                   title={showOptions ? "Hide options" : "Show options"}
                 >
                   <ChevronDown size={16} />
@@ -60,7 +60,7 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
 
               <button
                 onClick={() => onDelete(question.id)}
-                className="btn-delete"
+                className="p-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors"
                 title="Delete question"
               >
                 <Trash2 size={16} />
@@ -70,18 +70,20 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
         </div>
 
         {isRevealed && (
-          <div className={`options-list ${showOptions ? "show" : ""}`}>
+          <div className={`space-y-2 transition-all duration-300 ${showOptions ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 overflow-hidden'}`}>
             {question.options.map((option, index) => (
               <div
                 key={index}
-                className={`option ${
-                  option === question.answer ? "correct" : "incorrect"
+                className={`flex items-center gap-3 p-3 rounded-lg border ${
+                  option === question.answer 
+                    ? "bg-green-50 border-green-200 text-green-800" 
+                    : "bg-gray-50 border-gray-200 text-gray-700"
                 }`}
               >
-                <span className="option-letter">
+                <span className="w-6 h-6 bg-gray-200 text-gray-700 rounded-full flex items-center justify-center text-sm font-medium">
                   {String.fromCharCode(65 + index)}
                 </span>
-                <span className="option-text">{option}</span>
+                <span className="flex-1">{option}</span>
               </div>
             ))}
           </div>

@@ -49,27 +49,27 @@ export class ErrorBoundary extends Component<Props, State> {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
         >
-          <div className="error-boundary-content">
-            <div className="error-icon">
+          <div className="text-center p-8">
+            <div className="mb-4">
               <AlertTriangle size={48} color="#ef4444" />
             </div>
-            <h2>Something went wrong</h2>
-            <p>We encountered an unexpected error. Please try refreshing the page.</p>
+            <h2 className="text-2xl font-bold text-gray-800 mb-4">Something went wrong</h2>
+            <p className="text-gray-600 mb-6">We encountered an unexpected error. Please try refreshing the page.</p>
             
             {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="error-details">
-                <summary>Error Details (Development)</summary>
-                <pre className="error-stack">
+              <details className="mt-4 p-4 bg-gray-100 rounded-lg text-left">
+                <summary className="font-medium text-gray-700 cursor-pointer">Error Details (Development)</summary>
+                <pre className="mt-2 text-xs text-gray-600 whitespace-pre-wrap overflow-auto">
                   {this.state.error.toString()}
                   {this.state.errorInfo?.componentStack}
                 </pre>
               </details>
             )}
             
-            <div className="error-actions">
+            <div className="mt-6">
               <motion.button
                 onClick={this.handleRetry}
-                className="btn btn-primary"
+                className="px-6 py-3 bg-blue-500 text-white font-medium rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 mx-auto"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
               
               <motion.button
                 onClick={() => window.location.reload()}
-                className="btn btn-secondary"
+                className="px-6 py-3 bg-gray-500 text-white font-medium rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-2 mx-auto mt-2"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >

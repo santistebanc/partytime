@@ -42,32 +42,32 @@ export const QuizAdminPage: React.FC = () => {
       transition={{ duration: 0.15, ease: "easeOut" }}
       className="content-page admin-page"
     >
-      <h2>Quiz Game Admin</h2>
+      <h2 className="mb-8 text-gray-600 text-3xl text-center">Quiz Game Admin</h2>
 
       {error && (
-        <div className="error-message">
+        <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg mb-6">
           <AlertCircle size={16} />
           {error}
         </div>
       )}
 
       {/* Topics and AI Generation Combined Section */}
-      <div className="topics-ai-section">
-        <div className="topics-ai-header">
-          <h3>Topics & AI Generation</h3>
-          <p>Add topics and generate questions using AI</p>
+      <div className="mb-8">
+        <div className="mb-6">
+          <h3 className="text-xl font-semibold text-gray-700 mb-2">Topics & AI Generation</h3>
+          <p className="text-gray-600">Add topics and generate questions using AI</p>
         </div>
 
-        <div className="topics-ai-content">
-          <div className="topics-input-area">
+        <div className="space-y-6">
+          <div>
             <TopicManager />
           </div>
 
-          <div className="generate-button-area">
+          <div className="flex justify-center">
             <button
               onClick={handleGenerateQuestions}
               disabled={isGenerating || !topics.length}
-              className="btn btn-generate"
+              className="px-6 py-3 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
             >
               {isGenerating ? (
                 <>
@@ -86,7 +86,7 @@ export const QuizAdminPage: React.FC = () => {
       </div>
 
       {/* Questions Section */}
-      <div className="questions-section">
+      <div>
         <QuestionManager />
       </div>
     </motion.div>

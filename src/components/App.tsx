@@ -8,7 +8,7 @@ const AppContent: React.FC = () => {
   const { roomId, userName } = useApp();
 
   return (
-    <div className="app">
+    <div className="min-h-screen">
       <AnimatePresence mode="wait">
         {roomId && userName ? (
           <motion.div

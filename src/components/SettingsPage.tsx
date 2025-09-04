@@ -41,42 +41,42 @@ export const SettingsPage: React.FC = () => {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
       transition={{ duration: 0.15, ease: "easeOut" }}
-      className="content-page settings-page"
+      className="max-w-lg mx-auto"
     >
-      <h2>Settings</h2>
+      <h2 className="mb-8 text-gray-600 text-3xl text-center">Settings</h2>
         
         {/* Name Setting */}
-        <div className="setting-item">
-          <span className="setting-label">Your Name:</span>
-          <div className="name-edit">
+        <div className="mb-6">
+          <span className="block text-sm font-medium text-gray-600 mb-2">Your Name:</span>
+          <div className="flex items-center gap-2">
             {isEditingName ? (
-              <div className="edit-controls">
+              <div className="flex items-center gap-2 flex-1">
                 <input
                   type="text"
                   id="userName"
                   value={editingName}
                   onChange={(e) => setEditingName(e.target.value)}
-                  className="name-input"
+                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   maxLength={20}
                 />
                 <button 
                   onClick={handleNameSave} 
-                  className="btn btn-save"
+                  className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
                 >
                   <Save size={16} />
                   Save
                 </button>
                 <button 
                   onClick={handleNameCancel} 
-                  className="btn btn-cancel"
+                  className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-1"
                 >
                   <X size={16} />
                   Cancel
                 </button>
               </div>
             ) : (
-              <div className="display-controls">
-                <span className="current-name">{userName}</span>
+              <div className="flex items-center gap-2 flex-1">
+                <span className="flex-1 text-gray-700">{userName}</span>
                 <button 
                   onClick={() => {
                     setIsEditingName(true);
@@ -89,7 +89,7 @@ export const SettingsPage: React.FC = () => {
                       }
                     }, 0);
                   }} 
-                  className="btn btn-edit"
+                  className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
                 >
                   <Edit3 size={16} />
                   Edit
@@ -100,9 +100,9 @@ export const SettingsPage: React.FC = () => {
         </div>
         
         {/* Player Toggle */}
-        <div className="setting-item">
-          <span className="setting-label">Participate in Game:</span>
-          <div className="toggle-control">
+        <div className="mb-6">
+          <span className="block text-sm font-medium text-gray-600 mb-2">Participate in Game:</span>
+          <div className="flex items-center gap-3">
             <label className="toggle-switch">
               <input
                 type="checkbox"
@@ -112,16 +112,16 @@ export const SettingsPage: React.FC = () => {
               />
               <span className="toggle-slider"></span>
             </label>
-            <span className="toggle-label">
+            <span className="text-gray-700">
               {isPlayer ? 'Yes' : 'No'}
             </span>
           </div>
         </div>
 
         {/* Narrator Toggle */}
-        <div className="setting-item">
-          <span className="setting-label">Read Questions Aloud:</span>
-          <div className="toggle-control">
+        <div className="mb-6">
+          <span className="block text-sm font-medium text-gray-600 mb-2">Read Questions Aloud:</span>
+          <div className="flex items-center gap-3">
             <label className="toggle-switch">
               <input
                 type="checkbox"
@@ -131,16 +131,16 @@ export const SettingsPage: React.FC = () => {
               />
               <span className="toggle-slider"></span>
             </label>
-            <span className="toggle-label">
+            <span className="text-gray-700">
               {isNarrator ? 'Yes' : 'No'}
             </span>
           </div>
         </div>
 
         {/* Admin Toggle */}
-        <div className="setting-item">
-          <span className="setting-label">Admin Access:</span>
-          <div className="toggle-control">
+        <div className="mb-6">
+          <span className="block text-sm font-medium text-gray-600 mb-2">Admin Access:</span>
+          <div className="flex items-center gap-3">
             <label className="toggle-switch">
               <input
                 type="checkbox"
@@ -150,7 +150,7 @@ export const SettingsPage: React.FC = () => {
               />
               <span className="toggle-slider"></span>
             </label>
-            <span className="toggle-label">
+            <span className="text-gray-700">
               {isAdmin ? 'Yes' : 'No'}
             </span>
           </div>
