@@ -4,6 +4,7 @@ import { GamePage } from './GamePage';
 import { SettingsPage } from './SettingsPage';
 import { QuizAdminPage } from './QuizAdminPage';
 import { useApp } from '../contexts/AppContext';
+import { PageTransition } from './layout';
 
 interface ContentRouterProps {
   currentPage: 'game' | 'settings' | 'admin';
@@ -46,7 +47,9 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
 
   return (
     <AnimatePresence mode="wait">
-      {renderContent()}
+      <PageTransition currentPage={currentPage}>
+        {renderContent()}
+      </PageTransition>
     </AnimatePresence>
   );
 };

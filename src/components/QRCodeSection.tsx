@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { QrCode } from 'lucide-react';
 import QRCode from 'qrcode';
+import { FadeIn, ScaleIn } from './layout';
 
 interface QRCodeSectionProps {
   roomId: string;
@@ -49,27 +50,24 @@ export const QRCodeSection: React.FC<QRCodeSectionProps> = ({
   };
 
   return (
-    <motion.div 
-      className="mt-10 mb-10"
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.2, duration: 0.2 }}
-    >
+    <FadeIn direction="up" delay={0.2} className="mt-10 mb-10">
       <h3 className="mb-5 text-gray-600 text-xl">Join this room on mobile:</h3>
       {qrCodeDataUrl ? (
-        <motion.div 
-          className="my-5 p-5 cursor-pointer"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
-          onClick={handleCopyRoomUrl}
-          title="Click to copy room URL"
-        >
-          <img 
-            src={qrCodeDataUrl} 
-            alt="QR Code to join this room (click to copy URL)"
-            className="w-48 h-48 mx-auto object-contain p-2.5"
-          />
-        </motion.div>
+        <ScaleIn delay={0.3} scale={0.9}>
+          <motion.div 
+            className="my-5 p-5 cursor-pointer"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleCopyRoomUrl}
+            title="Click to copy room URL"
+          >
+            <img 
+              src={qrCodeDataUrl} 
+              alt="QR Code to join this room (click to copy URL)"
+              className="w-48 h-48 mx-auto object-contain p-2.5"
+            />
+          </motion.div>
+        </ScaleIn>
       ) : (
         <motion.div 
           className="w-48 h-48 mx-auto flex flex-col items-center justify-center"
@@ -81,15 +79,17 @@ export const QRCodeSection: React.FC<QRCodeSectionProps> = ({
         </motion.div>
       )}
       {showCopiedMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="text-center mt-4 px-4 py-2 bg-blue-50 text-gray-600 rounded-lg"
-        >
-          ✓ Room URL copied to clipboard!
-        </motion.div>
+        <FadeIn direction="up" delay={0}>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="text-center mt-4 px-4 py-2 bg-blue-50 text-gray-600 rounded-lg"
+          >
+            ✓ Room URL copied to clipboard!
+          </motion.div>
+        </FadeIn>
       )}
-    </motion.div>
+    </FadeIn>
   );
 };

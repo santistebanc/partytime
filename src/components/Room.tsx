@@ -3,6 +3,7 @@ import { MenuPanel } from "./MenuPanel";
 import { ContentRouter } from "./ContentRouter";
 import { useClickOutside } from "../hooks/useClickOutside";
 import { IconButton } from "./ui";
+import { AppLayout, ContentLayout } from "./layout";
 
 export const Room: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"game" | "settings" | "admin">(
@@ -26,7 +27,7 @@ export const Room: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <AppLayout background="white" minHeight="screen" className="flex flex-col">
       {/* Floating Menu Toggle Button - Always Visible */}
       <div className="fixed top-4 left-4 z-50">
         <IconButton
@@ -58,10 +59,15 @@ export const Room: React.FC = () => {
           toggleButtonRef={toggleButtonRef}
         />
 
-        <div className="flex-1 p-6 bg-white overflow-y-auto backdrop-blur-soft min-h-screen flex flex-col">
+        <ContentLayout 
+          className="flex-1 overflow-y-auto backdrop-blur-soft min-h-screen flex flex-col"
+          padding="md"
+          maxWidth="full"
+          center={false}
+        >
           <ContentRouter currentPage={currentPage} />
-        </div>
+        </ContentLayout>
       </div>
-    </div>
+    </AppLayout>
   );
 };

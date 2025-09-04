@@ -6,6 +6,7 @@ import { QuestionManager } from "./QuestionManager";
 import { TopicManager } from "./TopicManager";
 import { useApp } from "../contexts/AppContext";
 import { Button, Card, LoadingSpinner } from "./ui";
+import { PageLayout, StaggeredList, FadeIn } from "./layout";
 
 export const QuizAdminPage: React.FC = () => {
   const { topics, generateQuestions } = useApp();
@@ -35,51 +36,62 @@ export const QuizAdminPage: React.FC = () => {
   };
 
   return (
-    <Card 
-      className="content-page admin-page"
-      padding="lg"
-      animate
-    >
-      <h2 className="mb-8 text-gray-600 text-3xl text-center">Quiz Game Admin</h2>
+    <PageLayout maxWidth="lg" center>
+      <Card 
+        className="content-page admin-page"
+        padding="lg"
+        shadow="md"
+        animate
+      >
+        <FadeIn direction="down">
+          <h2 className="mb-8 text-gray-600 text-3xl text-center">Quiz Game Admin</h2>
+        </FadeIn>
 
-      {error && (
-        <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg mb-6">
-          <AlertCircle size={16} />
-          {error}
-        </div>
-      )}
+        {error && (
+          <FadeIn direction="up" delay={0.1}>
+            <div className="flex items-center gap-2 p-3 bg-red-50 text-red-600 rounded-lg mb-6">
+              <AlertCircle size={16} />
+              {error}
+            </div>
+          </FadeIn>
+        )}
 
-      {/* Topics and AI Generation Combined Section */}
-      <div className="mb-8">
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold text-gray-700 mb-2">Topics & AI Generation</h3>
-          <p className="text-gray-600">Add topics and generate questions using AI</p>
-        </div>
-
-        <div className="space-y-6">
+        <StaggeredList className="space-y-8" staggerDelay={0.2}>
+          {/* Topics and AI Generation Combined Section */}
           <div>
-            <TopicManager />
+            <FadeIn direction="left" delay={0.2}>
+              <div className="mb-6">
+                <h3 className="text-xl font-semibold text-gray-700 mb-2">Topics & AI Generation</h3>
+                <p className="text-gray-600">Add topics and generate questions using AI</p>
+              </div>
+            </FadeIn>
+
+            <div className="space-y-6">
+              <div>
+                <TopicManager />
+              </div>
+
+              <div className="flex justify-center">
+                <Button
+                  onClick={handleGenerateQuestions}
+                  disabled={isGenerating || !topics.length}
+                  variant="primary"
+                  size="lg"
+                  loading={isGenerating}
+                  icon={!isGenerating ? <Wand2 size={16} /> : undefined}
+                >
+                  {isGenerating ? 'Generating...' : 'Generate Questions'}
+                </Button>
+              </div>
+            </div>
           </div>
 
-          <div className="flex justify-center">
-            <Button
-              onClick={handleGenerateQuestions}
-              disabled={isGenerating || !topics.length}
-              variant="primary"
-              size="lg"
-              loading={isGenerating}
-              icon={!isGenerating ? <Wand2 size={16} /> : undefined}
-            >
-              {isGenerating ? 'Generating...' : 'Generate Questions'}
-            </Button>
+          {/* Questions Section */}
+          <div>
+            <QuestionManager />
           </div>
-        </div>
-      </div>
-
-      {/* Questions Section */}
-      <div>
-        <QuestionManager />
-      </div>
-    </Card>
+        </StaggeredList>
+      </Card>
+    </PageLayout>
   );
 };

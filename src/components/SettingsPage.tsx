@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Edit3, Save, X } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 import { Button, Input, Toggle, Card } from './ui';
+import { PageLayout, StaggeredList } from './layout';
 
 export const SettingsPage: React.FC = () => {
   const { 
@@ -36,15 +37,17 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <Card 
-      className="max-w-lg mx-auto"
-      padding="lg"
-      animate
-    >
-      <h2 className="mb-8 text-gray-600 text-3xl text-center">Settings</h2>
+    <PageLayout maxWidth="lg" center>
+      <Card 
+        padding="lg"
+        shadow="md"
+        animate
+      >
+        <h2 className="mb-8 text-gray-600 text-3xl text-center">Settings</h2>
         
-        {/* Name Setting */}
-        <div className="mb-6">
+        <StaggeredList className="space-y-6" staggerDelay={0.1}>
+          {/* Name Setting */}
+          <div>
           <span className="block text-sm font-medium text-gray-600 mb-2">Your Name:</span>
           <div className="flex items-center gap-2">
             {isEditingName ? (
@@ -98,10 +101,10 @@ export const SettingsPage: React.FC = () => {
               </div>
             )}
           </div>
-        </div>
-        
-        {/* Player Toggle */}
-        <div className="mb-6">
+          </div>
+          
+          {/* Player Toggle */}
+          <div>
           <Toggle
             id="isPlayer"
             checked={isPlayer}
@@ -111,10 +114,10 @@ export const SettingsPage: React.FC = () => {
           <span className="text-gray-700 ml-3">
             {isPlayer ? 'Yes' : 'No'}
           </span>
-        </div>
+          </div>
 
-        {/* Narrator Toggle */}
-        <div className="mb-6">
+          {/* Narrator Toggle */}
+          <div>
           <Toggle
             id="isNarrator"
             checked={isNarrator}
@@ -124,10 +127,10 @@ export const SettingsPage: React.FC = () => {
           <span className="text-gray-700 ml-3">
             {isNarrator ? 'Yes' : 'No'}
           </span>
-        </div>
+          </div>
 
-        {/* Admin Toggle */}
-        <div className="mb-6">
+          {/* Admin Toggle */}
+          <div>
           <Toggle
             id="isAdmin"
             checked={isAdmin}
@@ -137,7 +140,9 @@ export const SettingsPage: React.FC = () => {
           <span className="text-gray-700 ml-3">
             {isAdmin ? 'Yes' : 'No'}
           </span>
-        </div>
-    </Card>
+          </div>
+        </StaggeredList>
+      </Card>
+    </PageLayout>
   );
 };

@@ -142,7 +142,6 @@ ${existingQuestions.length > 0 ? `FINAL WARNING: You MUST create completely orig
     // Try partial matching for common variations
     for (let i = 0; i < lowerValid.length; i++) {
       if (lowerAssigned.includes(lowerValid[i]) || lowerValid[i].includes(lowerAssigned)) {
-        console.log(`Topic validation: "${assignedTopic}" mapped to "${validTopics[i]}"`);
         return validTopics[i];
       }
     }

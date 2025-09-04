@@ -1,38 +1,27 @@
 import React from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence } from "framer-motion";
 import { AppProvider, useApp } from "../contexts/AppContext";
 import { Lobby } from "./Lobby";
 import { Room } from "./Room";
+import { AppLayout, PageTransition } from "./layout";
 
 const AppContent: React.FC = () => {
   const { roomId, userName } = useApp();
 
   return (
-    <div className="min-h-screen">
+    <AppLayout background="white" minHeight="screen">
       <AnimatePresence mode="wait">
         {roomId && userName ? (
-          <motion.div
-            key="room"
-            initial={{ opacity: 0, x: 100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -100 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
+          <PageTransition currentPage="room">
             <Room />
-          </motion.div>
+          </PageTransition>
         ) : (
-          <motion.div
-            key="lobby"
-            initial={{ opacity: 0, x: -100 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 100 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-          >
+          <PageTransition currentPage="lobby">
             <Lobby />
-          </motion.div>
+          </PageTransition>
         )}
       </AnimatePresence>
-    </div>
+    </AppLayout>
   );
 };
 

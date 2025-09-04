@@ -17,11 +17,7 @@ export const broadcastMessage = (room: Party.Room, message: any): void => {
  * Eliminates duplicate user logging logic
  */
 export const logUsers = (users: any[]): void => {
-  console.log(`Broadcasting users list: ${users.length} users`);
-  console.log(
-    "Users:",
-    users.map((u) => `${u.name} (${u.id})`)
-  );
+  // Debug logging removed for production
 };
 
 /**

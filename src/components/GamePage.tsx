@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { SnapQuizLogo } from './SnapQuizLogo';
 import { QRCodeSection } from './QRCodeSection';
+import { PageLayout, FadeIn, ScaleIn } from './layout';
 
 interface GamePageProps {
   roomId: string;
@@ -11,24 +12,21 @@ export const GamePage: React.FC<GamePageProps> = ({
   roomId
 }) => {
   return (
-    <motion.div 
-      key="game"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+    <PageLayout 
       className="text-center flex flex-col justify-center items-center flex-1 min-h-full"
+      maxWidth="full"
+      center={false}
+      padding="none"
     >
-      <motion.div 
-        className="mb-8 flex justify-center items-center"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.3, ease: "easeOut", delay: 0.1 }}
-      >
-        <SnapQuizLogo size='40svh' />
-      </motion.div>
+      <ScaleIn delay={0.1} scale={0.8} duration={0.3}>
+        <div className="mb-8 flex justify-center items-center">
+          <SnapQuizLogo size='40svh' />
+        </div>
+      </ScaleIn>
       
-      <QRCodeSection roomId={roomId} />
-    </motion.div>
+      <FadeIn direction="up" delay={0.3}>
+        <QRCodeSection roomId={roomId} />
+      </FadeIn>
+    </PageLayout>
   );
 };

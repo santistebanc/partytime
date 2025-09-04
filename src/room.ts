@@ -25,7 +25,6 @@ export default class RoomServer implements Party.Server {
   }
 
   async onConnect(conn: Party.Connection, ctx: Party.ConnectionContext) {
-    console.log(`Client connected: ${conn.id}`);
   }
 
   async onMessage(message: string, sender: Party.Connection) {
@@ -38,7 +37,6 @@ export default class RoomServer implements Party.Server {
       }
 
       const { action, payload } = data;
-      console.log(`Processing: ${action}`, payload);
 
       // Handle state changes
       switch (action) {
@@ -96,7 +94,6 @@ export default class RoomServer implements Party.Server {
   }
 
   async onClose(conn: Party.Connection) {
-    console.log(`Client disconnected: ${conn.id}`);
   }
 
   // State management
