@@ -52,7 +52,9 @@ export const Room: React.FC = () => {
           toggleButtonRef={toggleButtonRef}
         />
 
-        <ContentRouter currentPage={currentPage} />
+        <div className="content-panel">
+          <ContentRouter currentPage={currentPage} />
+        </div>
       </div>
     </div>
   );

@@ -43,31 +43,14 @@ export const SettingsPage: React.FC = () => {
       transition={{ duration: 0.15, ease: "easeOut" }}
       className="content-page settings-page"
     >
-      <div className="settings-content">
-        <motion.h2
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05, duration: 0.15 }}
-        >
-          Settings
-        </motion.h2>
+      <h2>Settings</h2>
         
         {/* Name Setting */}
-        <motion.div 
-          className="setting-item"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.1, duration: 0.15 }}
-        >
+        <div className="setting-item">
           <span className="setting-label">Your Name:</span>
           <div className="name-edit">
             {isEditingName ? (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="edit-controls"
-              >
+              <div className="edit-controls">
                 <input
                   type="text"
                   id="userName"
@@ -76,34 +59,25 @@ export const SettingsPage: React.FC = () => {
                   className="name-input"
                   maxLength={20}
                 />
-                <motion.button 
+                <button 
                   onClick={handleNameSave} 
                   className="btn btn-save"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   <Save size={16} />
                   Save
-                </motion.button>
-                <motion.button 
+                </button>
+                <button 
                   onClick={handleNameCancel} 
                   className="btn btn-cancel"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   <X size={16} />
                   Cancel
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             ) : (
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 0.15, ease: "easeOut" }}
-                className="display-controls"
-              >
+              <div className="display-controls">
                 <span className="current-name">{userName}</span>
-                <motion.button 
+                <button 
                   onClick={() => {
                     setIsEditingName(true);
                     // Auto-focus and select all text after state update
@@ -116,24 +90,17 @@ export const SettingsPage: React.FC = () => {
                     }, 0);
                   }} 
                   className="btn btn-edit"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
                 >
                   <Edit3 size={16} />
                   Edit
-                </motion.button>
-              </motion.div>
+                </button>
+              </div>
             )}
           </div>
-        </motion.div>
+        </div>
         
         {/* Player Toggle */}
-        <motion.div 
-          className="setting-item"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.15, duration: 0.15 }}
-        >
+        <div className="setting-item">
           <span className="setting-label">Participate in Game:</span>
           <div className="toggle-control">
             <label className="toggle-switch">
@@ -149,15 +116,10 @@ export const SettingsPage: React.FC = () => {
               {isPlayer ? 'Yes' : 'No'}
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Narrator Toggle */}
-        <motion.div 
-          className="setting-item"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2, duration: 0.15 }}
-        >
+        <div className="setting-item">
           <span className="setting-label">Read Questions Aloud:</span>
           <div className="toggle-control">
             <label className="toggle-switch">
@@ -173,15 +135,10 @@ export const SettingsPage: React.FC = () => {
               {isNarrator ? 'Yes' : 'No'}
             </span>
           </div>
-        </motion.div>
+        </div>
 
         {/* Admin Toggle */}
-        <motion.div 
-          className="setting-item"
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.25, duration: 0.15 }}
-        >
+        <div className="setting-item">
           <span className="setting-label">Admin Access:</span>
           <div className="toggle-control">
             <label className="toggle-switch">
@@ -197,8 +154,7 @@ export const SettingsPage: React.FC = () => {
               {isAdmin ? 'Yes' : 'No'}
             </span>
           </div>
-        </motion.div>
-      </div>
+        </div>
     </motion.div>
   );
 };

@@ -56,42 +56,40 @@ export const QRCodeSection: React.FC<QRCodeSectionProps> = ({
       transition={{ delay: 0.2, duration: 0.2 }}
     >
       <h3>Join this room on mobile:</h3>
-      <div className="qr-code">
-        {qrCodeDataUrl ? (
-          <motion.div 
-            className="qr-code-container clickable"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleCopyRoomUrl}
-            title="Click to copy room URL"
-          >
-            <img 
-              src={qrCodeDataUrl} 
-              alt="QR Code to join this room (click to copy URL)"
-              className="qr-code-image"
-            />
-          </motion.div>
-        ) : (
-          <motion.div 
-            className="qr-loading"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-          >
-            <QrCode size={80} color="#495057" />
-            <span>Generating QR Code...</span>
-          </motion.div>
-        )}
-        {showCopiedMessage && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="copied-message"
-          >
-            ✓ Room URL copied to clipboard!
-          </motion.div>
-        )}
-      </div>
+      {qrCodeDataUrl ? (
+        <motion.div 
+          className="qr-code clickable"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={handleCopyRoomUrl}
+          title="Click to copy room URL"
+        >
+          <img 
+            src={qrCodeDataUrl} 
+            alt="QR Code to join this room (click to copy URL)"
+            className="qr-code-image"
+          />
+        </motion.div>
+      ) : (
+        <motion.div 
+          className="qr-loading"
+          animate={{ opacity: [0.5, 1, 0.5] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <QrCode size={80} color="#495057" />
+          <span>Generating QR Code...</span>
+        </motion.div>
+      )}
+      {showCopiedMessage && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="copied-message"
+        >
+          ✓ Room URL copied to clipboard!
+        </motion.div>
+      )}
     </motion.div>
   );
 };

@@ -3,9 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { X, Plus } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
 
-interface TopicManagerProps {}
-
-export const TopicManager: React.FC<TopicManagerProps> = () => {
+export const TopicManager: React.FC = () => {
   const { topics, addTopic, removeTopic } = useApp();
   const [newTopic, setNewTopic] = useState('');
   

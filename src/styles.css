@@ -28,20 +28,18 @@ body {
 .lobby {
   min-height: 100dvh;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   padding: 20px;
-}
-
-.lobby-container {
   background: #ffffff;
   border: 1px solid #e0e0e0;
   border-radius: 12px;
-  padding: 48px;
   text-align: center;
   max-width: 520px;
   width: 100%;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin: 0 auto;
 }
 
 .lobby-logo {
@@ -383,6 +381,7 @@ input:-webkit-autofill:active {
   border-right: 1px solid #e0e0e0;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow: hidden;
+  padding: 60px 15px 20px 15px;
 }
 
 .menu-panel.show {
@@ -396,9 +395,6 @@ input:-webkit-autofill:active {
   width: 0;
 }
 
-.menu-content {
-  padding: 20px 15px;
-}
 
 /* Floating Menu Toggle Button */
 .floating-menu-toggle {
@@ -547,6 +543,9 @@ input:-webkit-autofill:active {
   background: #ffffff;
   overflow-y: auto;
   backdrop-filter: blur(10px);
+  min-height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
 }
 
 .content-page {
@@ -556,11 +555,14 @@ input:-webkit-autofill:active {
 /* Game Page */
 .game-page {
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  min-height: 100%;
 }
 
-.game-content {
-  margin: 0 auto;
-}
 
 .snapquiz-logo {
   margin-bottom: 30px;
@@ -612,6 +614,7 @@ input:-webkit-autofill:active {
 
 .qr-section {
   margin-top: 40px;
+  margin-bottom: 40px;
 }
 
 .qr-section h3 {
@@ -622,6 +625,7 @@ input:-webkit-autofill:active {
 
 .qr-code {
   margin: 20px 0;
+  padding: 20px;
 }
 
 .qr-code-container {
@@ -692,7 +696,7 @@ input:-webkit-autofill:active {
   margin: 0 auto;
 }
 
-.settings-content h2 {
+.settings-page h2 {
   margin-bottom: 30px;
   color: #495057;
   font-size: 1.8rem;
@@ -812,19 +816,14 @@ input:-webkit-autofill:active {
   margin: 0 auto;
 }
 
-.admin-content {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.admin-content h2 {
+.admin-page h2 {
   margin-bottom: 30px;
   color: #495057;
   font-size: 1.8rem;
   text-align: center;
 }
 
-.admin-content p {
+.admin-page p {
   color: #666;
   font-size: 1.1rem;
 }
@@ -1638,7 +1637,7 @@ input:-webkit-autofill:active {
 
 /* Responsive Design */
 @media (max-width: 768px) {
-  .lobby-container {
+  .lobby {
     padding: 30px 20px;
     margin: 10px;
   }
@@ -1681,6 +1680,7 @@ input:-webkit-autofill:active {
     transform: translateX(-100%);
     background: #ffffff;
     border-right: 1px solid #e0e0e0;
+    padding: 60px 15px 20px 15px;
     backdrop-filter: blur(10px);
     opacity: 0;
     pointer-events: none;
@@ -1712,6 +1712,11 @@ input:-webkit-autofill:active {
 
   .snapquiz-logo {
     transform: scale(0.7);
+  }
+
+  .qr-section {
+    margin-top: 20px;
+    margin-bottom: 60px;
   }
 
   .qr-code-container,
@@ -1750,6 +1755,17 @@ input:-webkit-autofill:active {
     height: 16px;
   }
 
+  .qr-section {
+    margin-top: 15px;
+    margin-bottom: 80px;
+  }
+
+  .qr-code-container,
+  .qr-loading {
+    width: 120px;
+    height: 120px;
+  }
+
   .menu-panel {
     position: fixed;
     top: 0;
@@ -1761,6 +1777,7 @@ input:-webkit-autofill:active {
     background: #ffffff;
     border-right: 1px solid #e0e0e0;
     backdrop-filter: blur(10px);
+    padding: 60px 15px 20px 15px;
     opacity: 0;
     pointer-events: none;
   }
@@ -1777,7 +1794,7 @@ input:-webkit-autofill:active {
 
 /* Admin Page Mobile Responsiveness */
 @media (max-width: 768px) {
-  .admin-content {
+  .admin-page {
     padding: 15px;
   }
 

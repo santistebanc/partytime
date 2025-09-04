@@ -59,22 +59,21 @@ export const Lobby: React.FC = () => {
 
   return (
     <div className="lobby">
-      <div className="lobby-container">
-        <motion.div 
-          className="lobby-logo"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
-        >
-          <SnapQuizLogo size='20svh' />
-        </motion.div>
-        <motion.form 
-          onSubmit={handleJoinRoom} 
-          className="lobby-form"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
-        >
+      <motion.div 
+        className="lobby-logo"
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1, duration: 0.4, ease: "easeOut" }}
+      >
+        <SnapQuizLogo size='20svh' />
+      </motion.div>
+      <motion.form 
+        onSubmit={handleJoinRoom} 
+        className="lobby-form"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.4, ease: "easeOut" }}
+      >
           <motion.div 
             className="name-section"
             initial={{ opacity: 0, x: -20 }}
@@ -139,8 +138,7 @@ export const Lobby: React.FC = () => {
           >
             {(formRoomId && formRoomId.trim()) ? 'Join Room' : 'Create Room'}
           </motion.button>
-        </motion.form>
-      </div>
+      </motion.form>
     </div>
   );
 };

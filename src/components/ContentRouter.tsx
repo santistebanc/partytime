@@ -45,10 +45,8 @@ export const ContentRouter: React.FC<ContentRouterProps> = ({
   };
 
   return (
-    <div className="content-panel">
-      <AnimatePresence mode="wait">
-        {renderContent()}
-      </AnimatePresence>
-    </div>
+    <AnimatePresence mode="wait">
+      {renderContent()}
+    </AnimatePresence>
   );
 };

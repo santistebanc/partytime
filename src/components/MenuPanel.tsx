@@ -37,11 +37,8 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
       }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
     >
-      <div className="menu-content">
-        {/* Room Name */}
-        <div className="room-name-section">
-          <h2 className="room-name">{roomId}</h2>
-        </div>
+      {/* Room Name */}
+      <h2 className="room-name">{roomId}</h2>
 
         {/* Navigation Buttons */}
         <div className="menu-navigation">
@@ -131,7 +128,6 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
           </ul>
         )}
         </div>
-      </div>
     </motion.div>
   );
 };

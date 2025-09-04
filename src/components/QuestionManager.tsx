@@ -5,9 +5,7 @@ import type { DropResult } from "@hello-pangea/dnd";
 import { QuizQuestionEntry } from "./QuizQuestionEntry";
 import { useApp } from "../contexts/AppContext";
 
-interface QuestionManagerProps {}
-
-export const QuestionManager: React.FC<QuestionManagerProps> = () => {
+export const QuestionManager: React.FC = () => {
   const { questions, reorderQuestions, deleteQuestion, updateRevealState, revealedQuestions } =
     useApp();
 
