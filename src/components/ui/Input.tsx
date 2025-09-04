@@ -1,69 +1,75 @@
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { forwardRef } from 'react';
 
-interface InputProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, 'size'> {
+export interface InputProps {
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url';
+  value: string;
+  onChange: (value: string) => void;
+  placeholder?: string;
   label?: string;
   error?: string;
-  helperText?: string;
-  variant?: 'default' | 'filled' | 'outlined';
-  size?: 'sm' | 'md' | 'lg';
+  disabled?: boolean;
+  required?: boolean;
+  className?: string;
+  id?: string;
+  name?: string;
+  autoComplete?: string;
+  maxLength?: number;
+  minLength?: number;
 }
 
-export const Input: React.FC<InputProps> = ({
+export const Input = forwardRef<HTMLInputElement, InputProps>(({
+  type = 'text',
+  value,
+  onChange,
+  placeholder,
   label,
   error,
-  helperText,
-  variant = 'default',
-  size = 'md',
+  disabled = false,
+  required = false,
   className = '',
   id,
-  ...props
-}) => {
-  const inputId = id || `input-${Math.random().toString(36).substr(2, 9)}`;
+  name,
+  autoComplete,
+  maxLength,
+  minLength,
+}, ref) => {
+  const baseClasses = 'w-full px-3 py-2 border rounded-lg text-sm transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500';
+  const stateClasses = error 
+    ? 'border-red-300 focus:border-red-500' 
+    : 'border-gray-300 focus:border-blue-500';
+  const disabledClasses = disabled ? 'bg-gray-100 cursor-not-allowed' : 'bg-white';
   
-  const baseClasses = 'input';
-  const variantClasses = {
-    default: 'input-default',
-    filled: 'input-filled',
-    outlined: 'input-outlined'
-  };
-  const sizeClasses = {
-    sm: 'input-sm',
-    md: 'input-md',
-    lg: 'input-lg'
-  };
-  const stateClasses = error ? 'input-error' : '';
-
-  const inputClasses = `${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${stateClasses} ${className}`.trim();
-
+  const inputClasses = `${baseClasses} ${stateClasses} ${disabledClasses} ${className}`;
+  
   return (
-    <div className="input-wrapper">
+    <div className="w-full">
       {label && (
-        <label htmlFor={inputId} className="input-label">
+        <label 
+          htmlFor={id} 
+          className="block mb-2 text-sm font-medium text-gray-700"
+        >
           {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
-      <motion.input
-        id={inputId}
+      <input
+        ref={ref}
+        type={type}
+        id={id}
+        name={name}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        disabled={disabled}
+        required={required}
+        autoComplete={autoComplete}
+        maxLength={maxLength}
+        minLength={minLength}
         className={inputClasses}
-        whileFocus={{ scale: 1.02 }}
-        transition={{ duration: 0.2 }}
-        {...(props as any)}
       />
       {error && (
-        <motion.span
-          className="input-error-text"
-          initial={{ opacity: 0, y: -5 }}
-          animate={{ opacity: 1, y: 0 }}
-        >
-          {error}
-        </motion.span>
-      )}
-      {helperText && !error && (
-        <span className="input-helper-text">
-          {helperText}
-        </span>
+        <p className="mt-1 text-sm text-red-500">{error}</p>
       )}
     </div>
   );
-};
+});

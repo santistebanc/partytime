@@ -5,6 +5,7 @@ import type { QuizQuestion } from "../types";
 import { QuestionManager } from "./QuestionManager";
 import { TopicManager } from "./TopicManager";
 import { useApp } from "../contexts/AppContext";
+import { Button, Card, LoadingSpinner } from "./ui";
 
 export const QuizAdminPage: React.FC = () => {
   const { topics, generateQuestions } = useApp();
@@ -34,13 +35,10 @@ export const QuizAdminPage: React.FC = () => {
   };
 
   return (
-    <motion.div
-      key="settings"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+    <Card 
       className="content-page admin-page"
+      padding="lg"
+      animate
     >
       <h2 className="mb-8 text-gray-600 text-3xl text-center">Quiz Game Admin</h2>
 
@@ -64,23 +62,16 @@ export const QuizAdminPage: React.FC = () => {
           </div>
 
           <div className="flex justify-center">
-            <button
+            <Button
               onClick={handleGenerateQuestions}
               disabled={isGenerating || !topics.length}
-              className="px-6 py-3 bg-purple-500 text-white font-medium rounded-lg hover:bg-purple-600 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+              variant="primary"
+              size="lg"
+              loading={isGenerating}
+              icon={!isGenerating ? <Wand2 size={16} /> : undefined}
             >
-              {isGenerating ? (
-                <>
-                  <div className="loading-spinner loading-sm"></div>
-                  Generating...
-                </>
-              ) : (
-                <>
-                  <Wand2 size={16} />
-                  Generate Questions
-                </>
-              )}
-            </button>
+              {isGenerating ? 'Generating...' : 'Generate Questions'}
+            </Button>
           </div>
         </div>
       </div>
@@ -89,6 +80,6 @@ export const QuizAdminPage: React.FC = () => {
       <div>
         <QuestionManager />
       </div>
-    </motion.div>
+    </Card>
   );
 };

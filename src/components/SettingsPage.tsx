@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Edit3, Save, X } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { Button, Input, Toggle, Card } from './ui';
 
 export const SettingsPage: React.FC = () => {
   const { 
@@ -35,13 +36,10 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <motion.div 
-      key="settings"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      transition={{ duration: 0.15, ease: "easeOut" }}
+    <Card 
       className="max-w-lg mx-auto"
+      padding="lg"
+      animate
     >
       <h2 className="mb-8 text-gray-600 text-3xl text-center">Settings</h2>
         
@@ -51,33 +49,35 @@ export const SettingsPage: React.FC = () => {
           <div className="flex items-center gap-2">
             {isEditingName ? (
               <div className="flex items-center gap-2 flex-1">
-                <input
+                <Input
                   type="text"
                   id="userName"
                   value={editingName}
-                  onChange={(e) => setEditingName(e.target.value)}
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  onChange={setEditingName}
+                  className="flex-1"
                   maxLength={20}
                 />
-                <button 
+                <Button 
                   onClick={handleNameSave} 
-                  className="px-3 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors flex items-center gap-1"
+                  variant="success"
+                  size="sm"
+                  icon={<Save size={16} />}
                 >
-                  <Save size={16} />
                   Save
-                </button>
-                <button 
+                </Button>
+                <Button 
                   onClick={handleNameCancel} 
-                  className="px-3 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition-colors flex items-center gap-1"
+                  variant="secondary"
+                  size="sm"
+                  icon={<X size={16} />}
                 >
-                  <X size={16} />
                   Cancel
-                </button>
+                </Button>
               </div>
             ) : (
               <div className="flex items-center gap-2 flex-1">
                 <span className="flex-1 text-gray-700">{userName}</span>
-                <button 
+                <Button 
                   onClick={() => {
                     setIsEditingName(true);
                     // Auto-focus and select all text after state update
@@ -89,11 +89,12 @@ export const SettingsPage: React.FC = () => {
                       }
                     }, 0);
                   }} 
-                  className="px-3 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-1"
+                  variant="primary"
+                  size="sm"
+                  icon={<Edit3 size={16} />}
                 >
-                  <Edit3 size={16} />
                   Edit
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -101,60 +102,42 @@ export const SettingsPage: React.FC = () => {
         
         {/* Player Toggle */}
         <div className="mb-6">
-          <span className="block text-sm font-medium text-gray-600 mb-2">Participate in Game:</span>
-          <div className="flex items-center gap-3">
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                id="isPlayer"
-                checked={isPlayer}
-                onChange={(e) => handlePlayerToggle(e.target.checked)}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-            <span className="text-gray-700">
-              {isPlayer ? 'Yes' : 'No'}
-            </span>
-          </div>
+          <Toggle
+            id="isPlayer"
+            checked={isPlayer}
+            onChange={handlePlayerToggle}
+            label="Participate in Game:"
+          />
+          <span className="text-gray-700 ml-3">
+            {isPlayer ? 'Yes' : 'No'}
+          </span>
         </div>
 
         {/* Narrator Toggle */}
         <div className="mb-6">
-          <span className="block text-sm font-medium text-gray-600 mb-2">Read Questions Aloud:</span>
-          <div className="flex items-center gap-3">
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                id="isNarrator"
-                checked={isNarrator}
-                onChange={(e) => handleNarratorToggle(e.target.checked)}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-            <span className="text-gray-700">
-              {isNarrator ? 'Yes' : 'No'}
-            </span>
-          </div>
+          <Toggle
+            id="isNarrator"
+            checked={isNarrator}
+            onChange={handleNarratorToggle}
+            label="Read Questions Aloud:"
+          />
+          <span className="text-gray-700 ml-3">
+            {isNarrator ? 'Yes' : 'No'}
+          </span>
         </div>
 
         {/* Admin Toggle */}
         <div className="mb-6">
-          <span className="block text-sm font-medium text-gray-600 mb-2">Admin Access:</span>
-          <div className="flex items-center gap-3">
-            <label className="toggle-switch">
-              <input
-                type="checkbox"
-                id="isAdmin"
-                checked={isAdmin}
-                onChange={(e) => handleAdminToggle(e.target.checked)}
-              />
-              <span className="toggle-slider"></span>
-            </label>
-            <span className="text-gray-700">
-              {isAdmin ? 'Yes' : 'No'}
-            </span>
-          </div>
+          <Toggle
+            id="isAdmin"
+            checked={isAdmin}
+            onChange={handleAdminToggle}
+            label="Admin Access:"
+          />
+          <span className="text-gray-700 ml-3">
+            {isAdmin ? 'Yes' : 'No'}
+          </span>
         </div>
-    </motion.div>
+    </Card>
   );
 };

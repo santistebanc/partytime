@@ -2,6 +2,7 @@ import React, { useState, useRef } from "react";
 import { MenuPanel } from "./MenuPanel";
 import { ContentRouter } from "./ContentRouter";
 import { useClickOutside } from "../hooks/useClickOutside";
+import { IconButton } from "./ui";
 
 export const Room: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<"game" | "settings" | "admin">(
@@ -27,22 +28,23 @@ export const Room: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col">
       {/* Floating Menu Toggle Button - Always Visible */}
-      <button 
-        ref={toggleButtonRef}
-        onClick={() => handleMenuPanelToggle(!showMenuPanel)}
-        className={`fixed top-4 left-4 z-50 p-3 border border-gray-200 rounded-lg font-medium cursor-pointer transition-all duration-200 shadow-soft hover:-translate-y-0.5 ${
-          showMenuPanel 
-            ? 'bg-blue-500 text-white hover:bg-blue-600' 
-            : 'bg-white text-gray-700 hover:bg-gray-50'
-        }`}
-        title={showMenuPanel ? 'Hide Menu' : 'Show Menu'}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <line x1="3" y1="6" x2="21" y2="6"></line>
-          <line x1="3" y1="12" x2="21" y2="12"></line>
-          <line x1="3" y1="18" x2="21" y2="18"></line>
-        </svg>
-      </button>
+      <div className="fixed top-4 left-4 z-50">
+        <IconButton
+          ref={toggleButtonRef}
+          icon={
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          }
+          onClick={() => handleMenuPanelToggle(!showMenuPanel)}
+          variant={showMenuPanel ? 'primary' : 'ghost'}
+          size="md"
+          title={showMenuPanel ? 'Hide Menu' : 'Show Menu'}
+          className="shadow-soft hover:-translate-y-0.5"
+        />
+      </div>
 
       <div className="flex flex-1 min-h-screen">
         <MenuPanel

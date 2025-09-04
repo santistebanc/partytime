@@ -1,46 +1,60 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import type { HTMLMotionProps } from 'framer-motion';
 
-interface CardProps extends Omit<HTMLMotionProps<'div'>, 'className'> {
+export interface CardProps {
   children: React.ReactNode;
   className?: string;
-  variant?: 'default' | 'elevated' | 'outlined';
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  shadow?: 'none' | 'sm' | 'md' | 'lg';
+  border?: boolean;
+  animate?: boolean;
   hover?: boolean;
 }
 
 export const Card: React.FC<CardProps> = ({
   children,
   className = '',
-  variant = 'default',
   padding = 'md',
+  shadow = 'sm',
+  border = true,
+  animate = false,
   hover = false,
-  ...props
 }) => {
-  const baseClasses = 'card';
-  const variantClasses = {
-    default: 'card-default',
-    elevated: 'card-elevated',
-    outlined: 'card-outlined'
-  };
   const paddingClasses = {
-    none: 'card-padding-none',
-    sm: 'card-padding-sm',
-    md: 'card-padding-md',
-    lg: 'card-padding-lg'
+    none: '',
+    sm: 'p-3',
+    md: 'p-4',
+    lg: 'p-6',
   };
-  const hoverClasses = hover ? 'card-hover' : '';
-
-  const cardClasses = `${baseClasses} ${variantClasses[variant]} ${paddingClasses[padding]} ${hoverClasses} ${className}`.trim();
-
+  
+  const shadowClasses = {
+    none: '',
+    sm: 'shadow-sm',
+    md: 'shadow-md',
+    lg: 'shadow-lg',
+  };
+  
+  const borderClass = border ? 'border border-gray-200' : '';
+  const hoverClass = hover ? 'hover:shadow-md transition-shadow duration-200' : '';
+  
+  const classes = `bg-white rounded-lg ${paddingClasses[padding]} ${shadowClasses[shadow]} ${borderClass} ${hoverClass} ${className}`;
+  
+  if (animate) {
+    return (
+      <motion.div
+        className={classes}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        {children}
+      </motion.div>
+    );
+  }
+  
   return (
-    <motion.div
-      className={cardClasses}
-      whileHover={hover ? { y: -2, transition: { duration: 0.2 } } : {}}
-      {...props}
-    >
+    <div className={classes}>
       {children}
-    </motion.div>
+    </div>
   );
 };

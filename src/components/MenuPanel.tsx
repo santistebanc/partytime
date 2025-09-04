@@ -2,6 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User as UserIcon, Mic, Gamepad, Crown, Settings, LogOut } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';
+import { Button, Badge } from './ui';
 
 interface MenuPanelProps {
   showMenuPanel: boolean;
@@ -44,60 +45,55 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
 
         {/* Navigation Buttons */}
         <div className="flex flex-col gap-3 mb-6 pb-5">
-          <motion.button 
-            onClick={() => onPageChange('game')} 
-            className={`flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 text-left w-full hover:translate-x-1 ${
-              currentPage === 'game' 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          <Button
+            onClick={() => onPageChange('game')}
+            variant={currentPage === 'game' ? 'primary' : 'ghost'}
+            size="md"
+            fullWidth
+            icon={<Gamepad size={18} />}
+            className="justify-start hover:translate-x-1"
             title="Game"
           >
-            <Gamepad size={18} className={currentPage === 'game' ? 'text-white' : 'text-gray-700'} />
-            <span className={currentPage === 'game' ? 'text-white' : 'text-gray-700'}>Game</span>
-          </motion.button>
-          <motion.button 
-            onClick={() => onPageChange('settings')} 
-            className={`flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 text-left w-full hover:translate-x-1 ${
-              currentPage === 'settings' 
-                ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-            }`}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+            Game
+          </Button>
+          
+          <Button
+            onClick={() => onPageChange('settings')}
+            variant={currentPage === 'settings' ? 'primary' : 'ghost'}
+            size="md"
+            fullWidth
+            icon={<Settings size={18} />}
+            className="justify-start hover:translate-x-1"
             title="Settings"
           >
-            <Settings size={18} className={currentPage === 'settings' ? 'text-white' : 'text-gray-700'} />
-            <span className={currentPage === 'settings' ? 'text-white' : 'text-gray-700'}>Settings</span>
-          </motion.button>
+            Settings
+          </Button>
+          
           {isAdmin && (
-            <motion.button 
-              onClick={() => onPageChange('admin')} 
-              className={`flex items-center gap-3 px-4 py-3 border border-gray-200 rounded-lg text-sm font-medium cursor-pointer transition-all duration-200 text-left w-full hover:translate-x-1 ${
-                currentPage === 'admin' 
-                  ? 'bg-blue-500 text-white hover:bg-blue-600' 
-                  : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-              }`}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+            <Button
+              onClick={() => onPageChange('admin')}
+              variant={currentPage === 'admin' ? 'primary' : 'ghost'}
+              size="md"
+              fullWidth
+              icon={<Crown size={18} />}
+              className="justify-start hover:translate-x-1"
               title="Admin"
             >
-              <Crown size={18} className={currentPage === 'admin' ? 'text-white' : 'text-gray-700'} />
-              <span className={currentPage === 'admin' ? 'text-white' : 'text-gray-700'}>Admin</span>
-            </motion.button>
+              Admin
+            </Button>
           )}
-          <motion.button 
-            onClick={handleLeaveRoom} 
-            className="flex items-center gap-3 px-4 py-3 bg-gray-50 border border-gray-200 rounded-lg text-red-500 text-sm font-medium cursor-pointer transition-all duration-200 text-left w-full hover:bg-red-50 hover:translate-x-1"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+          
+          <Button
+            onClick={handleLeaveRoom}
+            variant="ghost"
+            size="md"
+            fullWidth
+            icon={<LogOut size={18} />}
+            className="justify-start hover:translate-x-1 text-red-500 hover:text-red-600 hover:bg-red-50"
             title="Leave Room"
           >
-            <LogOut size={18} className="text-red-500" />
-            <span className="text-red-500">Leave</span>
-          </motion.button>
+            Leave
+          </Button>
         </div>
 
         {/* Members Section */}
@@ -121,19 +117,19 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
                   <span className="font-medium text-gray-600 flex-1">{user.name}</span>
                   <div className="flex gap-1">
                     {user.isPlayer && (
-                      <div className="w-6 h-6 bg-blue-500 rounded flex items-center justify-center" title="Player">
-                        <Gamepad size={14} className="text-white" />
-                      </div>
+                      <Badge variant="primary" size="sm" title="Player">
+                        <Gamepad size={14} />
+                      </Badge>
                     )}
                     {user.isNarrator && (
-                      <div className="w-6 h-6 bg-green-500 rounded flex items-center justify-center" title="Narrator">
-                        <Mic size={14} className="text-white" />
-                      </div>
+                      <Badge variant="success" size="sm" title="Narrator">
+                        <Mic size={14} />
+                      </Badge>
                     )}
                     {user.isAdmin && (
-                      <div className="w-6 h-6 bg-yellow-500 rounded flex items-center justify-center" title="Admin">
-                        <Crown size={14} className="text-white" />
-                      </div>
+                      <Badge variant="warning" size="sm" title="Admin">
+                        <Crown size={14} />
+                      </Badge>
                     )}
                   </div>
                 </motion.li>

@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 
 import { useApp } from '../contexts/AppContext';
 import { SnapQuizLogo } from './SnapQuizLogo';
+import { Button, Input, Card } from './ui';
 
 export const Lobby: React.FC = () => {
   const { roomId, userName, navigateToRoom, createRoom } = useApp();
@@ -58,7 +59,12 @@ export const Lobby: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-5 bg-gray-50 border border-gray-200 rounded-xl text-center max-w-lg w-full mx-auto shadow-soft">
+    <Card 
+      className="min-h-screen flex flex-col items-center justify-center p-5 bg-gray-50 text-center max-w-lg w-full mx-auto"
+      padding="lg"
+      shadow="md"
+      animate
+    >
       <motion.div 
         className="flex justify-center"
         initial={{ opacity: 0, y: -20 }}
@@ -80,34 +86,22 @@ export const Lobby: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.3, duration: 0.4, ease: "easeOut" }}
           >
-            <label htmlFor="name" className="block mb-2 font-medium text-gray-600 text-sm">Your Name</label>
-            <input
+            <Input
               ref={nameInputRef}
               id="name"
               type="text"
+              label="Your Name"
               placeholder="Enter your name"
               value={formName}
-              onChange={(e) => setFormName(e.target.value)}
-              className={`w-full px-6 py-4 text-lg border border-gray-300 rounded-2xl outline-none transition-all duration-300 bg-white text-gray-600 focus:border-blue-500 focus:border-2 ${
-                formName.length > 0 ? (isNameValid ? 'border-green-500' : 'border-red-500') : ''
-              }`}
+              onChange={setFormName}
+              error={formName.length > 0 && !isNameValid ? 
+                (formName.length < 2 ? 'Name must be at least 2 characters' : 'Name must be 20 characters or less') 
+                : undefined
+              }
               maxLength={20}
               required
+              className="px-6 py-4 text-lg rounded-2xl"
             />
-            {formName.length > 0 && !isNameValid && (
-              <motion.div 
-                className="mt-2"
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                transition={{ duration: 0.3 }}
-              >
-                {formName.length < 2 ? (
-                  <span className="text-red-500 text-sm">Name must be at least 2 characters</span>
-                ) : (
-                  <span className="text-red-500 text-sm">Name must be 20 characters or less</span>
-                )}
-              </motion.div>
-            )}
           </motion.div>
 
           <motion.div 
@@ -116,31 +110,35 @@ export const Lobby: React.FC = () => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.4, duration: 0.4, ease: "easeOut" }}
           >
-            <label htmlFor="room" className="block mb-2 font-medium text-gray-600 text-sm">Room Name</label>
-            <input
+            <Input
               ref={roomInputRef}
               id="room"
               type="text"
+              label="Room Name"
               placeholder="Leave empty to create a new room"
               value={formRoomId || ''}
-              onChange={(e) => setFormRoomId(e.target.value)}
-              className="w-full px-6 py-4 text-lg border border-gray-300 rounded-2xl outline-none transition-all duration-300 bg-white text-gray-600 focus:border-blue-500 focus:border-2"
+              onChange={setFormRoomId}
+              className="px-6 py-4 text-lg rounded-2xl"
             />
           </motion.div>
 
-          <motion.button
-            type="submit"
-            disabled={!isNameValid}
-            className="px-8 py-4 bg-blue-500 text-white font-semibold rounded-2xl text-lg transition-all duration-300 hover:bg-blue-600 hover:scale-105 active:scale-95 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:hover:scale-100"
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6, duration: 0.4, ease: "easeOut" }}
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
           >
-            {(formRoomId && formRoomId.trim()) ? 'Join Room' : 'Create Room'}
-          </motion.button>
+            <Button
+              type="submit"
+              disabled={!isNameValid}
+              variant="primary"
+              size="lg"
+              fullWidth
+              className="px-8 py-4 rounded-2xl text-lg"
+            >
+              {(formRoomId && formRoomId.trim()) ? 'Join Room' : 'Create Room'}
+            </Button>
+          </motion.div>
       </motion.form>
-    </div>
+    </Card>
   );
 };
