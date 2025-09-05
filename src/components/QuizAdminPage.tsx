@@ -36,7 +36,7 @@ export const QuizAdminPage: React.FC = () => {
   };
 
   return (
-    <PageLayout maxWidth="lg" center>
+    <PageLayout maxWidth="full" center>
       <Card 
         className="content-page admin-page"
         padding="lg"
@@ -76,7 +76,7 @@ export const QuizAdminPage: React.FC = () => {
                   onClick={handleGenerateQuestions}
                   disabled={isGenerating || !topics.length}
                   variant="primary"
-                  size="lg"
+                  size="md"
                   loading={isGenerating}
                   icon={!isGenerating ? <Wand2 size={16} /> : undefined}
                 >

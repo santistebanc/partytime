@@ -29,7 +29,7 @@ export const Room: React.FC = () => {
   return (
     <AppLayout background="white" minHeight="screen" className="flex flex-col">
       {/* Floating Menu Toggle Button - Always Visible */}
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-4 left-4 z-[60]">
         <IconButton
           ref={toggleButtonRef}
           icon={
@@ -40,14 +40,15 @@ export const Room: React.FC = () => {
             </svg>
           }
           onClick={() => handleMenuPanelToggle(!showMenuPanel)}
-          variant={showMenuPanel ? 'primary' : 'ghost'}
+          variant="ghost"
           size="md"
           title={showMenuPanel ? 'Hide Menu' : 'Show Menu'}
-          className="shadow-soft hover:-translate-y-0.5"
+          className="shadow-lg hover:-translate-y-0.5 bg-white border border-gray-300 hover:shadow-xl"
         />
       </div>
 
-      <div className="flex flex-1 min-h-screen">
+      <div className="flex flex-1 min-h-screen relative">
+        {/* Menu Panel - Fixed positioned but takes space on large screens */}
         <MenuPanel
           showMenuPanel={showMenuPanel}
           onRef={(ref) => {
@@ -59,8 +60,13 @@ export const Room: React.FC = () => {
           toggleButtonRef={toggleButtonRef}
         />
 
+        {/* Content Area - Responsive width with smooth transitions */}
         <ContentLayout 
-          className="flex-1 overflow-y-auto backdrop-blur-soft min-h-screen flex flex-col"
+          className={`flex-1 overflow-y-auto backdrop-blur-soft min-h-screen flex flex-col transition-all duration-200 ease-in-out ${
+            showMenuPanel 
+              ? 'w-full lg:w-auto lg:flex-1' 
+              : 'w-full'
+          }`}
           padding="md"
           maxWidth="full"
           center={false}

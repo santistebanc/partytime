@@ -27,26 +27,44 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
     navigateToLobby();
   };
   return (
-    <motion.div 
-      ref={onRef}
-      className={`sticky top-0 left-0 h-screen w-64 bg-white border-r border-gray-200 transition-all duration-300 ease-in-out overflow-hidden pt-16 px-4 pb-5 ${
-        showMenuPanel ? 'translate-x-0 opacity-100' : '-translate-x-full opacity-0 w-0'
-      }`}
-      initial={false}
-      animate={{
-        width: showMenuPanel ? 256 : 0,
-        opacity: showMenuPanel ? 1 : 0,
-        x: showMenuPanel ? 0 : -100
-      }}
-      transition={{ duration: 0.2, ease: "easeInOut" }}
-    >
+    <>
+      {/* Mobile Overlay Background */}
+      {showMenuPanel && (
+        <motion.div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.2 }}
+          onClick={() => onMenuToggle(false)}
+        />
+      )}
+      
+      {/* Menu Panel */}
+      <motion.div 
+        ref={onRef}
+        className={`h-screen bg-white border-r border-gray-200 overflow-hidden pt-16 px-4 pb-5 fixed lg:sticky top-0 left-0 z-50 lg:z-auto`}
+        initial={false}
+        animate={{
+          x: showMenuPanel ? 0 : -256,
+          opacity: showMenuPanel ? 1 : 0,
+          width: showMenuPanel ? 256 : 0,
+        }}
+        transition={{ duration: 0.2, ease: "easeInOut" }}
+      >
       {/* Room Name */}
       <h2 className="text-2xl font-semibold text-gray-600 mb-5 text-center">{roomId}</h2>
 
         {/* Navigation Buttons */}
         <div className="flex flex-col gap-3 mb-6 pb-5">
           <Button
-            onClick={() => onPageChange('game')}
+            onClick={() => {
+              onPageChange('game');
+              // Close menu on mobile after navigation
+              if (window.innerWidth <= 768) {
+                onMenuToggle(false);
+              }
+            }}
             variant={currentPage === 'game' ? 'primary' : 'ghost'}
             size="md"
             fullWidth
@@ -58,7 +76,13 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
           </Button>
           
           <Button
-            onClick={() => onPageChange('settings')}
+            onClick={() => {
+              onPageChange('settings');
+              // Close menu on mobile after navigation
+              if (window.innerWidth <= 768) {
+                onMenuToggle(false);
+              }
+            }}
             variant={currentPage === 'settings' ? 'primary' : 'ghost'}
             size="md"
             fullWidth
@@ -71,7 +95,13 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
           
           {isAdmin && (
             <Button
-              onClick={() => onPageChange('admin')}
+              onClick={() => {
+                onPageChange('admin');
+                // Close menu on mobile after navigation
+                if (window.innerWidth <= 768) {
+                  onMenuToggle(false);
+                }
+              }}
               variant={currentPage === 'admin' ? 'primary' : 'ghost'}
               size="md"
               fullWidth
@@ -138,6 +168,7 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
           </ul>
         )}
         </div>
-    </motion.div>
+      </motion.div>
+    </>
   );
 };

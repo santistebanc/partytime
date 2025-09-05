@@ -9,19 +9,17 @@ const AppContent: React.FC = () => {
   const { roomId, userName } = useApp();
 
   return (
-    <AppLayout background="white" minHeight="screen">
-      <AnimatePresence mode="wait">
-        {roomId && userName ? (
-          <PageTransition currentPage="room">
-            <Room />
-          </PageTransition>
-        ) : (
-          <PageTransition currentPage="lobby">
-            <Lobby />
-          </PageTransition>
-        )}
-      </AnimatePresence>
-    </AppLayout>
+    <AnimatePresence mode="wait">
+      {roomId && userName ? (
+        <PageTransition currentPage="room">
+          <Room />
+        </PageTransition>
+      ) : (
+        <PageTransition currentPage="lobby">
+          <Lobby />
+        </PageTransition>
+      )}
+    </AnimatePresence>
   );
 };
 

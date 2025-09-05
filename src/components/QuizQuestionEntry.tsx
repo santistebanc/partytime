@@ -26,14 +26,14 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
       <div>
-        <div className="flex justify-between items-start mb-3">
-          <div className="flex-1 mr-4">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3">
+          <div className="flex-1">
             <h4 className={`text-lg font-medium text-gray-800 ${!isRevealed ? "blur-sm" : ""}`}>
               {question.question}
             </h4>
           </div>
 
-          <div className="flex flex-col items-end gap-2">
+          <div className="flex flex-wrap items-center gap-2 lg:gap-3">
             <div className="flex gap-2">
               <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">{question.topic}</span>
               <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">{question.points} points</span>

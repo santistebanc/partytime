@@ -26,7 +26,7 @@ export const SnapQuizLogo: React.FC<SnapQuizLogoProps> = ({
   }
 
   return (
-    <div className={`snapquiz-logo ${className}`}>
+    <div className={`snapquiz-logo ${className}`} style={{ maxWidth: '100%' }}>
       <img
         src="./logo.png"
         alt="SnapQuiz"
@@ -34,6 +34,8 @@ export const SnapQuizLogo: React.FC<SnapQuizLogoProps> = ({
         style={{
           height: size,
           width: "auto",
+          maxWidth: "100%",
+          objectFit: "contain",
         }}
         onError={handleImageError}
       />

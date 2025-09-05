@@ -1,4 +1,5 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import type { DropResult } from "@hello-pangea/dnd";
@@ -8,6 +9,43 @@ import { useApp } from "../contexts/AppContext";
 export const QuestionManager: React.FC = () => {
   const { questions, reorderQuestions, deleteQuestion, updateRevealState, revealedQuestions } =
     useApp();
+  
+  const scrollContainerRef = useRef<HTMLElement | null>(null);
+
+  // Find the scroll container (the element with overflow-y-auto)
+  useEffect(() => {
+    const findScrollContainer = () => {
+      let element = document.querySelector('.overflow-y-auto');
+      if (element) {
+        scrollContainerRef.current = element as HTMLElement;
+      }
+    };
+    
+    findScrollContainer();
+  }, []);
+
+  // DraggableItem component that uses portal for drag preview
+  const DraggableItem = ({ provided, snapshot, children }: any) => {
+    const portal = document.getElementById('draggable-portal');
+
+    const child = (
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        {...provided.dragHandleProps}
+        style={provided.draggableProps.style}
+        className={snapshot.isDragging ? "dragging" : ""}
+      >
+        {children}
+      </div>
+    );
+
+    if (snapshot.isDragging && portal) {
+      return createPortal(child, portal);
+    }
+
+    return child;
+  };
 
   const handleDragEnd = useCallback(
     (result: DropResult) => {
@@ -53,7 +91,18 @@ export const QuestionManager: React.FC = () => {
         Questions ({questions.length})
       </motion.h3>
 
-      <DragDropContext onDragEnd={handleDragEnd}>
+      <DragDropContext 
+        onDragEnd={handleDragEnd}
+        onBeforeDragStart={(start) => {
+          // Find the scroll container and ensure it's properly configured
+          const scrollContainer = document.querySelector('.overflow-y-auto') as HTMLElement;
+          if (scrollContainer) {
+            scrollContainerRef.current = scrollContainer;
+            // The library should handle scroll offset automatically
+            // but we ensure the container is properly detected
+          }
+        }}
+      >
         <Droppable droppableId="questions">
           {(provided) => (
             <div
@@ -68,19 +117,14 @@ export const QuestionManager: React.FC = () => {
                   index={index}
                 >
                   {(provided, snapshot) => (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.draggableProps}
-                      {...provided.dragHandleProps}
-                      className={snapshot.isDragging ? "dragging" : ""}
-                    >
-                                              <QuizQuestionEntry
-                          question={question}
-                          onDelete={handleDeleteQuestion}
-                          isRevealed={revealedQuestions[question.id] || false}
-                          onRevealToggle={handleRevealToggle}
-                        />
-                    </div>
+                    <DraggableItem provided={provided} snapshot={snapshot}>
+                      <QuizQuestionEntry
+                        question={question}
+                        onDelete={handleDeleteQuestion}
+                        isRevealed={revealedQuestions[question.id] || false}
+                        onRevealToggle={handleRevealToggle}
+                      />
+                    </DraggableItem>
                   )}
                 </Draggable>
               ))}

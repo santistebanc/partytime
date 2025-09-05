@@ -93,6 +93,19 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const [roomId, setRoomId] = useState(urlRoomId);
   const [userName, setUserName] = useState(urlUserName);
 
+  // Save roomId and userName to localStorage when they change
+  useEffect(() => {
+    if (roomId) {
+      setStored("snapquiz-roomname", roomId);
+    }
+  }, [roomId]);
+
+  useEffect(() => {
+    if (userName) {
+      setStored("snapquiz-username", userName);
+    }
+  }, [userName]);
+
   // Connection state
   const [isConnected, setIsConnected] = useState(false);
   const socketRef = useRef<PartySocket | null>(null);
@@ -170,8 +183,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       setRoomId(newRoomId);
       setUserName(newUserName);
       updateURL(newRoomId, newUserName);
-      setStored("snapquiz_last_user_name", newUserName);
-      setStored("snapquiz_last_room_id", newRoomId);
+      // Save to localStorage with consistent keys
+      setStored("snapquiz-username", newUserName);
+      setStored("snapquiz-roomname", newRoomId);
     },
     [updateURL]
   );

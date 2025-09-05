@@ -13,6 +13,7 @@ export interface InputProps {
   id?: string;
   name?: string;
   autoComplete?: string;
+  autoFocus?: boolean;
   maxLength?: number;
   minLength?: number;
 }
@@ -30,6 +31,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
   id,
   name,
   autoComplete,
+  autoFocus = false,
   maxLength,
   minLength,
 }, ref) => {
@@ -63,6 +65,7 @@ export const Input = forwardRef<HTMLInputElement, InputProps>(({
         disabled={disabled}
         required={required}
         autoComplete={autoComplete}
+        autoFocus={autoFocus}
         maxLength={maxLength}
         minLength={minLength}
         className={inputClasses}
