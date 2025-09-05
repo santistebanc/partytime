@@ -1,4 +1,4 @@
-import React, { useCallback, useRef, useEffect } from "react";
+import React, { useCallback, useRef, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { motion } from "framer-motion";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
@@ -93,7 +93,7 @@ export const QuestionManager: React.FC = () => {
 
       <DragDropContext 
         onDragEnd={handleDragEnd}
-        onBeforeDragStart={(start) => {
+        onBeforeCapture={(initial) => {
           // Find the scroll container and ensure it's properly configured
           const scrollContainer = document.querySelector('.overflow-y-auto') as HTMLElement;
           if (scrollContainer) {

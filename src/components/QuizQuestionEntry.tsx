@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import { Trash2, Save, X, ChevronDown, Eye } from "lucide-react";
 import type { QuizQuestion } from "../types";
@@ -16,15 +16,32 @@ export const QuizQuestionEntry: React.FC<QuizQuestionEntryProps> = ({
   isRevealed,
   onRevealToggle,
 }) => {
-  const [showOptions, setShowOptions] = useState(false);
+  // Use localStorage to persist the expanded state per question
+  const storageKey = `question-options-${question.id}`;
+  const [showOptions, setShowOptions] = useState(() => {
+    try {
+      return localStorage.getItem(storageKey) === 'true';
+    } catch {
+      return false;
+    }
+  });
 
   // Handle reveal toggle through parent component
   const handleRevealToggle = (revealed: boolean) => {
     onRevealToggle(question.id, revealed);
   };
 
+  // Save to localStorage when state changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(storageKey, showOptions.toString());
+    } catch {
+      // Ignore localStorage errors
+    }
+  }, [showOptions, storageKey]);
+
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4 mb-4 shadow-sm">
+    <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm">
       <div>
         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mb-3">
           <div className="flex-1">

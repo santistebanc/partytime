@@ -67,7 +67,7 @@ export const Room: React.FC = () => {
               ? 'w-full lg:w-auto lg:flex-1' 
               : 'w-full'
           }`}
-          padding="md"
+          padding="none"
           maxWidth="full"
           center={false}
         >

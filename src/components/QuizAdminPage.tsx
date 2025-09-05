@@ -36,7 +36,7 @@ export const QuizAdminPage: React.FC = () => {
   };
 
   return (
-    <PageLayout maxWidth="full" center>
+    <PageLayout maxWidth="_5xl" center>
       <Card 
         className="content-page admin-page"
         padding="lg"

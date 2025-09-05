@@ -5,7 +5,7 @@ export interface PageLayoutProps {
   children: React.ReactNode;
   className?: string;
   padding?: 'none' | 'sm' | 'md' | 'lg';
-  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | 'full';
+  maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '_2xl' | '_3xl' | '_4xl' | '_5xl' | '_6xl' | '_7xl' | 'full';
   center?: boolean;
   animate?: boolean;
   key?: string;
@@ -32,6 +32,12 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
     md: 'max-w-md',
     lg: 'max-w-lg',
     xl: 'max-w-xl',
+    _2xl: 'max-w-2xl',
+    _3xl: 'max-w-3xl',
+    _4xl: 'max-w-4xl',
+    _5xl: 'max-w-5xl',
+    _6xl: 'max-w-6xl',
+    _7xl: 'max-w-7xl',
     full: 'max-w-full',
   };
   

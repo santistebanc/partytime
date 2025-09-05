@@ -43,19 +43,19 @@
   
   .snapquiz-text-logo .logo-quiz {
     @apply text-snapquiz-yellow font-bold text-4xl;
-  }
-  
-  .snapquiz-logo {
+}
+
+.snapquiz-logo {
     @apply flex items-center justify-center;
     min-width: 0; /* Allow shrinking */
-  }
-  
-  .snapquiz-logo .logo-image {
+}
+
+.snapquiz-logo .logo-image {
     @apply block;
-    height: auto;
+  height: auto;
     max-width: 100%;
-    object-fit: contain;
-  }
+  object-fit: contain;
+}
 }
 
 /* Custom utilities */
