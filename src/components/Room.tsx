@@ -57,7 +57,6 @@ export const Room: React.FC = () => {
           currentPage={currentPage}
           onPageChange={setCurrentPage}
           onMenuToggle={handleMenuPanelToggle}
-          toggleButtonRef={toggleButtonRef}
         />
 
         {/* Content Area - Responsive width with smooth transitions */}

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Edit3, Save, X } from 'lucide-react';
 import { useApp } from '../contexts/AppContext';

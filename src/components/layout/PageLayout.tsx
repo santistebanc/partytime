@@ -1,5 +1,5 @@
 import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
 export interface PageLayoutProps {
   children: React.ReactNode;
@@ -8,7 +8,6 @@ export interface PageLayoutProps {
   maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '_2xl' | '_3xl' | '_4xl' | '_5xl' | '_6xl' | '_7xl' | 'full';
   center?: boolean;
   animate?: boolean;
-  key?: string;
 }
 
 export const PageLayout: React.FC<PageLayoutProps> = ({
@@ -18,7 +17,6 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   maxWidth = 'lg',
   center = false,
   animate = true,
-  key,
 }) => {
   const paddingClasses = {
     none: '',
@@ -48,7 +46,6 @@ export const PageLayout: React.FC<PageLayoutProps> = ({
   if (animate) {
     return (
       <motion.div
-        key={key}
         className={classes}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

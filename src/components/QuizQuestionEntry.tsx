@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 import { Trash2, Save, X, ChevronDown, Eye } from "lucide-react";
 import type { QuizQuestion } from "../types";
