@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 import { SnapQuizLogo } from './SnapQuizLogo';
 import { QRCodeSection } from './QRCodeSection';
 import { PageLayout, FadeIn, ScaleIn } from './layout';
+import { useApp } from '../contexts/AppContext';
 
-interface GamePageProps {
-  roomId: string;
-}
-
-export const GamePage: React.FC<GamePageProps> = ({
-  roomId
-}) => {
+export const GamePage: React.FC = () => {
+  const { roomId } = useApp();
+  
+  // Ensure roomId is a string
+  const roomIdStr = roomId || '';
+  
   return (
     <PageLayout 
       className="text-center flex flex-col justify-center items-center flex-1 min-h-full"
@@ -25,7 +25,7 @@ export const GamePage: React.FC<GamePageProps> = ({
       </ScaleIn>
       
       <FadeIn direction="up" delay={0.3}>
-        <QRCodeSection roomId={roomId} />
+        <QRCodeSection roomId={roomIdStr} />
       </FadeIn>
     </PageLayout>
   );

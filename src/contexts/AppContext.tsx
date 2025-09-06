@@ -51,6 +51,7 @@ interface AppContextType {
   currentRespondent: string;
   captions: string;
   currentUserId: string;
+  currentUser: User | null;
   isPlayer: boolean;
   isNarrator: boolean;
   isAdmin: boolean;
@@ -524,6 +525,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
       optimisticState.currentRespondent || gameState.currentRespondent,
     captions: optimisticState.captions || gameState.captions,
     currentUserId,
+    currentUser: (optimisticState.users || gameState.users).find(
+      (u) => u.id === currentUserId
+    ) || null,
     isPlayer:
       (optimisticState.users || gameState.users).find(
         (u) => u.id === currentUserId

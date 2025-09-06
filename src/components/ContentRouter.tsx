@@ -13,18 +13,13 @@ interface ContentRouterProps {
 export const ContentRouter: React.FC<ContentRouterProps> = ({
   currentPage
 }) => {
-  const { roomId, userName, isPlayer, isNarrator, isAdmin } = useApp();
+  const { isAdmin } = useApp();
   
-  // Ensure roomId and userName are strings (they should be since we're in Room component)
-  const roomIdStr = roomId || '';
-  const userNameStr = userName || '';
   const renderContent = () => {
     switch (currentPage) {
       case 'game':
         return (
-          <GamePage 
-            roomId={roomIdStr}
-          />
+          <GamePage />
         );
       
       case 'settings':
