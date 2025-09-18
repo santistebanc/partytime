@@ -98,7 +98,7 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
                   transition={{ delay: index * 0.05, duration: 0.15 }}
                 >
                   <UserIcon size={16} className="user-avatar" />
-                  <span className="user-name">{user.name}</span>
+                  <span className="user-name">{user.name?.toUpperCase()}</span>
                   <div className="user-toggles">
                     {user.isPlayer && (
                       <div className="toggle-icon player-icon" title="Player">

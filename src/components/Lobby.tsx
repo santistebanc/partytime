@@ -11,14 +11,22 @@ export const Lobby: React.FC = () => {
 
   // Form state with priority: URL params → localStorage → empty
   const [formName, setFormName] = useState(() => {
-    return userName ?? localStorage.getItem("snapquiz-username") ?? "";
+    return (userName ?? localStorage.getItem("snapquiz-username") ?? "").toUpperCase();
   });
 
   const [formRoomId, setFormRoomId] = useState(() => {
-    return roomId ?? localStorage.getItem("snapquiz-roomname") ?? "";
+    return (roomId ?? localStorage.getItem("snapquiz-roomname") ?? "").toUpperCase();
   });
 
   const isNameValid = formName.length >= 2 && formName.length <= 20;
+
+  const handleNameChange = (value: string) => {
+    setFormName(value.toUpperCase());
+  };
+
+  const handleRoomIdChange = (value: string) => {
+    setFormRoomId(value.toUpperCase());
+  };
 
   const handleJoinRoom = (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,7 +69,7 @@ export const Lobby: React.FC = () => {
                   label="Your Name"
                   placeholder="Enter your name"
                   value={formName}
-                  onChange={setFormName}
+                  onChange={handleNameChange}
                   error={
                     formName.length > 0 && !isNameValid
                       ? formName.length < 2
@@ -83,7 +91,7 @@ export const Lobby: React.FC = () => {
                   label="Room Name"
                   placeholder="Leave empty to create a new room"
                   value={formRoomId}
-                  onChange={setFormRoomId}
+                  onChange={handleRoomIdChange}
                   className="px-6 py-4 text-lg rounded-2xl"
                 />
               </div>

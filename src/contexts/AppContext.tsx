@@ -39,6 +39,9 @@ interface AppContextType {
   // Connection
   isConnected: boolean;
 
+  // Loading states
+  isGeneratingQuestions: boolean;
+
   // Game State
   gameState: GameState;
   users: User[];
@@ -123,6 +126,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
     currentRespondent: "",
     captions: "",
   });
+
+  // Loading states
+  const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
 
   // User state
   const [currentUserId, setCurrentUserId] = useState<string>("");
@@ -259,6 +265,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
           // Clear optimistic updates when server state updates
           setOptimisticState({});
 
+          // Clear loading states when we receive a state update
+          setIsGeneratingQuestions(false);
+
           // User toggles are now computed from gameState
         }
       } catch (error) {
@@ -302,6 +311,11 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   const handleNameChange = useCallback(
     (newName: string) => {
       if (currentUserId && userName) {
+        // Update local state and localStorage
+        setUserName(newName);
+        setStored("snapquiz-username", newName);
+        
+        // Send message to server
         sendMessage("changeName", {
           oldName: userName,
           newName,
@@ -439,6 +453,8 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
   const generateQuestions = useCallback(
     (topics: string[], count: number) => {
+      // Set loading state
+      setIsGeneratingQuestions(true);
       // For AI generation, we don't know the exact questions yet, so we'll let the server handle it
       sendMessage("generateQuestions", { topics, count });
     },
@@ -510,6 +526,9 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
 
     // Connection
     isConnected,
+
+    // Loading states
+    isGeneratingQuestions,
 
     // Game State (using optimistic state when available)
     gameState,

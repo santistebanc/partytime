@@ -18,18 +18,22 @@ export const SettingsPage: React.FC = () => {
   } = useApp();
   
   const userName = currentUser?.name || '';
-  const [editingName, setEditingName] = useState(userName);
+  const [editingName, setEditingName] = useState(userName.toUpperCase());
   const [isEditingName, setIsEditingName] = useState(false);
 
+  const handleNameInputChange = (value: string) => {
+    setEditingName(value.toUpperCase());
+  };
+
   const handleNameSave = () => {
-    if (editingName.trim() && editingName !== userName) {
+    if (editingName.trim() && editingName !== userName.toUpperCase()) {
       handleNameChange(editingName.trim());
     }
     setIsEditingName(false);
   };
 
   const handleNameCancel = () => {
-    setEditingName(userName);
+    setEditingName(userName.toUpperCase());
     setIsEditingName(false);
   };
 
@@ -53,7 +57,7 @@ export const SettingsPage: React.FC = () => {
                   type="text"
                   id="userName"
                   value={editingName}
-                  onChange={setEditingName}
+                  onChange={handleNameInputChange}
                   className="flex-1"
                   maxLength={20}
                 />
@@ -76,7 +80,7 @@ export const SettingsPage: React.FC = () => {
               </div>
             ) : (
               <div className="flex items-center gap-2 flex-1">
-                <span className="flex-1 text-gray-700">{userName}</span>
+                <span className="flex-1 text-gray-700">{userName.toUpperCase()}</span>
                 <Button 
                   onClick={() => {
                     setIsEditingName(true);

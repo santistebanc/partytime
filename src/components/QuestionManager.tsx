@@ -87,6 +87,7 @@ export const QuestionManager: React.FC = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.1, duration: 0.2 }}
+        className="mb-4"
       >
         Questions ({questions.length})
       </motion.h3>

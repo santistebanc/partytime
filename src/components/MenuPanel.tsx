@@ -59,7 +59,7 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
       >
         {/* Room Name */}
         <h2 className="text-2xl font-semibold text-gray-600 mb-5 text-center">
-          {roomId}
+          {roomId?.toUpperCase()}
         </h2>
 
         {/* Navigation Buttons */}
@@ -157,7 +157,7 @@ export const MenuPanel: React.FC<MenuPanelProps> = ({
                       className="text-gray-600 flex-shrink-0"
                     />
                     <span className="font-medium text-gray-600 flex-1">
-                      {user.name}
+                      {user.name?.toUpperCase()}
                     </span>
                     <div className="flex gap-1">
                       {user.isPlayer && (

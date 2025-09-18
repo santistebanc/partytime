@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Wand2, AlertCircle } from "lucide-react";
+import { Wand2, AlertCircle, Shuffle } from "lucide-react";
 import type { QuizQuestion } from "../types";
 import { QuestionManager } from "./QuestionManager";
 import { TopicManager } from "./TopicManager";
@@ -9,11 +9,10 @@ import { Button, Card, LoadingSpinner } from "./ui";
 import { PageLayout, StaggeredList, FadeIn } from "./layout";
 
 export const QuizAdminPage: React.FC = () => {
-  const { topics, generateQuestions } = useApp();
+  const { topics, questions, generateQuestions, reorderQuestions, isGeneratingQuestions } = useApp();
 
   // Questions are now managed directly from props, no local state needed
 
-  const [isGenerating, setIsGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const handleGenerateQuestions = async () => {
@@ -22,7 +21,6 @@ export const QuizAdminPage: React.FC = () => {
       return;
     }
 
-    setIsGenerating(true);
     setError(null);
 
     try {
@@ -30,8 +28,27 @@ export const QuizAdminPage: React.FC = () => {
     } catch (err) {
       setError("Failed to generate questions. Please try again.");
       console.error("Error generating questions:", err);
-    } finally {
-      setIsGenerating(false);
+    }
+  };
+
+  const handleShuffleQuestions = () => {
+    if (!questions.length) {
+      setError("No questions to shuffle. Please generate some questions first.");
+      return;
+    }
+
+    setError(null);
+
+    try {
+      // Create a shuffled array of question IDs
+      const shuffledIds = [...questions]
+        .map(question => question.id)
+        .sort(() => Math.random() - 0.5);
+      
+      reorderQuestions(shuffledIds);
+    } catch (err) {
+      setError("Failed to shuffle questions. Please try again.");
+      console.error("Error shuffling questions:", err);
     }
   };
 
@@ -71,16 +88,26 @@ export const QuizAdminPage: React.FC = () => {
                 <TopicManager />
               </div>
 
-              <div className="flex justify-center">
+              <div className="flex justify-start gap-3">
                 <Button
                   onClick={handleGenerateQuestions}
-                  disabled={isGenerating || !topics.length}
+                  disabled={isGeneratingQuestions || !topics.length}
                   variant="primary"
                   size="md"
-                  loading={isGenerating}
-                  icon={!isGenerating ? <Wand2 size={16} /> : undefined}
+                  loading={isGeneratingQuestions}
+                  icon={!isGeneratingQuestions ? <Wand2 size={16} /> : undefined}
                 >
-                  {isGenerating ? 'Generating...' : 'Generate Questions'}
+                  {isGeneratingQuestions ? 'Generating...' : 'Generate Questions'}
+                </Button>
+                
+                <Button
+                  onClick={handleShuffleQuestions}
+                  disabled={!questions.length}
+                  variant="secondary"
+                  size="md"
+                  icon={<Shuffle size={16} />}
+                >
+                  Shuffle Questions
                 </Button>
               </div>
             </div>

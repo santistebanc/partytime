@@ -55,7 +55,7 @@ export const RoomHeader: React.FC<RoomHeaderProps> = ({
 
         {/* Room Title */}
         <div className="room-title">
-          <h1>{roomId}</h1>
+          <h1>{roomId?.toUpperCase()}</h1>
         </div>
       </div>
     </motion.header>
